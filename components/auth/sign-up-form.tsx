@@ -2,8 +2,8 @@
 
 import * as z from "zod";
 
-import { SignUpSchema } from "@/_lib/definitions";
 import { signUp } from "@/app/(auth)/sign-up/actions";
+import { SignUpSchema } from "@/lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useState, useTransition } from "react";

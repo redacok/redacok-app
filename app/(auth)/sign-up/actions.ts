@@ -1,6 +1,6 @@
 "use server";
 
-import { SignUpSchema } from "@/_lib/definitions";
+import { SignUpSchema } from "@/lib/definitions";
 import * as z from "zod";
 
 export async function signUp(formData: z.infer<typeof SignUpSchema>) {
