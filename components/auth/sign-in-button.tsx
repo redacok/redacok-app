@@ -8,7 +8,7 @@ interface LoginButtonProps {
   asChild?: boolean;
 }
 
-export const SignInButton = ({ children, mode, asChild }: LoginButtonProps) => {
+export const SignInButton = ({ children, mode }: LoginButtonProps) => {
   const router = useRouter();
 
   const onClick = () => {
