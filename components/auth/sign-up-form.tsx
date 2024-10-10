@@ -2,8 +2,8 @@
 
 import * as z from "zod";
 
-import { SignInSchema } from "@/_lib/definitions";
-import { signIn } from "@/app/(auth)/sign-in/actions";
+import { SignUpSchema } from "@/_lib/definitions";
+import { signUp } from "@/app/(auth)/sign-up/actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
 import { useState, useTransition } from "react";
@@ -22,22 +22,22 @@ import {
 import { Input } from "../ui/input";
 import { CardWrapper } from "./card-wrapper";
 
-export const SignInForm = () => {
+export const SignUpForm = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof SignInSchema>>({
-    resolver: zodResolver(SignInSchema),
+  const form = useForm<z.infer<typeof SignUpSchema>>({
+    resolver: zodResolver(SignUpSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
+  const onSubmit = (formData: z.infer<typeof SignUpSchema>) => {
     startTransition(() => {
-      signIn(formData).then((data) => {
+      signUp(formData).then((data) => {
         setError(data.error);
         setSuccess(data.success);
       });
@@ -46,14 +46,31 @@ export const SignInForm = () => {
 
   return (
     <CardWrapper
-      headerLabel="Ravi de vous revoir 😉"
-      BackButtonLabel="Vous n'avez pas de compte ?"
-      backButtonHref="/sign-up"
+      headerLabel="Créer mon compte 🔐"
+      BackButtonLabel="Vous avez déjà un compte ?"
+      backButtonHref="/sign-in"
       showSocial
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Votre nom</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="Ex: Landr Bella"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -94,7 +111,7 @@ export const SignInForm = () => {
           <FormSuccess message={success} />
           <Button type="submit" className="w-full gap-x-2" disabled={isPending}>
             {isPending && <LoaderCircle className="size-5 animate-spin" />}
-            Connexion
+            Créer mon compte
           </Button>
         </form>
       </Form>
