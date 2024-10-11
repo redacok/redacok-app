@@ -10,5 +10,13 @@ export async function signIn(formData: z.infer<typeof SignInSchema>) {
     return { error: "Les données ne sont pas valides !" };
   }
 
+  const { email, password } = formData;
+
+  const user = await db.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
   return { success: "Un code de confirmation a été envoyé par mail" };
 }
