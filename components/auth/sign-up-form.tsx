@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 
-import { signUp } from "@/app/(auth)/sign-up/actions";
+import { signUpAction } from "@/app/(auth)/sign-up/actions";
 import { SignUpSchema } from "@/lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
@@ -37,7 +37,7 @@ export const SignUpForm = () => {
 
   const onSubmit = (formData: z.infer<typeof SignUpSchema>) => {
     startTransition(() => {
-      signUp(formData).then((data) => {
+      signUpAction(formData).then((data) => {
         setError(data.error);
         setSuccess(data.success);
       });

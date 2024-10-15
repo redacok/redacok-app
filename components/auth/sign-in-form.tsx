@@ -2,10 +2,12 @@
 
 import * as z from "zod";
 
-import { signIn } from "@/app/(auth)/sign-in/actions";
+import { signInAction } from "@/app/(auth)/sign-in/actions";
 import { SignInSchema } from "@/lib/definitions";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { FormError } from "../form-error";
@@ -26,6 +28,7 @@ export const SignInForm = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
@@ -37,9 +40,10 @@ export const SignInForm = () => {
 
   const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
     startTransition(() => {
-      signIn(formData).then((data) => {
-        setError(data.error);
-        setSuccess(data.success);
+      const ref = searchParams.get("ref") || DEFAULT_LOGIN_REDIRECT;
+      signInAction(formData, ref).then((data) => {
+        setError(data?.error);
+        setSuccess(data?.success);
       });
     });
   };

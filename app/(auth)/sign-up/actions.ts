@@ -2,12 +2,16 @@
 
 import { db } from "@/lib/db";
 import { SignUpSchema } from "@/lib/definitions";
-import bcrypt from "bcrypt";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import bcrypt from "bcryptjs";
 import * as z from "zod";
 
-export async function signUp(formData: z.infer<typeof SignUpSchema>) {
+export async function signUpAction(
+  formData: z.infer<typeof SignUpSchema>,
+  redirect: string = DEFAULT_LOGIN_REDIRECT
+) {
   const validationResult = SignUpSchema.safeParse(formData);
-
+  console.log(redirect);
   if (!validationResult.success) {
     return { error: "Les données ne sont pas valides !" };
   }
