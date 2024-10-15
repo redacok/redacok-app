@@ -8,3 +8,12 @@ export async function getUserByEmail(email: string) {
   });
   return user;
 }
+
+export async function getUserById(id: string) {
+  const user = await db.user.findUnique({
+    where: {
+      id,
+    },
+  });
+  return user;
+}

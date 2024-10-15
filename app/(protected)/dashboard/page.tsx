@@ -7,12 +7,7 @@ const page = async () => {
   return (
     <div>
       {JSON.stringify(session?.user)}
-      <form
-        action={async () => {
-          "use server";
-          await signOut();
-        }}
-      >
+      <form action={logout}>
         <Button type="submit">
           <DoorOpen className="size-5 mr-3" /> Se déconnecter
         </Button>
@@ -20,5 +15,10 @@ const page = async () => {
     </div>
   );
 };
+
+async function logout() {
+  "use server";
+  await signOut();
+}
 
 export default page;
