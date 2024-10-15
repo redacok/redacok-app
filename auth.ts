@@ -1,15 +1,10 @@
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth from "next-auth";
-import Google from "next-auth/providers/google"; // Ajout de GoogleProfile
+import authConfig from "./auth.config";
+import { db } from "./lib/db";
 
-export const {
-  handlers: { GET, POST },
-  auth,
-} = NextAuth({
-  providers: [
-    Google({
-      // Ajout des options nécessaires ici
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    }),
-  ],
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(db),
+  session: { strategy: "jwt" },
+  ...authConfig,
 });
