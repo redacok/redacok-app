@@ -48,6 +48,7 @@ export const SignInForm = () => {
       signInAction(formData, ref).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
+        // TODO: Add when we add 2FA
       });
     });
   };
