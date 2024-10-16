@@ -1,7 +1,9 @@
 "use server";
 
+import { generateVerificationToken } from "@/data/tokens";
 import { db } from "@/lib/db";
 import { SignUpSchema } from "@/lib/definitions";
+import { sendVerificationEmail } from "@/lib/mail";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import bcrypt from "bcryptjs";
 import * as z from "zod";
@@ -25,7 +27,7 @@ export async function signUpAction(
     },
   });
   if (existingUser) {
-    return { error: "Cette addresse mail est déjà utilisée !" };
+    return { error: "Cette adresse mail est déjà utilisée !" };
   }
   await db.user.create({
     data: {
@@ -35,6 +37,11 @@ export async function signUpAction(
     },
   });
 
+  const verificationToken = await generateVerificationToken(email);
+  await sendVerificationEmail(
+    verificationToken.identifier,
+    verificationToken.token
+  );
   //TODO : Send verification token email
 
   return { success: "Votre compte a été crée !" };

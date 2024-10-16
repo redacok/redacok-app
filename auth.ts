@@ -19,17 +19,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/auth/error",
   },
   callbacks: {
-    // async signIn({ user }) {
-    //   if (!user || !user.id) {
-    //     return false;
-    //   }
-    //   const existingUser = await getUserById(user.id);
+    async signIn({ user }) {
+      if (!user || !user.id) {
+        return false;
+      }
+      const existingUser = await getUserById(user.id);
 
-    //   if (!existingUser || !existingUser.emailVerified) {
-    //     return false;
-    //   }
-    //   return !!existingUser;
-    // },
+      if (!existingUser || !existingUser.emailVerified) {
+        return false;
+      }
+      return !!existingUser;
+    },
 
     async session({ token, session }) {
       if (session.user && token.sub) {

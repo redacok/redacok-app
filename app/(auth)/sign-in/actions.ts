@@ -1,7 +1,10 @@
 "use server";
 
 import { signIn } from "@/auth";
+import { generateVerificationToken } from "@/data/tokens";
+import { getUserByEmail } from "@/data/user";
 import { SignInSchema } from "@/lib/definitions";
+import { sendVerificationEmail } from "@/lib/mail";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import * as z from "zod";
@@ -17,6 +20,28 @@ export async function signInAction(
   }
 
   const { email, password } = formData;
+
+  const existingUser = await getUserByEmail(email);
+
+  if (!existingUser || !existingUser.email || !existingUser.password) {
+    return { error: "Cette adresse email n'existe pas !" };
+  }
+
+  if (!existingUser.emailVerified) {
+    const verificationToken = await generateVerificationToken(
+      existingUser.email!
+    );
+
+    sendVerificationEmail(
+      verificationToken.identifier,
+      verificationToken.token
+    );
+
+    return {
+      success:
+        "Vous devez vérifier votre compte, un mail de vérification vous a été envoyé !",
+    };
+  }
 
   try {
     await signIn("credentials", { email, password, redirectTo: redirect });
