@@ -29,6 +29,10 @@ export const SignInForm = () => {
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Cette email est deja utilisée avec un autre service"
+      : "";
 
   const form = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
@@ -40,7 +44,7 @@ export const SignInForm = () => {
 
   const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
     startTransition(() => {
-      const ref = searchParams.get("ref") || DEFAULT_LOGIN_REDIRECT;
+      const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
       signInAction(formData, ref).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
@@ -94,7 +98,7 @@ export const SignInForm = () => {
               )}
             />
           </div>
-          <FormError message={error} />
+          <FormError message={error || urlError} />
           <FormSuccess message={success} />
           <Button type="submit" className="w-full gap-x-2" disabled={isPending}>
             {isPending && <LoaderCircle className="size-5 animate-spin" />}

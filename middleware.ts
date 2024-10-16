@@ -36,7 +36,7 @@ export default auth((req) => {
   }
 
   if (!isPublicRoute && !isLoggedIn) {
-    return Response.redirect(new URL(`/sign-in?ref=${req.url}`, nextUrl));
+    return Response.redirect(new URL(`/sign-in?callback=${req.url}`, nextUrl));
   }
   return undefined;
 });
