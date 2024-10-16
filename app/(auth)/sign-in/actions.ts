@@ -26,7 +26,7 @@ export async function signInAction(
         case "CredentialsSignin":
           return { error: "Vos informations ne sont pas correctes" };
         default:
-          return { error: "une erreur inatendue s'et produite" };
+          return { error: "une erreur inatendue s'est produite" };
       }
     }
 
@@ -34,4 +34,15 @@ export async function signInAction(
   }
 
   return { success: "Un code de confirmation a été envoyé par mail" };
+}
+
+export async function signInSocial(provider: "google" | "github") {
+  try {
+    await signIn(provider, { redirectTo: DEFAULT_LOGIN_REDIRECT });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { error: "Une erreur inatendue s'est produite" };
+    }
+    throw error;
+  }
 }
