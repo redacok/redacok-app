@@ -44,5 +44,8 @@ export async function signUpAction(
   );
   //TODO : Send verification token email
 
-  return { success: "Votre compte a été crée !" };
+  return {
+    success:
+      "Compte a été crée ! Un mail de vérification vous a été envoyé, veuillez consulter votre adresse email",
+  };
 }

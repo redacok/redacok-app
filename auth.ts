@@ -44,11 +44,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const existingUser = await getUserById(user.id);
 
       // Prevent sign in without email verification
-      if (!existingUser || existingUser.emailVerified) {
+      if (!existingUser || !existingUser.emailVerified) {
         return false;
       }
 
-      return !!existingUser;
+      return true;
     },
 
     async session({ token, session }) {

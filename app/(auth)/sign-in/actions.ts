@@ -51,7 +51,7 @@ export async function signInAction(
         case "CredentialsSignin":
           return { error: "Vos informations ne sont pas correctes" };
         default:
-          return { error: "une erreur inatendue s'est produite" };
+          return { error: "une erreur inatendue s'est produite !" };
       }
     }
 
