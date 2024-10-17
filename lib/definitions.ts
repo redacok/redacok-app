@@ -14,6 +14,9 @@ export const SignUpSchema = z
     email: z.string().email({
       message: "Entrez une adrese mail valide",
     }),
+    phone: z.string().min(6, {
+      message: "Le numéro de téléphone est requis",
+    }),
     password: z.string().min(8, {
       message: "Le mot de passe doit avoir au moins 8 caractères",
     }),

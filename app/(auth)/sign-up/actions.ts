@@ -42,10 +42,9 @@ export async function signUpAction(
     verificationToken.identifier,
     verificationToken.token
   );
-  //TODO : Send verification token email
 
   return {
     success:
-      "Compte a été crée ! Un mail de vérification vous a été envoyé, veuillez consulter votre adresse email",
+      "Compte crée ! Un mail de vérification vous a été envoyé, veuillez consulter votre adresse email",
   };
 }
