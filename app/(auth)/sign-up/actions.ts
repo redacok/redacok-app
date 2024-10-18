@@ -18,7 +18,7 @@ export async function signUpAction(
     return { error: "Les données ne sont pas valides !" };
   }
 
-  const { email, password, name } = formData;
+  const { email, password, name, phone } = formData;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await db.user.findUnique({
@@ -29,10 +29,21 @@ export async function signUpAction(
   if (existingUser) {
     return { error: "Cette adresse mail est déjà utilisée !" };
   }
+
+  const existingUserPhone = await db.user.findUnique({
+    where: {
+      phone,
+    },
+  });
+  if (existingUserPhone) {
+    return { error: "Ce numéro de téléphone est déjà utilisé !" };
+  }
+
   await db.user.create({
     data: {
       name,
       email,
+      phone,
       password: hashedPassword,
     },
   });
@@ -42,6 +53,7 @@ export async function signUpAction(
     verificationToken.identifier,
     verificationToken.token
   );
+  // TODO: send verification token via sms
 
   return {
     success:

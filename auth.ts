@@ -9,6 +9,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       role: string;
+      phone: string;
     } & DefaultSession["user"];
   }
 }
@@ -33,32 +34,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       // Allow OAuth without email verification
-      if (account?.provider !== "credentials") {
-        return true;
-      }
+      if (account?.provider !== "credentials") return true;
 
-      if (!user || !user.id) {
-        return false;
-      }
+      if (!user || !user.id) return false;
 
       const existingUser = await getUserById(user.id);
 
       // Prevent sign in without email verification
-      if (!existingUser || !existingUser.emailVerified) {
-        return false;
-      }
+      if (!existingUser || !existingUser.emailVerified) return false;
 
       return true;
     },
 
     async session({ token, session }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
-      }
+      if (session.user && token.sub) session.user.id = token.sub;
 
-      if (session.user && token.role) {
+      if (session.user && token.role)
         session.user.role = token.role as UserRole;
-      }
+
+      if (session.user && token.phone)
+        session.user.phone = token.phone as string;
 
       return session;
     },
@@ -71,6 +66,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+      token.phone = existingUser.phone;
 
       return token;
     },
