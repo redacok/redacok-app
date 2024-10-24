@@ -1,6 +1,7 @@
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { DoorOpen } from "lucide-react";
+import { redirect } from "next/navigation";
 
 const page = async () => {
   const session = await auth();
@@ -19,6 +20,7 @@ const page = async () => {
 async function logout() {
   "use server";
   await signOut();
+  return redirect("/");
 }
 
 export default page;

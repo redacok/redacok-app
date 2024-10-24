@@ -30,7 +30,11 @@ export const CardWrapper = ({
         </CardFooter>
       )}
       <CardFooter>
-        <BackButton href={backButtonHref} label={BackButtonLabel} />
+        <BackButton
+          className="w-full"
+          href={backButtonHref}
+          label={BackButtonLabel}
+        />
       </CardFooter>
     </Card>
   );

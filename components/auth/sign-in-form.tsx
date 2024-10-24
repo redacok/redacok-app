@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import { BackButton } from "./back-button";
 import { CardWrapper } from "./card-wrapper";
 
 export const SignInForm = () => {
@@ -58,7 +59,6 @@ export const SignInForm = () => {
       headerLabel="Ravi de vous revoir 😉"
       BackButtonLabel="Vous n'avez pas de compte ?"
       backButtonHref="/sign-up"
-      showSocial
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -95,6 +95,12 @@ export const SignInForm = () => {
                     />
                   </FormControl>
                   <FormMessage />
+                  <div className="items-start">
+                    <BackButton
+                      href="/forgot-password"
+                      label="Mot de passe oublié ?"
+                    />
+                  </div>
                 </FormItem>
               )}
             />

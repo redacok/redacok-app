@@ -20,7 +20,7 @@ export const SignInButton = ({ children, mode }: LoginButtonProps) => {
   }
 
   return (
-    <span onClick={onClick} className="cursor-pointer">
+    <span onClick={onClick} className="cursor-pointer z-50">
       {children}
     </span>
   );

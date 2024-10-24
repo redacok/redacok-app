@@ -23,6 +23,33 @@ export const SignUpSchema = z
     name: z.string().min(1, {
       message: "Le nom est requis",
     }),
+    termsAge: z
+      .boolean()
+      .refine((value) => value === true, "Voud devez avoir plus de 18 ans"),
+    termsLaw: z
+      .boolean()
+      .refine(
+        (value) => value === true,
+        "Voud devez accepter de vous conformer aux lois de votre pays"
+      ),
+    termsActions: z
+      .boolean()
+      .refine(
+        (value) => value === true,
+        "Voud devez accepter la responsabilité de vos opérations"
+      ),
+    termsViolation: z
+      .boolean()
+      .refine(
+        (value) => value === true,
+        "Voud devez accepter les conditions d'utilisation de votre compte"
+      ),
+    terms: z
+      .boolean()
+      .refine(
+        (value) => value === true,
+        "Voud devez accepter nos conditions d'utilisation"
+      ),
   })
   .superRefine(({ password }, checkPassComplexity) => {
     const containsUppercase = (ch: string) => /[A-Z]/.test(ch);
