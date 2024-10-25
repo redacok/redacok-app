@@ -31,6 +31,7 @@ export const SignInForm = () => {
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
+  const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
 
   const { setIsNumberSignin } = useNumberSignin();
 
@@ -49,7 +50,6 @@ export const SignInForm = () => {
 
   const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
     startTransition(() => {
-      const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
       signInAction(formData, ref).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);

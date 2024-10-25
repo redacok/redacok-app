@@ -34,6 +34,7 @@ export const SignInNumberForm = () => {
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const { setIsNumberSignin } = useNumberSignin();
+  const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
 
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
@@ -50,7 +51,6 @@ export const SignInNumberForm = () => {
 
   const onSubmit = (formData: z.infer<typeof SignInWithNumberSchema>) => {
     startTransition(() => {
-      const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
       signInWithNumber(formData, ref).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
