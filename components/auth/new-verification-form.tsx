@@ -3,7 +3,7 @@
 import { newVerification } from "@/app/(auth)/auth/new-verification/actions";
 import { LoaderPinwheelIcon } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { CardWrapper } from "./card-wrapper";
@@ -54,5 +54,9 @@ function VerificationForm() {
 }
 
 export const NewVErificationForm = () => {
-  return <VerificationForm />;
+  return (
+    <Suspense>
+      <VerificationForm />
+    </Suspense>
+  );
 };
