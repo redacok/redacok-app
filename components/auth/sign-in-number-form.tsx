@@ -8,7 +8,8 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import useNumberSignin from "@/store/sign-in-form-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
@@ -27,18 +28,18 @@ import { Input } from "../ui/input";
 import { BackButton } from "./back-button";
 import { CardWrapper } from "./card-wrapper";
 
-export const SignInNumberForm = () => {
+const SignInNumber = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
   const { setIsNumberSignin } = useNumberSignin();
-  // const searchParams = useSearchParams();
-  const ref = DEFAULT_LOGIN_REDIRECT;
+  const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
 
-  // const urlError =
-  //   searchParams.get("error") === "OAuthAccountNotLinked"
-  //     ? "Cet email est deja utilisé avec un autre service"
-  //     : "";
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "Cet email est deja utilisé avec un autre service"
+      : "";
 
   const form = useForm<z.infer<typeof SignInWithNumberSchema>>({
     resolver: zodResolver(SignInWithNumberSchema),
@@ -120,7 +121,7 @@ export const SignInNumberForm = () => {
               )}
             />
           </div>
-          <FormError message={error} />
+          <FormError message={error || urlError} />
           <FormSuccess message={success} />
           <Button type="submit" className="w-full gap-x-2" disabled={isPending}>
             {isPending && <LoaderCircle className="size-5 animate-spin" />}
@@ -129,5 +130,13 @@ export const SignInNumberForm = () => {
         </form>
       </Form>
     </CardWrapper>
+  );
+};
+
+export const SignInNumberForm = () => {
+  return (
+    <Suspense>
+      <SignInNumber />
+    </Suspense>
   );
 };
