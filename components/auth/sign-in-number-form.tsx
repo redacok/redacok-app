@@ -2,8 +2,8 @@
 
 import * as z from "zod";
 
-import { signInAction } from "@/app/(auth)/sign-in/actions";
-import { SignInSchema } from "@/lib/definitions";
+import { signInWithNumber } from "@/app/(auth)/sign-in/actions";
+import { SignInWithNumberSchema } from "@/lib/definitions";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import useNumberSignin from "@/store/sign-in-form-store";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,8 @@ import { LoaderCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { PhoneInput } from "react-international-phone";
+import "react-international-phone/style.css";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { Button } from "../ui/button";
@@ -26,12 +28,11 @@ import { Input } from "../ui/input";
 import { BackButton } from "./back-button";
 import { CardWrapper } from "./card-wrapper";
 
-export const SignInForm = () => {
+export const SignInNumberForm = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
-
   const { setIsNumberSignin } = useNumberSignin();
 
   const urlError =
@@ -39,18 +40,18 @@ export const SignInForm = () => {
       ? "Cet email est deja utilisé avec un autre service"
       : "";
 
-  const form = useForm<z.infer<typeof SignInSchema>>({
-    resolver: zodResolver(SignInSchema),
+  const form = useForm<z.infer<typeof SignInWithNumberSchema>>({
+    resolver: zodResolver(SignInWithNumberSchema),
     defaultValues: {
-      email: "",
+      phone: "",
       password: "",
     },
   });
 
-  const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
+  const onSubmit = (formData: z.infer<typeof SignInWithNumberSchema>) => {
     startTransition(() => {
       const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
-      signInAction(formData, ref).then((data) => {
+      signInWithNumber(formData, ref).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
         // TODO: Add when we add 2FA
@@ -67,27 +68,28 @@ export const SignInForm = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <div className="flex w-full">
+            <div className="flex w-full items-end">
               <Button
                 size={"sm"}
                 variant="link"
                 onClick={() => setIsNumberSignin()}
                 className="ml-auto"
               >
-                Utiliser mon Numéro
+                Utiliser mon email
               </Button>
             </div>
             <FormField
               control={form.control}
-              name="email"
+              name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adresse Email</FormLabel>
+                  <FormLabel>Numéro de téléphone</FormLabel>
                   <FormControl>
-                    <Input
+                    <PhoneInput
                       {...field}
-                      disabled={isPending}
-                      placeholder="Ex: john@example.com"
+                      inputClassName="flex h-9 w-full border border-input bg-transparent py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      defaultCountry={"cm"}
+                      placeholder="Ex: 6 56 01 24 71"
                     />
                   </FormControl>
                   <FormMessage />

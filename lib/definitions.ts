@@ -9,6 +9,15 @@ export const SignInSchema = z.object({
   }),
 });
 
+export const SignInWithNumberSchema = z.object({
+  phone: z.string().min(6, {
+    message: "Le numéro de téléphone est requis",
+  }),
+  password: z.string().min(1, {
+    message: "Le mot de passe est requis",
+  }),
+});
+
 export const SignUpSchema = z
   .object({
     email: z.string().email({
