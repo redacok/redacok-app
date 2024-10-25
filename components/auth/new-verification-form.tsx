@@ -8,7 +8,7 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { CardWrapper } from "./card-wrapper";
 
-export const NewVErificationForm = () => {
+function VerificationForm() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -51,4 +51,8 @@ export const NewVErificationForm = () => {
       </div>
     </CardWrapper>
   );
+}
+
+export const NewVErificationForm = () => {
+  return <VerificationForm />;
 };
