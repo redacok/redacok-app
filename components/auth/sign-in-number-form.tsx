@@ -8,7 +8,6 @@ import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import useNumberSignin from "@/store/sign-in-form-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { PhoneInput } from "react-international-phone";
@@ -32,14 +31,14 @@ export const SignInNumberForm = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
-  const searchParams = useSearchParams();
   const { setIsNumberSignin } = useNumberSignin();
-  const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
+  // const searchParams = useSearchParams();
+  const ref = DEFAULT_LOGIN_REDIRECT;
 
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Cet email est deja utilisé avec un autre service"
-      : "";
+  // const urlError =
+  //   searchParams.get("error") === "OAuthAccountNotLinked"
+  //     ? "Cet email est deja utilisé avec un autre service"
+  //     : "";
 
   const form = useForm<z.infer<typeof SignInWithNumberSchema>>({
     resolver: zodResolver(SignInWithNumberSchema),
@@ -121,7 +120,7 @@ export const SignInNumberForm = () => {
               )}
             />
           </div>
-          <FormError message={error || urlError} />
+          <FormError message={error} />
           <FormSuccess message={success} />
           <Button type="submit" className="w-full gap-x-2" disabled={isPending}>
             {isPending && <LoaderCircle className="size-5 animate-spin" />}
