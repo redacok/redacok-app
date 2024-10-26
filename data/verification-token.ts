@@ -13,11 +13,11 @@ export const getVerificationTokenByToken = async (token: string) => {
   }
 };
 
-export const getVerificationTokenByEmail = async (email: string) => {
+export const getVerificationTokenByIdentifier = async (identifier: string) => {
   try {
     const verificationToken = await db.verificationRequest.findFirst({
       where: {
-        identifier: email,
+        identifier,
       },
     });
     return verificationToken;

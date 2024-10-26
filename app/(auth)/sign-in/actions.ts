@@ -5,6 +5,7 @@ import { generateVerificationToken } from "@/data/tokens";
 import { getUserByEmail, getUserByPhone } from "@/data/user";
 import { SignInSchema, SignInWithNumberSchema } from "@/lib/definitions";
 import { sendVerificationEmail } from "@/lib/mail";
+import { sendSms } from "@/lib/sms";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import * as z from "zod";
@@ -82,18 +83,18 @@ export async function signInWithNumber(
   const email = existingUser.email;
 
   if (!existingUser.emailVerified) {
-    const verificationToken = await generateVerificationToken(email!);
+    const verificationToken = await generateVerificationToken(undefined, phone);
 
-    sendVerificationEmail(
+    sendSms(
       verificationToken.identifier,
-      verificationToken.token
+      `Bienvenu sur Redacok! Votre code de vérification est : ${verificationToken.token}`
     );
 
     // TODO : Send phone verification code
 
     return {
       success:
-        "Vous devez vérifier votre compte, un mail de vérification vous a été envoyé !",
+        "Vous devez vérifier votre compte, un code de vérification vous a été envoyé par SMS !",
     };
   }
 
