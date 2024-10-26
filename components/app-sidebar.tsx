@@ -57,7 +57,7 @@ export async function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
+          <SidebarGroupLabel className="px-2 py-6 rounded-md bg-slate-200/70">
             <h1 className="font-bold text-2xl text-slate-900">Redacok.</h1>
           </SidebarGroupLabel>
           <SidebarGroupContent className="py-3">

@@ -1,9 +1,14 @@
+import { auth } from "@/auth";
 import { SignInButton } from "@/components/auth/sign-in-button";
 import { Button } from "@/components/ui/button";
 import { SparklesCore } from "@/components/ui/sparkles";
+import { DashboardIcon } from "@radix-ui/react-icons";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
     <div className="min-h-screen relative w-full bg-black flex flex-col gap-y-24 items-center justify-center overflow-hidden rounded-md">
       <div className="w-full absolute inset-0 h-full">
@@ -30,16 +35,25 @@ export default function Home() {
           sit iusto!
         </p>
       </div>
-      <SignInButton>
-        <Button
-          size={"lg"}
-          variant="secondary"
-          className="flex gap-2 hover:cursor-pointer z-50"
-        >
-          Commencer
-          <ArrowRight />
-        </Button>
-      </SignInButton>
+      {!session?.user ? (
+        <SignInButton>
+          <Button
+            size={"lg"}
+            variant="secondary"
+            className="flex gap-2 hover:cursor-pointer z-50"
+          >
+            Commencer
+            <ArrowRight />
+          </Button>
+        </SignInButton>
+      ) : (
+        <Link href="/dashboard" className="z-50">
+          <Button variant="secondary" size="lg">
+            <DashboardIcon className="h-4 w-4 mr-1" />
+            Dashboard
+          </Button>
+        </Link>
+      )}
     </div>
   );
 }
