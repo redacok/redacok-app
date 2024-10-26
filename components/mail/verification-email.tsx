@@ -17,9 +17,7 @@ interface VerificationEmailProps {
   verificationLink?: string;
 }
 
-const baseUrl = process.env.NEXT_APP_URL
-  ? `https://${process.env.NEXT_APP_URL}`
-  : "";
+const baseUrl = process.env.NEXT_APP_URL ? process.env.NEXT_APP_URL : "";
 
 export const VerificationEmail = ({
   verificationLink,
