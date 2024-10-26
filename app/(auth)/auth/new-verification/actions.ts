@@ -20,7 +20,7 @@ export const newVerification = async (token: string) => {
   const existingUser = await getUserByEmail(existingToken.identifier);
 
   if (!existingUser) {
-    return { error: "Email Inexistante" };
+    return { error: "Compte Inexistante" };
   }
 
   await db.user.update({
@@ -39,5 +39,5 @@ export const newVerification = async (token: string) => {
     },
   });
 
-  return { success: "Votre email est vérifiée, vous pouvez cous connecter" };
+  return { success: "Votre compte est vérifié, vous pouvez vous connecter" };
 };

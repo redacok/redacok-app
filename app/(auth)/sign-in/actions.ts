@@ -24,7 +24,7 @@ export async function signInAction(
   const existingUser = await getUserByEmail(email);
 
   if (!existingUser || !existingUser.email || !existingUser.password) {
-    return { error: "Cette adresse email n'existe pas !" };
+    return { error: "Email ou mot de passe incorrect !" };
   }
 
   if (!existingUser.emailVerified) {
@@ -76,7 +76,7 @@ export async function signInWithNumber(
   const existingUser = await getUserByPhone(phone);
 
   if (!existingUser || !existingUser.phone || !existingUser.password) {
-    return { error: "Mauvais numéro ou mot de passe incorrect !" };
+    return { error: "Numéro ou mot de passe incorrect !" };
   }
 
   const email = existingUser.email;
