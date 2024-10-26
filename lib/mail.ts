@@ -8,7 +8,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${baseUrl}/auth/new-verification?token=${token}`;
 
   await resend.emails.send({
-    from: "redacok@resend.dev",
+    from: "no-reply@redacok.laclass.dev",
     to: email,
     subject: "Confirmez votre adresse email",
     react: VerificationEmail({ verificationLink: confirmLink }),
