@@ -26,39 +26,18 @@ export const SignUpSchema = z
     phone: z.string().min(6, {
       message: "Le numéro de téléphone est requis",
     }),
-    password: z.string().min(8, {
-      message: "Le mot de passe doit avoir au moins 8 caractères",
+    password: z.string().min(4, {
+      message: "Le mot de passe doit avoir au moins 4 caractères",
     }),
     name: z.string().min(1, {
       message: "Le nom est requis",
     }),
-    termsAge: z
-      .boolean()
-      .refine((value) => value === true, "Voud devez avoir plus de 18 ans"),
-    termsLaw: z
-      .boolean()
-      .refine(
-        (value) => value === true,
-        "Voud devez accepter de vous conformer aux lois de votre pays"
-      ),
-    termsActions: z
-      .boolean()
-      .refine(
-        (value) => value === true,
-        "Voud devez accepter la responsabilité de vos opérations"
-      ),
-    termsViolation: z
-      .boolean()
-      .refine(
-        (value) => value === true,
-        "Voud devez accepter les conditions d'utilisation de votre compte"
-      ),
-    terms: z
-      .boolean()
-      .refine(
-        (value) => value === true,
-        "Voud devez accepter nos conditions d'utilisation"
-      ),
+    termsAge: z.boolean().refine((value) => value === true, ""),
+    termsLaw: z.boolean().refine((value) => value === true, ""),
+    termsActions: z.boolean().refine((value) => value === true, ""),
+    termsViolation: z.boolean().refine((value) => value === true, ""),
+    terms: z.boolean().refine((value) => value === true, ""),
+    fraud: z.boolean().refine((value) => value === true, ""),
   })
   .superRefine(({ password }, checkPassComplexity) => {
     const containsUppercase = (ch: string) => /[A-Z]/.test(ch);
@@ -82,7 +61,7 @@ export const SignUpSchema = z
       upperCase: { pass: true, message: "Au moins une lettre majuscule" },
       lowerCase: { pass: true, message: "Ajouter des lettres minuscules" },
       specialCh: { pass: true, message: "Au moins un caractère spécial" },
-      totalNumber: { pass: true, message: "Minimum 8 caactères au total" },
+      totalNumber: { pass: true, message: "Minimum 4 caractères" },
     };
 
     if (countOfLowerCase < 1) {

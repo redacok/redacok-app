@@ -99,13 +99,13 @@ const SignIn = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mot de passe</FormLabel>
+                  <FormLabel>Code PIN</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       disabled={isPending}
                       type="password"
-                      placeholder="******"
+                      placeholder="****"
                     />
                   </FormControl>
                   <FormMessage />

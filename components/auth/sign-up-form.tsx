@@ -42,6 +42,7 @@ export const SignUpForm = () => {
       termsActions: false,
       termsLaw: false,
       termsViolation: false,
+      fraud: false,
     },
   });
 
@@ -120,13 +121,13 @@ export const SignUpForm = () => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mot de passe</FormLabel>
+                  <FormLabel>Code PIN (au moins 4 caractères)</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       disabled={isPending}
                       type="password"
-                      placeholder="******"
+                      placeholder="****"
                     />
                   </FormControl>
                   <FormMessage />
@@ -137,7 +138,7 @@ export const SignUpForm = () => {
               control={form.control}
               name="termsAge"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex items-center">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -155,7 +156,7 @@ export const SignUpForm = () => {
               control={form.control}
               name="termsLaw"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex items-center">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -174,7 +175,7 @@ export const SignUpForm = () => {
               control={form.control}
               name="termsActions"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex items-center">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -193,7 +194,7 @@ export const SignUpForm = () => {
               control={form.control}
               name="terms"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex items-center">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -210,9 +211,9 @@ export const SignUpForm = () => {
             />
             <FormField
               control={form.control}
-              name="termsViolation"
+              name="fraud"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex items-center">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
@@ -220,9 +221,29 @@ export const SignUpForm = () => {
                     />
                   </FormControl>
                   <FormLabel className="ml-2">
-                    en cas de violation de ces règles j&apos;accepte toutes
+                    En cas de violation de ces règles j&apos;accepte toutes
                     poursuite judiciaire à travers mes informations sur la
                     plateforme ou récupérer ailleurs.
+                  </FormLabel>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="termsViolation"
+              render={({ field }) => (
+                <FormItem className="flex items-center">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="ml-2">
+                    Je certifie qu&apos;aucune de mes activité sur ce compte
+                    n&apos;est en lien ni de près ni de loin à du blanchiment
+                    d&apos;argent
                   </FormLabel>
                   <FormMessage />
                 </FormItem>
