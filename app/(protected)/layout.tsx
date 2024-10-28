@@ -1,14 +1,21 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { auth } from "@/auth";
+import { SidebarApp } from "@/components/sidebar-app";
+import { redirect } from "next/navigation";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/sign-in?callback=/dashboard");
+  }
   return (
-    <SidebarProvider>
-      <AppSidebar />
+    <SidebarApp session={session?.user}>
       <main className="w-full flex py-3">
-        <SidebarTrigger />
         <div className="px-2 sm:px-3 w-full">{children}</div>
       </main>
-    </SidebarProvider>
+    </SidebarApp>
   );
 }
