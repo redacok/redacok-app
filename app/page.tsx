@@ -16,14 +16,14 @@ export default async function Home() {
           id="tsparticlesfullpage"
           background="transparent"
           minSize={0.6}
-          maxSize={1.4}
-          particleDensity={2}
+          maxSize={3.4}
+          particleDensity={5}
           className="w-full h-full bg-gradient-to-tr from-slate-900 via-slate-950 to-slate-950"
           particleColor="#FFFFFF"
         />
       </div>
       <div className="flex flex-col gap-10 items-center">
-        <h1 className="md:text-7xl text-3xl lg:text-6xl font-bold text-center sm:container px-6 text-white relative z-20">
+        <h1 className="md:text-7xl text-5xl font-bold text-center sm:container px-6 text-white relative z-20">
           Bienvenu sur{" "}
           <span className="bg-gradient-to-tr from-neutral-500 via-neutral-50 to-neutral-700 inline-block text-transparent bg-clip-text">
             Redacok.

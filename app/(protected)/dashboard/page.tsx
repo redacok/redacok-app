@@ -1,7 +1,5 @@
-import { auth, signOut } from "@/auth";
-import { Button } from "@/components/ui/button";
-import { DoorOpen, Wallet } from "lucide-react";
-import { FcDebt, FcMoneyTransfer } from "react-icons/fc";
+import { auth } from "@/auth";
+import { FcCurrencyExchange, FcDebt, FcMoneyTransfer } from "react-icons/fc";
 import { StatCard } from "./_components/stat-card";
 
 const page = async () => {
@@ -10,17 +8,7 @@ const page = async () => {
   return (
     <div className="flex flex-col gap-y-4 w-full">
       <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-2xl">Dashboard</h1>
-        <form
-          action={async () => {
-            "use server";
-            await signOut();
-          }}
-        >
-          <Button type="submit">
-            <DoorOpen className="size-5 mr-3" /> Se déconnecter
-          </Button>
-        </form>
+        <h1 className="font-semibold text-3xl">Dashboard</h1>
       </div>
       <h1 className="text-2xl">
         salut <span className="font-semibold">{session?.user.name}</span> !
@@ -33,25 +21,43 @@ const page = async () => {
           title="Solde"
           value={253000}
           icon={
-            <Wallet className="h-12 w-12 items-center rounded-lg p-2 text-blue-500 bg-blue-400/10" />
+            <FcCurrencyExchange className="h-12 w-12 items-center rounded-lg p-2 text-slate-700 bg-blue-400/10" />
           }
         />
         <StatCard
           title="Dépenses"
           value={433000}
           icon={
-            <FcMoneyTransfer className="h-12 w-12 items-center rounded-lg p-2 text-blue-500 bg-blue-400/10" />
+            <FcMoneyTransfer className="h-12 w-12 items-center rounded-lg p-2 bg-blue-400/10" />
           }
         />
         <StatCard
           title="Crédit"
           value={1253000}
           icon={
-            <FcDebt className="h-12 w-12 items-center rounded-lg p-2 text-blue-500 bg-blue-400/10" />
+            <FcDebt className="h-12 w-12 items-center rounded-lg p-2 bg-blue-400/10" />
           }
         />
       </div>
       {/* {JSON.stringify(session?.user)} */}
+      <div className="p-2 border rounded-md border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
+        <div className="flex gap-2 flex-1 flex-wrap md:flex-nowrap">
+          {[...new Array(4)].map((i) => (
+            <div
+              key={"first-array" + i}
+              className="w-full h-48 rounded-lg  bg-slate-300 dark:bg-neutral-800 animate-pulse"
+            />
+          ))}
+        </div>
+        <div className="flex gap-2 flex-1 h-full">
+          {[...new Array(2)].map((i) => (
+            <div
+              key={"second-array" + i}
+              className="w-full aspect-video rounded-lg  bg-slate-200 dark:bg-neutral-800 animate-pulse"
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

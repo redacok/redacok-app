@@ -1,5 +1,4 @@
 import {
-  ArrowLeftIcon,
   Settings2Icon,
   TerminalIcon,
   User2Icon,
@@ -22,11 +21,6 @@ export const AdminLinks = [
     href: "dashboard/settings",
     icon: Settings2Icon,
   },
-  {
-    label: "Logout",
-    href: "#",
-    icon: ArrowLeftIcon,
-  },
 ];
 
 export const UserLinks = [
@@ -39,10 +33,5 @@ export const UserLinks = [
     label: "Profile",
     href: "/dashboard/users",
     icon: User2Icon,
-  },
-  {
-    label: "Déconnexion",
-    href: "#",
-    icon: ArrowLeftIcon,
   },
 ];

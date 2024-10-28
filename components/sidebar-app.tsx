@@ -8,10 +8,9 @@ import { AdminLinks, UserLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
-  DoorOpen,
+  ArrowLeftIcon,
   LucideIcon,
   PanelLeftCloseIcon,
-  Settings,
   User2,
 } from "lucide-react";
 import { User } from "next-auth";
@@ -105,16 +104,16 @@ export function SidebarApp({
                 side="top"
                 className="w-[--radix-popper-anchor-width] z-50"
               >
-                <DropdownMenuItem>
+                {/* <DropdownMenuItem>
                   <User2 />
                   <span>Mon compte</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings />
                   <span>Paramètres</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={signOutUser}>
-                  <DoorOpen />
+                </DropdownMenuItem> */}
+                <DropdownMenuItem onClick={async () => signOutUser()}>
+                  <ArrowLeftIcon />
                   <span>Déconnexion</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -122,7 +121,9 @@ export function SidebarApp({
           </div>
         </SidebarBody>
       </Sidebar>
-      <div className="flex px-4 flex-1 relative">{children}</div>
+      <div className="flex px-4 flex-1 overflow-y-auto min-h-screen">
+        {children}
+      </div>
     </div>
   );
 }
@@ -151,7 +152,7 @@ export const LogoIcon = () => {
       href="/"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
     >
-      <div className="h-8 w-7 font-bold text-md flex items-center justify-center bg-black text-white dark:bg-white dark:text-black rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0">
+      <div className="h-8 w-6 font-bold text-md flex items-center justify-center bg-black text-white dark:bg-white dark:text-black rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0">
         R.
       </div>
     </Link>
