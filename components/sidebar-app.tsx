@@ -14,7 +14,7 @@ import {
   User2,
 } from "lucide-react";
 import { User } from "next-auth";
-import Link from "next/link";
+import { Logo, LogoIcon } from "./logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,7 +54,7 @@ export function SidebarApp({
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden transition-all">
             <div className="flex gap-2 items-center">
-              {open ? <Logo /> : <LogoIcon />}
+              {open ? <Logo className="w-full bg-white" /> : <LogoIcon />}
               <PanelLeftCloseIcon
                 onClick={() => setOpen(false)}
                 className="h-6 w-6 transition hidden md:block"
@@ -127,37 +127,6 @@ export function SidebarApp({
     </div>
   );
 }
-export const Logo = () => {
-  return (
-    <Link
-      href="/"
-      className="bg-white rounded-md py-3 px-1 font-normal w-full flex space-x-2 items-center text-black relative z-20"
-    >
-      <div className="h-8 w-10 font-bold text-xl flex items-center justify-center bg-black text-white dark:bg-white dark:text-black rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0">
-        R.
-      </div>
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-black dark:text-white whitespace-pre font-semibold text-xl"
-      >
-        Redacok.
-      </motion.span>
-    </Link>
-  );
-};
-export const LogoIcon = () => {
-  return (
-    <Link
-      href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-    >
-      <div className="h-8 w-6 font-bold text-md flex items-center justify-center bg-black text-white dark:bg-white dark:text-black rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0">
-        R.
-      </div>
-    </Link>
-  );
-};
 
 // Dummy dashboard component with content
 // const Dashboard = () => {
