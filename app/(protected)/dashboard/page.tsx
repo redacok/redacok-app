@@ -18,22 +18,22 @@ const page = async () => {
       </h2>
       <div className="relative flex w-full flex-wrap gap-4 md:flex-nowrap">
         <StatCard
-          title="Solde"
+          title="Solde courant"
           value={253000}
           icon={
             <FcCurrencyExchange className="h-12 w-12 items-center rounded-lg p-2 text-slate-700 bg-blue-400/10" />
           }
         />
         <StatCard
-          title="Dépenses"
+          title="Solde d'épargne"
           value={433000}
           icon={
             <FcMoneyTransfer className="h-12 w-12 items-center rounded-lg p-2 bg-blue-400/10" />
           }
         />
         <StatCard
-          title="Crédit"
-          value={1253000}
+          title="Solde Journalier"
+          value={12544}
           icon={
             <FcDebt className="h-12 w-12 items-center rounded-lg p-2 bg-blue-400/10" />
           }

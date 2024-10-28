@@ -91,7 +91,7 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-4 py-4 hidden  md:flex md:flex-col bg-slate-100 border border-r-slate-200 shadow-md dark:bg-neutral-800 w-[300px] flex-shrink-0",
+          "h-full px-2 py-4 mx-auto hidden md:flex md:flex-col bg-slate-100 border border-r-slate-200 shadow-md dark:bg-neutral-800 w-[300px] flex-shrink-0",
           className
         )}
         animate={{
@@ -177,7 +177,7 @@ export const SidebarLink = ({
         className
       )}
       {...props}
-      onClick={() => !button && setOpen(!open)}
+      onClick={() => window.innerWidth < 768 && !button && setOpen(!open)}
     >
       <link.icon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
 

@@ -14,6 +14,7 @@ import {
   User2,
 } from "lucide-react";
 import { User } from "next-auth";
+import { usePathname } from "next/navigation";
 import { Logo, LogoIcon } from "./logo";
 import {
   DropdownMenu,
@@ -35,13 +36,15 @@ export function SidebarApp({
   children: React.ReactNode;
   session: { role: string; phone: string } & User;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(window.innerWidth < 768 ? false : true);
   let links = [] as LinksProps[];
   if (session.role === "ADMIN") {
     links = AdminLinks;
   } else {
     links = UserLinks;
   }
+
+  const pathName = usePathname();
 
   return (
     <div
@@ -57,20 +60,32 @@ export function SidebarApp({
               {open ? <Logo className="w-full bg-white" /> : <LogoIcon />}
               <PanelLeftCloseIcon
                 onClick={() => setOpen(false)}
-                className="h-6 w-6 transition hidden md:block"
+                className={cn(
+                  "h-6 w-6 transition hidden md:block",
+                  !open && "md:hidden"
+                )}
               />
             </div>
             <div className="mt-8 flex flex-col gap-2">
-              {links.map((link, idx) => (
-                <SidebarLink
-                  className={cn(
-                    "hover:bg-slate-200 rounded-md py-4",
-                    open && "px-2"
-                  )}
-                  key={idx}
-                  link={link}
-                />
-              ))}
+              {links.map((link, idx) => {
+                const isActive =
+                  pathName === link.href ||
+                  (link.href !== "/dashboard" &&
+                    pathName?.startsWith(`${link.href}/`));
+                return (
+                  <SidebarLink
+                    className={cn(
+                      "hover:bg-slate-200 rounded-md py-4 items-center justify-center",
+                      isActive &&
+                        "bg-slate-200/90 rounded-md py-4 px-1 border-2 border-l-blue-600",
+                      open && "px-2 justify-start",
+                      open && isActive && "border-l-4"
+                    )}
+                    key={idx}
+                    link={link}
+                  />
+                );
+              })}
             </div>
           </div>
           <div>

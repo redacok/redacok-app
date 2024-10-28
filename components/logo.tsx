@@ -42,9 +42,9 @@ export const LogoIcon = () => {
   return (
     <Link
       href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-slate-900 py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center text-sm text-slate-900 py-1 relative z-20 w-full"
     >
-      <div className="h-8 w-6 font-bold text-md flex items-center justify-center bg-slate-900 text-white dark:bg-white dark:text-black rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0">
+      <div className="h-8 w-full max-w-10 font-bold text-md flex items-center justify-center bg-slate-900 text-white dark:bg-white dark:text-black rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0">
         R.
       </div>
     </Link>
