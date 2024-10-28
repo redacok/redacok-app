@@ -11,6 +11,7 @@ export default async function Layout({
   if (!session?.user) {
     redirect("/sign-in?callback=/dashboard");
   }
+
   return (
     <SidebarApp session={session?.user}>
       <main className="w-full flex py-3">

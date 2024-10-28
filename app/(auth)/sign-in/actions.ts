@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { generateVerificationToken } from "@/data/tokens";
 import { getUserByEmail, getUserByPhone } from "@/data/user";
 import { SignInSchema, SignInWithNumberSchema } from "@/lib/definitions";
@@ -8,6 +8,7 @@ import { sendVerificationEmail } from "@/lib/mail";
 import { sendSms } from "@/lib/sms";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 import * as z from "zod";
 
 export async function signInAction(
@@ -125,4 +126,10 @@ export async function signInSocial(provider: "google" | "github") {
     }
     throw error;
   }
+}
+
+export async function signOutUser() {
+  "use server";
+  await signOut();
+  redirect("/sign-in?callback=/dashboard");
 }

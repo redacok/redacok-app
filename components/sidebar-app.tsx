@@ -3,16 +3,16 @@
 import { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/ace-sidebar";
 
+import { signOutUser } from "@/app/(auth)/sign-in/actions";
+import { AdminLinks, UserLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
-  ArrowLeftIcon,
   DoorOpen,
+  LucideIcon,
+  PanelLeftCloseIcon,
   Settings,
-  Settings2Icon,
-  TerminalIcon,
   User2,
-  User2Icon,
 } from "lucide-react";
 import { User } from "next-auth";
 import Link from "next/link";
@@ -23,6 +23,12 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
+interface LinksProps {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+}
+
 export function SidebarApp({
   children,
   session,
@@ -30,37 +36,13 @@ export function SidebarApp({
   children: React.ReactNode;
   session: { role: string; phone: string } & User;
 }) {
-  const links = [
-    {
-      label: "Dashboard",
-      href: "#",
-      icon: (
-        <TerminalIcon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Profile",
-      href: "#",
-      icon: (
-        <User2Icon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Settings",
-      href: "#",
-      icon: (
-        <Settings2Icon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Logout",
-      href: "#",
-      icon: (
-        <ArrowLeftIcon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-  ];
   const [open, setOpen] = useState(false);
+  let links = [] as LinksProps[];
+  if (session.role === "ADMIN") {
+    links = AdminLinks;
+  } else {
+    links = UserLinks;
+  }
 
   return (
     <div
@@ -72,7 +54,13 @@ export function SidebarApp({
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden transition-all">
-            {open ? <Logo /> : <LogoIcon />}
+            <div className="flex gap-2 items-center">
+              {open ? <Logo /> : <LogoIcon />}
+              <PanelLeftCloseIcon
+                onClick={() => setOpen(false)}
+                className="h-6 w-6 transition hidden md:block"
+              />
+            </div>
             <div className="mt-8 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink
@@ -89,7 +77,12 @@ export function SidebarApp({
           <div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "flex items-center gap-2 cursor-pointer",
+                    open && "bg-white p-2 rounded-md"
+                  )}
+                >
                   <User2 className="h-7 w-7" />
                   <motion.span
                     animate={{
@@ -110,7 +103,7 @@ export function SidebarApp({
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
-                className="w-[--radix-popper-anchor-width]"
+                className="w-[--radix-popper-anchor-width] z-50"
               >
                 <DropdownMenuItem>
                   <User2 />
@@ -120,7 +113,7 @@ export function SidebarApp({
                   <Settings />
                   <span>Paramètres</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={signOutUser}>
                   <DoorOpen />
                   <span>Déconnexion</span>
                 </DropdownMenuItem>
@@ -129,7 +122,7 @@ export function SidebarApp({
           </div>
         </SidebarBody>
       </Sidebar>
-      <div className="flex flex-1">{children}</div>
+      <div className="flex px-4 flex-1 relative">{children}</div>
     </div>
   );
 }
@@ -137,7 +130,7 @@ export const Logo = () => {
   return (
     <Link
       href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+      className="bg-white rounded-md py-3 px-1 font-normal w-full flex space-x-2 items-center text-black relative z-20"
     >
       <div className="h-8 w-10 font-bold text-xl flex items-center justify-center bg-black text-white dark:bg-white dark:text-black rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0">
         R.

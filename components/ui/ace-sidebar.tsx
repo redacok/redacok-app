@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { MenuIcon, X } from "lucide-react";
+import { LucideIcon, PanelLeftOpen, X } from "lucide-react";
 import Link, { LinkProps } from "next/link";
 import React, { createContext, useContext, useState } from "react";
 import { Button } from "./button";
@@ -9,7 +9,8 @@ import { Button } from "./button";
 interface Links {
   label: string;
   href: string;
-  icon: React.JSX.Element | React.ReactNode;
+  // icon: React.JSX.Element | React.ReactNode | IconNode;
+  icon: LucideIcon;
 }
 
 interface SidebarContextProps {
@@ -90,14 +91,14 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-4 py-4 hidden  md:flex md:flex-col bg-slate-100 border-r-slate-800 dark:bg-neutral-800 w-[300px] flex-shrink-0",
+          "h-full px-4 py-4 hidden  md:flex md:flex-col bg-slate-100 border border-r-slate-200 shadow-md dark:bg-neutral-800 w-[300px] flex-shrink-0",
           className
         )}
         animate={{
           width: animate ? (open ? "300px" : "60px") : "300px",
         }}
         onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        // onMouseLeave={() => setOpen(false)}
         {...props}
       >
         {children}
@@ -116,12 +117,12 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between  dark:bg-neutral-800 w-full"
+          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between  dark:bg-neutral-800 w-full"
         )}
         {...props}
       >
-        <div className="flex justify-end z-20 w-full">
-          <MenuIcon
+        <div className="flex z-20 w-full">
+          <PanelLeftOpen
             className="text-neutral-800 dark:text-slate-200"
             onClick={() => setOpen(!open)}
           />
@@ -137,7 +138,7 @@ export const MobileSidebar = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-5/6 inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
+                "fixed h-full border border-r-slate-200 shadow-md w-5/6 inset-0 bg-white dark:bg-neutral-900 px-5 py-8 z-[100] flex flex-col justify-between",
                 className
               )}
             >
@@ -178,7 +179,7 @@ export const SidebarLink = ({
       {...props}
       onClick={() => !button && setOpen(!open)}
     >
-      {link.icon}
+      <link.icon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
 
       <motion.span
         animate={{
@@ -199,7 +200,7 @@ export const SidebarLink = ({
       )}
       {...props}
     >
-      {link.icon}
+      <link.icon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
 
       <motion.span
         animate={{
