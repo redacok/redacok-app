@@ -1,10 +1,10 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { LucideIcon, PanelLeftOpen, X } from "lucide-react";
+import { LogOut, LucideIcon, PanelLeftOpen, X } from "lucide-react";
 import Link, { LinkProps } from "next/link";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Button } from "./button";
+import { Button, buttonVariants } from "./button";
 
 interface Links {
   label: string;
@@ -121,11 +121,24 @@ export const MobileSidebar = ({
         )}
         {...props}
       >
-        <div className="flex z-20 w-full">
+        <div className="flex z-20 w-full items-center justify-between">
           <PanelLeftOpen
             className="text-neutral-800 dark:text-slate-200"
             onClick={() => setOpen(!open)}
           />
+          <Link
+            href="/"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                size: "sm",
+              }),
+              "w-fit justify-end text-lg hover:text-foreground"
+            )}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Accueil
+          </Link>
         </div>
         <AnimatePresence>
           {open && (

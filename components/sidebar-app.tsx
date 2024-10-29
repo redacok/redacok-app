@@ -7,13 +7,9 @@ import { signOutUser } from "@/app/(auth)/sign-in/actions";
 import { AdminLinks, UserLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import {
-  ArrowLeftIcon,
-  LucideIcon,
-  PanelLeftCloseIcon,
-  User2,
-} from "lucide-react";
+import { LogOut, LucideIcon, PanelLeftCloseIcon, User2 } from "lucide-react";
 import { User } from "next-auth";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo, LogoIcon } from "./logo";
 import {
@@ -22,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+
+import { buttonVariants } from "./ui/button";
 
 interface LinksProps {
   label: string;
@@ -133,7 +131,7 @@ export function SidebarApp({
                   <span>Paramètres</span>
                 </DropdownMenuItem> */}
                 <DropdownMenuItem onClick={async () => signOutUser()}>
-                  <ArrowLeftIcon />
+                  <LogOut className="rotate-180" />
                   <span>Déconnexion</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -141,7 +139,22 @@ export function SidebarApp({
           </div>
         </SidebarBody>
       </Sidebar>
-      <div className="flex px-4 flex-1 overflow-y-auto min-h-screen">
+      <div className="flex flex-col flex-1 overflow-y-auto min-h-screen">
+        <div className="w-full border-b justify-end items-center p-2">
+          <Link
+            href="/"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                size: "sm",
+              }),
+              "w-fit ml-auto text-lg hover:text-foreground hidden md:flex"
+            )}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Accueil
+          </Link>
+        </div>
         {children}
       </div>
     </div>

@@ -6,17 +6,21 @@ const page = async () => {
   const session = await auth();
 
   return (
-    <div className="flex flex-col gap-y-4 w-full">
-      <div className="flex items-center justify-between">
-        <h1 className="font-semibold text-3xl">Dashboard</h1>
+    <div className="flex flex-col gap-y-4 w-full mx-auto pb-4">
+      <div className="bg-card border-b w-full">
+        <div className="flex items-center justify-between container mx-auto">
+          <h1 className="font-semibold text-3xl">Dashboard</h1>
+        </div>
       </div>
-      <h1 className="text-2xl">
-        salut <span className="font-semibold">{session?.user.name}</span> !
-      </h1>
-      <h2 className="text-xl mb-2">
-        bienvenue dans votre compte d&apos;épargne à 10%
-      </h2>
-      <div className="relative flex w-full flex-wrap gap-4 md:flex-nowrap">
+      <div className="border-b">
+        <div className="container mx-auto py-8">
+          <p className="text-3xl font-bold">salut {session?.user.name}!</p>
+          <p className="text-xl">
+            bienvenue dans votre compte d&apos;épargne à 10%
+          </p>
+        </div>
+      </div>
+      <div className="relative container mx-auto flex w-full flex-wrap gap-4 md:flex-nowrap">
         <StatCard
           title="Solde courant"
           value={253000}
@@ -39,24 +43,22 @@ const page = async () => {
           }
         />
       </div>
+      <div className="flex gap-4 relatice container mx-auto w-full flex-wrap sm:flex-nowrap">
+        {[...new Array(2)].map((i) => (
+          <div
+            key={"second-array" + i}
+            className="w-full aspect-video rounded-lg border border-slate-300  bg-slate-200 dark:bg-neutral-800 animate-pulse"
+          />
+        ))}
+      </div>
       {/* {JSON.stringify(session?.user)} */}
-      <div className="p-2 border rounded-md border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
-        <div className="flex gap-2 flex-1 flex-wrap md:flex-nowrap">
-          {[...new Array(4)].map((i) => (
-            <div
-              key={"first-array" + i}
-              className="w-full h-48 rounded-lg  bg-slate-300 dark:bg-neutral-800 animate-pulse"
-            />
-          ))}
-        </div>
-        <div className="flex gap-2 flex-1 h-full">
-          {[...new Array(2)].map((i) => (
-            <div
-              key={"second-array" + i}
-              className="w-full aspect-video rounded-lg  bg-slate-200 dark:bg-neutral-800 animate-pulse"
-            />
-          ))}
-        </div>
+      <div className="flex gap-2 container mx-auto flex-1 flex-wrap md:flex-nowrap">
+        {[...new Array(4)].map((i) => (
+          <div
+            key={"first-array" + i}
+            className="w-full h-48 rounded-lg  bg-slate-300 dark:bg-neutral-800 animate-pulse"
+          />
+        ))}
       </div>
     </div>
   );
