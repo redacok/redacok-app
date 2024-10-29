@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { LucideIcon, PanelLeftOpen, X } from "lucide-react";
 import Link, { LinkProps } from "next/link";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { Button } from "./button";
 
 interface Links {
@@ -169,6 +169,12 @@ export const SidebarLink = ({
   props?: LinkProps;
 }) => {
   const { open, animate, setOpen } = useSidebar();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return !button ? (
     <Link
       href={link.href}
@@ -177,7 +183,9 @@ export const SidebarLink = ({
         className
       )}
       {...props}
-      onClick={() => window.innerWidth < 768 && !button && setOpen(!open)}
+      onClick={() =>
+        isClient && window.innerWidth < 768 && !button && setOpen(!open)
+      }
     >
       <link.icon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
 

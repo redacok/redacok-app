@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/ace-sidebar";
 
 import { signOutUser } from "@/app/(auth)/sign-in/actions";
@@ -36,7 +36,12 @@ export function SidebarApp({
   children: React.ReactNode;
   session: { role: string; phone: string } & User;
 }) {
-  const [open, setOpen] = useState(window.innerWidth < 768 ? false : true);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(window.innerWidth < 768 ? false : true);
+  }, []);
+
   let links = [] as LinksProps[];
   if (session.role === "ADMIN") {
     links = AdminLinks;

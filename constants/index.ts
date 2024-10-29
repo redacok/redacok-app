@@ -21,6 +21,11 @@ export const AdminLinks = [
     href: "dashboard/settings",
     icon: Settings2Icon,
   },
+  {
+    label: "Profile",
+    href: "/dashboard/profile",
+    icon: User2Icon,
+  },
 ];
 
 export const UserLinks = [
@@ -31,7 +36,7 @@ export const UserLinks = [
   },
   {
     label: "Profile",
-    href: "/dashboard/users",
+    href: "/dashboard/profile",
     icon: User2Icon,
   },
 ];
