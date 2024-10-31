@@ -14,7 +14,7 @@ const page = async () => {
       </div>
       <div className="border-b">
         <div className="container mx-auto py-8">
-          <p className="text-3xl font-bold">salut {session?.user.name}!</p>
+          <p className="text-3xl font-bold">Salut {session?.user.name}!</p>
           <p className="text-xl">
             bienvenue dans votre compte d&apos;épargne à 10%
           </p>
