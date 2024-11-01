@@ -6,6 +6,15 @@ import {
   Wallet,
 } from "lucide-react";
 
+export const Currencies = [
+  { value: "XAF", label: "Franc CFA", locale: "fr-FR" },
+  { value: "XOF", label: "Franc CFAO", locale: "fr-FR" },
+  { value: "EUR", label: "€ Euro", locale: "fr-FR" },
+  { value: "USD", label: "$ Dollar", locale: "us-US" },
+];
+
+export type Currency = (typeof Currencies)[0];
+
 export const AdminLinks = [
   {
     label: "Dashboard",

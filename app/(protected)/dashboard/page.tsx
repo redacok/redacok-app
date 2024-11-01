@@ -1,9 +1,24 @@
 import { auth } from "@/auth";
+import { db } from "@/lib/db";
+import { redirect } from "next/navigation";
 import { FcCurrencyExchange, FcDebt, FcMoneyTransfer } from "react-icons/fc";
 import { StatCard } from "./_components/stat-card";
 
 const page = async () => {
   const session = await auth();
+  if (!session?.user) {
+    redirect("/sign-in?callback=/dashboard");
+  }
+
+  const user = await db.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+  });
+
+  if (!user?.currency) {
+    redirect("/wizard");
+  }
 
   return (
     <div className="flex flex-col gap-y-4 w-full mx-auto pb-4">
@@ -14,7 +29,7 @@ const page = async () => {
       </div>
       <div className="border-b">
         <div className="container mx-auto py-8">
-          <p className="text-3xl font-bold">Salut {session?.user.name}!</p>
+          <p className="text-3xl font-bold">Salut {session.user.name}!</p>
           <p className="text-xl">
             bienvenue dans votre compte d&apos;épargne à 10%
           </p>

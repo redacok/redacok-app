@@ -1,3 +1,4 @@
+import { Currencies } from "@/constants";
 import * as z from "zod";
 
 export const SignInSchema = z.object({
@@ -93,3 +94,14 @@ export const SignUpSchema = z
       });
     }
   });
+
+export const UpdateUserCurrencySchema = z.object({
+  currency: z.custom((value) => {
+    const found = Currencies.some((c) => c.value === value);
+    if (!found) {
+      throw new Error(`Invalid Currency: ${value}`);
+    }
+
+    return value;
+  }),
+});
