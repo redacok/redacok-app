@@ -1,4 +1,5 @@
 import RootProvider from "@/components/providers/root-provider";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -17,6 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      <Toaster richColors position="bottom-right" />
       <body className={`${inter.className} antialiased h-full`}>
         <RootProvider>{children}</RootProvider>
       </body>

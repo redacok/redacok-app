@@ -16,7 +16,11 @@ const page = async () => {
     },
   });
 
-  if (!user?.currency) {
+  if (!user) {
+    redirect("/");
+  }
+
+  if (!user.currency) {
     redirect("/wizard");
   }
 

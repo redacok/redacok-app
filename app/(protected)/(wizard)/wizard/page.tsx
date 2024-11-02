@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const Wizard = async () => {
@@ -45,7 +44,7 @@ const Wizard = async () => {
       </Card>
       <Separator />
       <Button className="w-full" asChild>
-        <Link href={"/dashboard"}>C&apos;est fait, aller au dashboard</Link>
+        <a href={"/dashboard"}>C&apos;est fait, aller au dashboard</a>
       </Button>
       <div className="mt-8">
         <Logo />
