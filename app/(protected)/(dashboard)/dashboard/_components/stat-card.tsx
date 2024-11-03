@@ -9,12 +9,14 @@ export function StatCard({
   value,
   title,
   icon,
+  currency,
 }: {
   value: number;
   icon: React.ReactNode;
   title: string;
+  currency: string;
 }) {
-  const formater = getFormatterForCurrency("XAF");
+  const formater = getFormatterForCurrency(currency);
 
   const formatFn = useCallback(
     (value: number) => {

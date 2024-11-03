@@ -27,6 +27,9 @@ export const SignUpSchema = z
     phone: z.string().min(6, {
       message: "Le numéro de téléphone est requis",
     }),
+    country: z.string().min(1, {
+      message: "Vous devez sélectionner un pays",
+    }),
     password: z.string().min(4, {
       message: "Le mot de passe doit avoir au moins 4 caractères",
     }),

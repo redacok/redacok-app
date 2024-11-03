@@ -20,10 +20,6 @@ const page = async () => {
     redirect("/");
   }
 
-  if (!user.currency) {
-    redirect("/wizard");
-  }
-
   return (
     <div className="flex flex-col gap-y-4 w-full mx-auto pb-4">
       <div className="bg-card border-b w-full">
@@ -43,6 +39,7 @@ const page = async () => {
         <StatCard
           title="Solde courant"
           value={253000}
+          currency={user.currency || "XAF"}
           icon={
             <FcCurrencyExchange className="h-12 w-12 items-center rounded-lg p-2 text-slate-700 bg-blue-400/10" />
           }
@@ -50,6 +47,7 @@ const page = async () => {
         <StatCard
           title="Solde d'épargne"
           value={433000}
+          currency={user.currency || "XAF"}
           icon={
             <FcMoneyTransfer className="h-12 w-12 items-center rounded-lg p-2 bg-blue-400/10" />
           }
@@ -57,6 +55,7 @@ const page = async () => {
         <StatCard
           title="Solde Journalier"
           value={12544}
+          currency={user.currency || "XAF"}
           icon={
             <FcDebt className="h-12 w-12 items-center rounded-lg p-2 bg-blue-400/10" />
           }

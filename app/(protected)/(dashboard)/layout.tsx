@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { SidebarApp } from "@/components/sidebar-app";
+import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
 export default async function Layout({
@@ -10,6 +11,20 @@ export default async function Layout({
   const session = await auth();
   if (!session?.user) {
     redirect("/sign-in?callback=/dashboard");
+  }
+
+  const user = await db.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+  });
+
+  if (!user) {
+    redirect("/");
+  }
+
+  if (!user.currency) {
+    redirect("/wizard");
   }
 
   return (

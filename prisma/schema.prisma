@@ -36,6 +36,17 @@ model Account {
   @@index([userId])
 }
 
+model VerificationRequest {
+  id         String   @id @default(cuid())
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, token])
+}
+
 model Session {
   id           String   @id @default(cuid())
   userId       String
@@ -53,6 +64,7 @@ enum UserRole {
   ADMIN
   COMMERCIAL
   BUSINESS
+  PERSONAL
   USER
 }
 
@@ -65,35 +77,41 @@ model User {
   password      String?
   phone         String?   @unique
   role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
   currency      String?
+
+  countryId     String
+  country       Country     @relation(fields: [countryId], references: [id])
+
   accounts      Account[]
   sessions      Session[]
-  bankAccount   BankAccount[]
+  bankAccounts  BankAccount[]
+  transactions  Transaction[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([countryId])
 }
 
-model VerificationRequest {
-  id         String   @id @default(cuid())
-  identifier String
-  token      String   @unique
-  expires    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([identifier, token])
+model Country {
+  id          String   @id @default(cuid())
+  name        String?
+  code        String?
+  users       User[]
 }
+
 
 model BankAccount {
-  id          String   @id @default(cuid())
-  userId      String
-  code        String   @unique
-  amount      Float
-  user        User     @relation(fields: [userId], references: [id])
+  id            String   @id @default(cuid())
+  userId        String
+  code          String   @unique
+  amount        Float
+  user          User     @relation(fields: [userId], references: [id])
+  transactions  Transaction[]
 
   @@unique([userId, code])
+  @@index([userId])
 }
-
 
 model Category {
   id          String   @id @default(cuid())
@@ -101,6 +119,8 @@ model Category {
   type        String   @default("income")
   enabled     Boolean  @default(true)
   createdAt   DateTime @default(now())
+  
+  transactions  Transaction[]
 
   @@unique([name, type])
 }
@@ -111,33 +131,41 @@ model Transaction {
   amount        Float
   description   String
   date          DateTime
+  bankAccountId String
   userId        String
-  type          String   @default("income")
+  categoryId    String
 
-  category      String
-  categoryIcon  String
+  bankAccount   BankAccount     @relation(fields: [bankAccountId], references: [id])
+  user          User            @relation(fields: [userId], references: [id])
+  category      Category        @relation(fields: [categoryId], references: [id])
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now())
+
+  @@index([bankAccountId])
+  @@index([userId])
+  @@index([categoryId])
 }
 
 model MonthHistory {
-  userId      String
-  day         Int
-  month       Int
-  year        Int
-  income      Float
-  expense     Float
+  userId          String
+  bankAccountId   String
+  day             Int
+  month           Int
+  year            Int
+  income          Float
+  expense         Float
 
-  @@id([day, month, year, userId])
+  @@id([day, month, year, userId, bankAccountId])
 }
 
 model YearHistory {
-  userId      String
-  month       Int
-  year        Int
-  income      Float
-  expense     Float
+  userId          String
+  bankAccountId   String
+  month           Int
+  year            Int
+  income          Float
+  expense         Float
 
-  @@id([month, year, userId])
+  @@id([month, year, userId, bankAccountId])
 }

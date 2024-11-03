@@ -7,11 +7,19 @@ import { SignInWithNumberSchema } from "@/lib/definitions";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import useNumberSignin from "@/store/sign-in-form-store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18nIsoCountries from "i18n-iso-countries";
+import enCountries from "i18n-iso-countries/langs/en.json";
+import {
+  type CountryCallingCode,
+  type E164Number,
+  getExampleNumber,
+  parsePhoneNumber,
+} from "libphonenumber-js";
+import examples from "libphonenumber-js/mobile/examples";
 import { LoaderCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { PhoneInput } from "react-international-phone";
 import "react-international-phone/style.css";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
@@ -28,7 +36,46 @@ import { Input } from "../ui/input";
 import { BackButton } from "./back-button";
 import { CardWrapper } from "./card-wrapper";
 
+import { ComboboxCountryInput } from "@/components/ui/combobox";
+import {
+  getCountriesOptions,
+  isoToEmoji,
+  replaceNumbersWithZeros,
+} from "@/lib/helpers";
+import { Country } from "react-phone-number-input";
+import PhoneInput from "react-phone-number-input/input";
+
+type CountryOption = {
+  value: Country;
+  label: string;
+  indicatif: CountryCallingCode;
+};
+
+i18nIsoCountries.registerLocale(enCountries);
+
 const SignInNumber = () => {
+  const options = getCountriesOptions();
+
+  // You can use a the country of the phone number to set the default country
+  const defaultCountry = parsePhoneNumber("+237651117119")?.country;
+  const defaultCountryOption = options.find(
+    (option) => option.value === defaultCountry
+  );
+
+  const [country, setCountry] = useState<CountryOption>(
+    defaultCountryOption || options[0]!
+  );
+  const [phoneNumber, setPhoneNumber] = useState<E164Number>();
+
+  const placeholder = replaceNumbersWithZeros(
+    getExampleNumber(country.value, examples)!.formatInternational()
+  );
+
+  const onCountryChange = (value: CountryOption) => {
+    setPhoneNumber(undefined);
+    setCountry(value);
+  };
+
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
@@ -85,12 +132,28 @@ const SignInNumber = () => {
                 <FormItem>
                   <FormLabel>Numéro de téléphone</FormLabel>
                   <FormControl>
-                    <PhoneInput
-                      {...field}
-                      inputClassName="flex h-9 w-full border border-input bg-transparent py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      defaultCountry={"cm"}
-                      placeholder="Ex: 6 56 01 24 71"
-                    />
+                    <div className="flex gap-2 items-center">
+                      <ComboboxCountryInput
+                        value={country}
+                        onValueChange={onCountryChange}
+                        options={options}
+                        placeholder="Chercher votre pays..."
+                        renderOption={({ option }) =>
+                          `${isoToEmoji(option.value)} ${option.label}`
+                        }
+                        renderValue={(option) => option.label}
+                        emptyMessage="Aucun pays trouvé."
+                      />
+                      <PhoneInput
+                        {...field}
+                        international
+                        withCountryCallingCode
+                        country={country.value.toUpperCase() as Country}
+                        value={phoneNumber}
+                        inputComponent={Input}
+                        placeholder={placeholder}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
