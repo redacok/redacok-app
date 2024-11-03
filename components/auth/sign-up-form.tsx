@@ -58,7 +58,7 @@ export const SignUpForm = () => {
   const options = getCountriesOptions();
 
   // You can use a the country of the phone number to set the default country
-  const defaultCountry = parsePhoneNumber("+237651117119")?.country;
+  const defaultCountry = parsePhoneNumber("+33651117119")?.country;
   const defaultCountryOption = options.find(
     (option) => option.value === defaultCountry
   );
@@ -79,6 +79,7 @@ export const SignUpForm = () => {
       email: "",
       password: "",
       country: "",
+      countryCode: "",
       phone: "",
       terms: false,
       termsAge: false,
@@ -94,6 +95,7 @@ export const SignUpForm = () => {
     setPhoneNumber(undefined);
     setCountry(value);
     setValue("country", value.label);
+    setValue("countryCode", value.value);
   };
 
   const onSubmit = (formData: z.infer<typeof SignUpSchema>) => {
@@ -125,7 +127,7 @@ export const SignUpForm = () => {
                       <Input
                         {...field}
                         disabled={isPending}
-                        placeholder="Ex: Landry Bella"
+                        placeholder="Ex: John Doe"
                       />
                     </FormControl>
                     <FormMessage />

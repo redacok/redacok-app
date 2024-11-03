@@ -18,7 +18,7 @@ export async function signUpAction(
     return { error: "Les données ne sont pas valides !" };
   }
 
-  const { email, password, name, phone } = formData;
+  const { email, password, name, phone, country, countryCode } = formData;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await db.user.findUnique({
@@ -39,12 +39,35 @@ export async function signUpAction(
     return { error: "Ce numéro de téléphone est déjà utilisé !" };
   }
 
+  let existCountry = await db.country.findUnique({
+    where: {
+      name_code: {
+        name: country,
+        code: countryCode,
+      },
+    },
+  });
+
+  if (!existCountry) {
+    existCountry = await db.country.create({
+      data: {
+        name: country,
+        code: countryCode,
+      },
+    });
+  }
+
   await db.user.create({
     data: {
       name,
       email,
       phone,
       password: hashedPassword,
+      country: {
+        connect: {
+          id: existCountry.id,
+        },
+      },
     },
   });
 

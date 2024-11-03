@@ -30,6 +30,9 @@ export const SignUpSchema = z
     country: z.string().min(1, {
       message: "Vous devez sélectionner un pays",
     }),
+    countryCode: z.string().min(1, {
+      message: "Vous devez sélectionner un pays",
+    }),
     password: z.string().min(4, {
       message: "Le mot de passe doit avoir au moins 4 caractères",
     }),
