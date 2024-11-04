@@ -41,6 +41,12 @@ import {
 } from "@/lib/helpers";
 import { Country } from "react-phone-number-input";
 import PhoneInput from "react-phone-number-input/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "../ui/input-otp";
 
 type CountryOption = {
   value: Country;
@@ -90,7 +96,9 @@ export const SignUpForm = () => {
     },
   });
 
-  const { setValue } = form;
+  const { setValue, watch } = form;
+
+  const passwordValue = watch("password");
   const onCountryChange = (value: CountryOption) => {
     setPhoneNumber(undefined);
     setCountry(value);
@@ -190,14 +198,30 @@ export const SignUpForm = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Code PIN (au moins 4 caractères)</FormLabel>
+                    <FormLabel>Code PIN (4 à 8 chiffres)</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        disabled={isPending}
-                        type="password"
-                        placeholder="****"
-                      />
+                      <InputOTP className="w-full" maxLength={8} {...field}>
+                        <InputOTPGroup>
+                          {[...Array(8)].map((_, index) => (
+                            <>
+                              <InputOTPSlot
+                                key={index}
+                                index={index}
+                                style={{
+                                  display:
+                                    index < passwordValue.length + 1 &&
+                                    passwordValue.length <= 8
+                                      ? "flex"
+                                      : "none",
+                                }}
+                              />
+                              {index < 7 && (index + 1) % 2 == 0 && (
+                                <InputOTPSeparator />
+                              )}
+                            </>
+                          ))}
+                        </InputOTPGroup>
+                      </InputOTP>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

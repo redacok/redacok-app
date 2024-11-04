@@ -69,7 +69,7 @@ const page = async () => {
           />
         ))}
       </div>
-      {/* {JSON.stringify(session?.user)} */}
+      {JSON.stringify(session?.user)}
       <div className="flex gap-2 container mx-auto flex-1 flex-wrap md:flex-nowrap">
         {[...new Array(4)].map((i) => (
           <div

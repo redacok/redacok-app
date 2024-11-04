@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { CurrencyComboBox } from "@/components/currency-combobox";
 import {
   Card,
@@ -6,12 +7,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { redirect } from "next/navigation";
+import { UpdateInfo } from "./_components/update-info";
 
-const Profile = () => {
+const Profile = async () => {
+  const session = await auth();
+  if (!session) {
+    redirect("/sign-in?callback=/dashboard");
+  }
+
   return (
     <div className="flex flex-1 flex-col">
       <h1 className="text-3xl font-semibold border-b w-full py-4">Profile</h1>
-      <div className="w-full flex md:gap-2 container mx-auto">
+      <div className="w-full flex flex-col md:flex-row md:gap-2 container mx-auto">
         <div className="w-full md:w-1/2 p-2">
           <Card className="w-full">
             <CardHeader>
@@ -25,7 +33,19 @@ const Profile = () => {
             </CardContent>
           </Card>
         </div>
-        <div className="w-full md:w-1/2"></div>
+        <div className="w-full md:w-1/2 p-2">
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Information du profile</CardTitle>
+              <CardDescription>
+                Vous pouvez modifier ces informations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <UpdateInfo session={session.user} />
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

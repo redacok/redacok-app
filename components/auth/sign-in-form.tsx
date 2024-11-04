@@ -23,6 +23,12 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "../ui/input-otp";
 import { BackButton } from "./back-button";
 import { CardWrapper } from "./card-wrapper";
 
@@ -47,6 +53,9 @@ const SignIn = () => {
       password: "",
     },
   });
+
+  const { watch } = form;
+  const passwordValue = watch("password");
 
   const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
     startTransition(() => {
@@ -101,12 +110,29 @@ const SignIn = () => {
                 <FormItem>
                   <FormLabel>Code PIN</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      disabled={isPending}
-                      type="password"
-                      placeholder="****"
-                    />
+                    <InputOTP className="w-full" maxLength={8} {...field}>
+                      <InputOTPGroup>
+                        {[...Array(8)].map((_, index) => (
+                          <>
+                            <InputOTPSlot
+                              key={index}
+                              index={index}
+                              itemType="password"
+                              style={{
+                                display:
+                                  index < passwordValue.length + 1 &&
+                                  passwordValue.length <= 8
+                                    ? "flex"
+                                    : "none",
+                              }}
+                            />
+                            {index < 7 && (index + 1) % 2 == 0 && (
+                              <InputOTPSeparator />
+                            )}
+                          </>
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
                   </FormControl>
                   <FormMessage />
                   <div className="items-start">

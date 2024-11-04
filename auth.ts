@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { UserRole } from "@prisma/client";
+import { Country, UserRole } from "@prisma/client";
 import NextAuth, { type DefaultSession } from "next-auth";
 import authConfig from "./auth.config";
 import { getUserById } from "./data/user";
@@ -10,6 +10,7 @@ declare module "next-auth" {
     user: {
       role: string;
       phone: string;
+      country: Country;
     } & DefaultSession["user"];
   }
 }
@@ -55,6 +56,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user && token.phone)
         session.user.phone = token.phone as string;
 
+      if (session.user && token.country)
+        session.user.country = token.country as Country;
+
       return session;
     },
 
@@ -64,9 +68,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const existingUser = await getUserById(token.sub);
 
       if (!existingUser) return token;
-
+      const country = await db.country.findUnique({
+        where: {
+          id: existingUser.countryId,
+        },
+      });
       token.role = existingUser.role;
       token.phone = existingUser.phone;
+      token.country = country;
 
       return token;
     },

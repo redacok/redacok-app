@@ -19,7 +19,8 @@ export const authRoutes = ["/sign-in", "/sign-up", "/auth/error"];
  */
 export const apiAuthPrefix = "/api/auth";
 
-export const DEFAULT_LOGIN_REDIRECT = process.env.NEXT_LOGIN_REDIRECT || "/";
+export const DEFAULT_LOGIN_REDIRECT =
+  process.env.NEXT_LOGIN_REDIRECT || "/dashboard";
 
 /**
  * The default redirect path after logged in
