@@ -3,6 +3,7 @@
 import { signIn, signOut } from "@/auth";
 import { generateVerificationToken } from "@/data/tokens";
 import { getUserByEmail, getUserByPhone } from "@/data/user";
+import { getVerificationTokenByIdentifier } from "@/data/verification-token";
 import { SignInSchema, SignInWithNumberSchema } from "@/lib/definitions";
 import { sendVerificationEmail } from "@/lib/mail";
 import { sendSms } from "@/lib/sms";
@@ -29,14 +30,24 @@ export async function signInAction(
   }
 
   if (!existingUser.emailVerified) {
-    const verificationToken = await generateVerificationToken(
-      existingUser.email!
+    const currentVerificationToken = await getVerificationTokenByIdentifier(
+      email
     );
+    const currentDate = new Date();
+    if (
+      currentVerificationToken === null ||
+      currentDate.getTime() - currentVerificationToken.expires.getTime() >
+        3600000
+    ) {
+      const verificationToken = await generateVerificationToken(
+        existingUser.email!
+      );
 
-    sendVerificationEmail(
-      verificationToken.identifier,
-      verificationToken.token
-    );
+      sendVerificationEmail(
+        verificationToken.identifier,
+        verificationToken.token
+      );
+    }
 
     return {
       success:
