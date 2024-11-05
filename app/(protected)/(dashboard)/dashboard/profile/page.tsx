@@ -39,7 +39,7 @@ const Profile = async () => {
               <CardDescription>Changer de type de compte</CardDescription>
             </CardHeader>
             <CardContent>
-              <AccountType />
+              <AccountType session={session.user} />
             </CardContent>
           </Card>
         </div>

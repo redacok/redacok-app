@@ -60,3 +60,10 @@ export const UserLinks = [
     icon: User2Icon,
   },
 ];
+
+export const idTypes = [
+  { type: "IDCard", label: "Carte Nationale d'identité" },
+  { type: "Passport", label: "Passeport" },
+  { type: "DiverLicence", label: "Permi de conduire" },
+  { type: "Reciep", label: "Récépissé CNI" },
+];

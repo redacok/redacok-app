@@ -2,16 +2,14 @@
 
 import { db } from "@/lib/db";
 import { UpdateInfoSchema } from "@/lib/definitions";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import bcrypt from "bcryptjs";
 import * as z from "zod";
 
 export async function updateInfoAction(
-  formData: z.infer<typeof UpdateInfoSchema>,
-  redirect: string = DEFAULT_LOGIN_REDIRECT
+  formData: z.infer<typeof UpdateInfoSchema>
 ) {
   const validationResult = UpdateInfoSchema.safeParse(formData);
-  console.log(redirect);
+
   if (!validationResult.success) {
     return { error: "Les données ne sont pas valides !" };
   }

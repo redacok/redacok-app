@@ -138,3 +138,67 @@ export const UpdateInfoSchema = z.object({
       message: "Le code PIN doit avoir au moins 4 chiffres",
     }),
 });
+
+export const switchToPersonalAccountSchema = z.object({
+  idType: z.string().min(1, {
+    message: "Vous devez sélectionner le type de pièces",
+  }),
+  idNumber: z.string().min(7, {
+    message: "Vous devez sélectionner le type de pièces",
+  }),
+  name: z.string().min(4, {
+    message: "Vous devez renseigner votre nom de famille",
+  }),
+  surname: z.string().min(4, {
+    message: "Vous devez renseigner votre prénom",
+  }),
+  expires: z.date({
+    required_error: "La date d'expiration doit être sélectionnée",
+  }),
+  NIU: z
+    .instanceof(File)
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "application/pdf"].includes(file.type),
+      {
+        message: "Format de fichier non supporté",
+      }
+    )
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
+  idPicture: z
+    .instanceof(File)
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "application/pdf"].includes(file.type),
+      {
+        message: "Format de fichier non supporté",
+      }
+    )
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
+  idOnHand: z
+    .instanceof(File)
+    .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
+      message: "Format de fichier non supporté",
+    })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
+  entirePicture: z
+    .instanceof(File)
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "application/pdf", "video/mp4"].includes(
+          file.type
+        ),
+      {
+        message: "Format de fichier non supporté",
+      }
+    )
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
+});
