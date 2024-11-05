@@ -133,8 +133,8 @@ export const UpdateInfoSchema = z.object({
   }),
   password: z
     .string()
-    .min(4, {
+    .max(8)
+    .refine((value) => value.length === 0 || value.length >= 4, {
       message: "Le code PIN doit avoir au moins 4 chiffres",
-    })
-    .max(8),
+    }),
 });

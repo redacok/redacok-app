@@ -23,12 +23,8 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "../ui/input-otp";
+
+import PinInput from "../pin-input";
 import { BackButton } from "./back-button";
 import { CardWrapper } from "./card-wrapper";
 
@@ -53,9 +49,6 @@ const SignIn = () => {
       password: "",
     },
   });
-
-  const { watch } = form;
-  const passwordValue = watch("password");
 
   const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
     startTransition(() => {
@@ -103,47 +96,13 @@ const SignIn = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Code PIN</FormLabel>
-                  <FormControl>
-                    <InputOTP className="w-full" maxLength={8} {...field}>
-                      <InputOTPGroup>
-                        {[...Array(8)].map((_, index) => (
-                          <>
-                            <InputOTPSlot
-                              key={index}
-                              index={index}
-                              itemType="password"
-                              style={{
-                                display:
-                                  index < passwordValue.length + 1 &&
-                                  passwordValue.length <= 8
-                                    ? "flex"
-                                    : "none",
-                              }}
-                            />
-                            {index < 7 && (index + 1) % 2 == 0 && (
-                              <InputOTPSeparator />
-                            )}
-                          </>
-                        ))}
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </FormControl>
-                  <FormMessage />
-                  <div className="items-start">
-                    <BackButton
-                      href="/forgot-password"
-                      label="Mot de passe oublié ?"
-                    />
-                  </div>
-                </FormItem>
-              )}
-            />
+            <PinInput form={form} label="Code PIN" name="password" />
+            <div className="items-start">
+              <BackButton
+                href="/forgot-password"
+                label="Mot de passe oublié ?"
+              />
+            </div>
           </div>
           <FormError message={error || urlError} />
           <FormSuccess message={success} />

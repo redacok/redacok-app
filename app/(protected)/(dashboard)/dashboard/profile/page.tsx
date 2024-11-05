@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { redirect } from "next/navigation";
+import { AccountType } from "./_components/account-type";
 import { UpdateInfo } from "./_components/update-info";
 
 const Profile = async () => {
@@ -20,7 +21,7 @@ const Profile = async () => {
     <div className="flex flex-1 flex-col">
       <h1 className="text-3xl font-semibold border-b w-full py-4">Profile</h1>
       <div className="w-full flex flex-col md:flex-row md:gap-2 container mx-auto">
-        <div className="w-full md:w-1/2 p-2">
+        <div className="w-full md:w-1/2 p-2 space-y-4">
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Devise</CardTitle>
@@ -30,6 +31,15 @@ const Profile = async () => {
             </CardHeader>
             <CardContent>
               <CurrencyComboBox />
+            </CardContent>
+          </Card>
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Type de compte</CardTitle>
+              <CardDescription>Changer de type de compte</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AccountType />
             </CardContent>
           </Card>
         </div>

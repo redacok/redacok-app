@@ -17,6 +17,10 @@ export async function updateInfoAction(
   }
 
   const { id, email, password, name, phone, country, countryCode } = formData;
+  if (password.length !== 0 && password.length < 4) {
+    return { error: "Le code PIN doit avoir au moins 4 chiffres" };
+  }
+
   const hashedPassword = await bcrypt.hash(password.toString(), 10);
 
   const existingUser = await db.user.findUnique({
@@ -26,8 +30,7 @@ export async function updateInfoAction(
   });
   if (!existingUser) {
     return {
-      error:
-        "Une erreur innatendue est survenue, réactualisez la page puis réessayez",
+      error: "Le code PIN actuel n'est pas valide",
     };
   }
 
@@ -57,7 +60,7 @@ export async function updateInfoAction(
       name,
       email,
       phone,
-      password: hashedPassword,
+      password: password ? hashedPassword : existingUser.password,
       country: {
         connect: {
           id: existCountry.id,

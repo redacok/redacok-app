@@ -181,7 +181,7 @@ export const UpdateInfo = ({
           />
           <PinInput
             form={form}
-            label="Code PIN (4 à 8 chiffres)"
+            label="Nouveau Code PIN (4 à 8 chiffres)"
             name="password"
           />
         </div>

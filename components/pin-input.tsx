@@ -17,7 +17,7 @@ import {
 } from "./ui/input-otp";
 
 type PinInputProps = {
-  form: UseFormReturn<z.infer<typeof UpdateInfoSchema>>;
+  form: UseFormReturn<z.infer<z.ZodTypeAny>>;
   label: string;
   name: keyof z.infer<typeof UpdateInfoSchema>;
 };
@@ -44,7 +44,7 @@ const PinInput = ({ name, label, form }: PinInputProps) => {
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <InputOTP className="w-full" maxLength={8} {...field}>
+            <InputOTP className="w-full" minLength={4} maxLength={8} {...field}>
               <InputOTPGroup>
                 {[...Array(8)].map((_, index) => (
                   <>
