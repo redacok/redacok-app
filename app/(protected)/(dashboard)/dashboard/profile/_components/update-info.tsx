@@ -28,13 +28,8 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import "react-international-phone/style.css";
 
+import PinInput from "@/components/pin-input";
 import { ComboboxCountryInput } from "@/components/ui/combobox";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
 import {
   getCountriesOptions,
   isoToEmoji,
@@ -94,8 +89,7 @@ export const UpdateInfo = ({
     },
   });
 
-  const { setValue, watch } = form;
-  const passwordValue = watch("password");
+  const { setValue } = form;
 
   const onCountryChange = (value: CountryOption) => {
     setPhoneNumber(undefined);
@@ -111,16 +105,6 @@ export const UpdateInfo = ({
         if (data.error) toast.error(data.error);
       });
     });
-  };
-
-  // Style CSS pour masquer les caractères
-  const maskedStyle = {
-    WebkitTextSecurity: "disc", // Safari et Chrome
-    MozTextSecurity: "disc", // Firefox (non standard, alternative)
-    textSecurity: "disc", // Autres navigateurs (support limité)
-    fontSize: "18px",
-    letterSpacing: "5px",
-    color: "0d1117",
   };
 
   return (
@@ -183,7 +167,7 @@ export const UpdateInfo = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Adresse Email</FormLabel>
+                <FormLabel>Adresse mail</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
@@ -195,45 +179,10 @@ export const UpdateInfo = ({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
+          <PinInput
+            form={form}
+            label="Code PIN (4 à 8 chiffres)"
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Code PIN (4 à 8 chiffres)</FormLabel>
-                <FormControl>
-                  <InputOTP
-                    type="password"
-                    className="w-full"
-                    maxLength={8}
-                    {...field}
-                  >
-                    <InputOTPGroup>
-                      {[...Array(8)].map((_, index) => (
-                        <>
-                          <InputOTPSlot
-                            key={index}
-                            index={index}
-                            style={{
-                              ...maskedStyle,
-                              display:
-                                index < passwordValue.length + 1 &&
-                                passwordValue.length <= 8
-                                  ? "flex"
-                                  : "none",
-                            }}
-                          />
-                          {index < 7 && (index + 1) % 2 == 0 && (
-                            <InputOTPSeparator />
-                          )}
-                        </>
-                      ))}
-                    </InputOTPGroup>
-                  </InputOTP>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
           />
         </div>
         <Button type="submit" className="w-full gap-x-2" disabled={isPending}>
