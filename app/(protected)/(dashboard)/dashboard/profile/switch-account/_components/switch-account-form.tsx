@@ -47,6 +47,10 @@ export const SwitchAccountForm = () => {
       surname: "",
       idType: "",
       idNumber: "",
+      NIU: undefined,
+      idPicture: undefined,
+      idOnHand: undefined,
+      locationPlan: undefined,
     },
   });
 
@@ -54,8 +58,20 @@ export const SwitchAccountForm = () => {
     formData: z.infer<typeof switchToPersonalAccountSchema>
   ) => {
     console.log(formData);
+
+    const simpleData = new FormData();
+    simpleData.append("name", formData.name as string);
+    simpleData.append("surname", formData.surname as string);
+    simpleData.append("idType", formData.idType as string);
+    simpleData.append("idNumber", formData.idNumber as string);
+    simpleData.append("idExpires", formData.idExpires as string);
+    simpleData.append("NIU", formData.NIU as File);
+    simpleData.append("idPicture", formData.idPicture as File);
+    simpleData.append("idOnHand", formData.idOnHand as File);
+    simpleData.append("locationPlan", formData.locationPlan as File);
+
     startTransition(() => {
-      SwitchToPersonalAccountAction(formData).then((data) => {
+      SwitchToPersonalAccountAction(simpleData).then((data) => {
         if (data.success) toast.success(data.success);
         if (data.error) toast.error(data.error);
       });
@@ -148,7 +164,7 @@ export const SwitchAccountForm = () => {
             />
             <FormField
               control={form.control}
-              name="expires"
+              name="idExpires"
               render={({ field }) => (
                 <FormItem className="flex flex-col gap-1">
                   <FormLabel>
@@ -179,7 +195,9 @@ export const SwitchAccountForm = () => {
                         selected={
                           field.value ? new Date(field.value) : undefined
                         }
-                        onSelect={field.onChange}
+                        onSelect={(date) =>
+                          date && field.onChange(date.toISOString())
+                        }
                         disabled={(date) => date < new Date()}
                         initialFocus
                       />
@@ -264,7 +282,7 @@ export const SwitchAccountForm = () => {
             />
             <FormField
               control={form.control}
-              name="entirePicture"
+              name="locationPlan"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Photo entière de vous</FormLabel>

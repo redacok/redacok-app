@@ -1,13 +1,21 @@
 "use server";
 
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { UpdateInfoSchema } from "@/lib/definitions";
 import bcrypt from "bcryptjs";
+import { redirect } from "next/navigation";
 import * as z from "zod";
 
 export async function updateInfoAction(
   formData: z.infer<typeof UpdateInfoSchema>
 ) {
+  const session = await auth();
+
+  if (!session || !session?.user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
   const validationResult = UpdateInfoSchema.safeParse(formData);
 
   if (!validationResult.success) {

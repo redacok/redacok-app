@@ -86,11 +86,70 @@ model User {
   sessions      Session[]
   bankAccounts  BankAccount[]
   transactions  Transaction[]
+  organisation  Organisation?
+  kyc           Kyc?
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@index([countryId])
+}
+
+model Kyc {
+  id              String    @id @default(cuid())
+  name            String?
+  surname         String?
+  idType          String?
+  idNumber        String?
+  idExpires       DateTime?
+  niu             String? @unique
+  idPicture       String? @unique
+  idOnHand        String? @unique
+  locationPlan    String? @unique
+  isValid         Boolean   @default(false)
+  invalidReason   String?
+
+  userId          String    @unique
+
+  niuMedia           Media?     @relation(name: "KycNiuMedia", fields: [niu], references: [id])
+  pictureMedia       Media?     @relation(name: "KycPictureMedia", fields: [idPicture], references: [id])
+  OnHandMedia      Media?     @relation(name: "KycOnHandMedia", fields: [idOnHand], references: [id])
+  locationPlanMedia   Media?     @relation(name: "KycLocationPlanMedia", fields: [locationPlan], references: [id])
+  
+  user            User      @relation(fields: [userId], references: [id])
+  organisation    Organisation?
+
+  @@index([userId])
+  @@index([niu])
+  @@index([idPicture])
+  @@index([idOnHand])
+  @@index([locationPlan])
+}
+
+model Organisation {
+  id        String  @id @default(cuid())
+  name      String
+  type      String
+  logo      String?
+
+  userId    String  @unique
+  kycId     String  @unique
+
+  user      User    @relation(fields: [userId], references: [id])
+  kyc       Kyc     @relation(fields: [kycId], references: [id])
+  @@index([userId])
+}
+
+model Media {
+  id        String    @id   @default(cuid())
+  name      String?
+  type      String
+  url       String
+
+  kycNiu    Kyc?      @relation(name: "KycNiuMedia")
+  kycPicture Kyc?      @relation(name: "KycPictureMedia")
+  kycOnHand Kyc?     @relation(name: "KycOnHandMedia")
+  kycLocationPlan Kyc?     @relation(name: "KycLocationPlanMedia")
 }
 
 model Country {

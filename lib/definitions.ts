@@ -152,8 +152,8 @@ export const switchToPersonalAccountSchema = z.object({
   surname: z.string().min(4, {
     message: "Vous devez renseigner votre prénom",
   }),
-  expires: z.date({
-    required_error: "La date d'expiration doit être sélectionnée",
+  idExpires: z.string().min(8, {
+    message: "Vous devez sélectionner une date",
   }),
   NIU: z
     .instanceof(File)
@@ -187,7 +187,7 @@ export const switchToPersonalAccountSchema = z.object({
     .refine((file) => file.size <= 5 * 1024 * 1024, {
       message: "Le fichier doit être inférieur à 5 Mo",
     }),
-  entirePicture: z
+  locationPlan: z
     .instanceof(File)
     .refine(
       (file) =>
