@@ -44,8 +44,14 @@ const PinInput = ({ name, label, form }: PinInputProps) => {
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <InputOTP className="w-full" minLength={4} maxLength={8} {...field}>
-              <InputOTPGroup>
+            <InputOTP
+              className="w-full"
+              minLength={4}
+              maxLength={8}
+              {...field}
+              key={label}
+            >
+              <InputOTPGroup key={label}>
                 {[...Array(8)].map((_, index) => (
                   <>
                     <InputOTPSlot
@@ -60,7 +66,9 @@ const PinInput = ({ name, label, form }: PinInputProps) => {
                             : "none",
                       }}
                     />
-                    {index < 7 && (index + 1) % 2 == 0 && <InputOTPSeparator />}
+                    {index < 7 && (index + 1) % 2 == 0 && (
+                      <InputOTPSeparator key={index} />
+                    )}
                   </>
                 ))}
               </InputOTPGroup>

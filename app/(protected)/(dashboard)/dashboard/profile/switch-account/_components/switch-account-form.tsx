@@ -57,7 +57,6 @@ export const SwitchAccountForm = () => {
   const onSubmit = (
     formData: z.infer<typeof switchToPersonalAccountSchema>
   ) => {
-    console.log(formData);
 
     const simpleData = new FormData();
     simpleData.append("name", formData.name as string);

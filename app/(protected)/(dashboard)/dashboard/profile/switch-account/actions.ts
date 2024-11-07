@@ -3,9 +3,14 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { switchToPersonalAccountSchema } from "@/lib/definitions";
+import axios from "axios";
 import { redirect } from "next/navigation";
 
 const baseUrl = process.env.NEXT_APP_URL;
+
+// interface UploadResult {
+//   file: string;
+// }
 
 export async function SwitchToPersonalAccountAction(simpleData: FormData) {
   const session = await auth();
@@ -22,16 +27,18 @@ export async function SwitchToPersonalAccountAction(simpleData: FormData) {
     locationPlan: simpleData.get("locationPlan") as File,
   };
 
-  if (!session || !session?.user) {
+  // Vérification de la session utilisateur
+  if (!session || !session.user) {
     return redirect("/sign-in?callback=/dashboard/profile");
   }
 
+  // Validation des données via Zod
   const validationResult = switchToPersonalAccountSchema.safeParse(formData);
-
   if (!validationResult.success) {
     return { error: "Les données ne sont pas valides !" };
   }
 
+  // Extraction des champs
   const {
     idType,
     idNumber,
@@ -43,47 +50,63 @@ export async function SwitchToPersonalAccountAction(simpleData: FormData) {
     idOnHand,
     locationPlan,
   } = formData;
-
   const files = [NIU, idPicture, idOnHand, locationPlan];
 
-  const uploadedFiles = await Promise.all(
-    files.map(async (file) => {
-      const response = await fetch(`${baseUrl}/api/upload`, {
-        method: "POST",
-        body: file,
-      });
-      const result = await response.json();
-      const media = await db.media.create({
-        data: {
-          name: file.name,
-          type: result.Format,
-          url: result.secure_url,
-        },
-      });
-      return { file: media.url };
-    })
-  );
+  // Upload des fichiers et création des entrées en base de données
+  try {
+    await Promise.all(
+      files.map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
 
-  console.log("LES FICHIERS: ", uploadedFiles);
+        await axios
+          .post(`${baseUrl}/api/upload`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then(async (response) => {
+            const data = response.data;
+            await db.media.create({
+              data: {
+                name: file.name,
+                type: data.format,
+                url: data.imgUrl,
+              },
+            });
+          })
+          .catch((err) => {
+            console.log("errue cloudinary", err);
+          });
+      })
+    );
 
-  // Enregistrement des informations en base de données
-  await db.kyc.create({
-    data: {
-      name,
-      surname,
-      idExpires,
-      idType,
-      idNumber,
-      user: {
-        connect: {
-          id: session.user.id,
+    await db.kyc.create({
+      data: {
+        name,
+        surname,
+        idExpires,
+        idType,
+        idNumber,
+        user: {
+          connect: {
+            id: session.user.id,
+          },
         },
       },
-    },
-  });
+    });
 
-  return {
-    success:
-      "Votre identification KYC a été soumise et sera traitée dans un délais de 24h ",
-  };
+    return {
+      success:
+        "Votre identification KYC a été soumise et sera traitée dans un délai de 24h.",
+    };
+  } catch (error) {
+    console.error(
+      "Erreur lors de l'upload ou de la création en base de données :"
+      // error
+    );
+    return {
+      error: "Erreur lors de la soumission des données. Veuillez réessayer.",
+    };
+  }
 }
