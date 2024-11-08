@@ -52,7 +52,7 @@ export const KycPersonalFiles = ({ kyc }: { kyc: Kyc }) => {
           fileData.append("file", file);
 
           await axios
-            .post(`http://localhost:3000/api/upload`, fileData, {
+            .post(`https://redacok.laclass.dev/api/upload`, fileData, {
               headers: {
                 "Content-Type": "multipart/form-data",
               },
