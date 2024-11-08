@@ -2,10 +2,24 @@ import { auth } from "@/auth";
 import { DashboardButton } from "@/components/auth/dashboard-button";
 import { Navbar } from "@/components/navbar";
 import { SparklesCore } from "@/components/ui/sparkles";
+import { UrgentLogout } from "@/components/urgent-logout";
+import { db } from "@/lib/db";
 
 export default async function Home() {
   const session = await auth();
 
+  let urgent = false;
+  if (session?.user) {
+    const user = await db.user.findUnique({
+      where: {
+        id: session.user.id,
+      },
+    });
+
+    if (!user) {
+      urgent = true;
+    }
+  }
   return (
     <div className="min-h-screen relative w-full bg-black flex flex-col items-center justify-center">
       <Navbar session={session?.user} />
@@ -35,6 +49,7 @@ export default async function Home() {
           </p>
         </div>
         <DashboardButton label="Commencer" session={session?.user} />
+        {urgent && <UrgentLogout />}
       </div>
     </div>
   );

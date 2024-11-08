@@ -1,3 +1,4 @@
+import { signOutUser } from "@/app/(auth)/sign-in/actions";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
@@ -17,7 +18,8 @@ const page = async () => {
   });
 
   if (!user) {
-    redirect("/");
+    await signOutUser();
+    redirect("/test");
   }
 
   return (
