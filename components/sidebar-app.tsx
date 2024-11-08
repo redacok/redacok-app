@@ -16,6 +16,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
@@ -122,6 +124,8 @@ export function SidebarApp({
                 side="top"
                 className="w-[--radix-popper-anchor-width] z-50"
               >
+                <DropdownMenuLabel>{session?.name}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {/* <DropdownMenuItem>
                   <User2 />
                   <span>Mon compte</span>

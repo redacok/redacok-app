@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { UpdateInfoSchema } from "@/lib/definitions";
+import { Kyc } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import * as z from "zod";
@@ -78,4 +79,28 @@ export async function updateInfoAction(
   return {
     success: "Informations modifiées avec succès !",
   };
+}
+
+export async function kycSubmited(kyc: Kyc) {
+  const session = await auth();
+
+  if (!session || !session?.user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
+  if (
+    kyc.idExpires &&
+    kyc.idNumber &&
+    kyc.idOnHand &&
+    kyc.idPicture &&
+    kyc.idType &&
+    kyc.locationPlan &&
+    kyc.name &&
+    kyc.niu &&
+    kyc.surname
+  ) {
+    return true;
+  } else {
+    return false;
+  }
 }

@@ -1,4 +1,12 @@
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Country } from "@prisma/client";
 import { User } from "next-auth";
 import Link from "next/link";
@@ -81,9 +89,25 @@ export const AccountType = ({
           </ul>
         </>
       )}
-      <Link href="/dashboard/profile/switch-account">
-        <Button>Vérification Intermédiaire</Button>
-      </Link>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="w-fit">Vérification Intermédiaire</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-full">
+          <DropdownMenuLabel>Changer de type de compte</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <Link href="/dashboard/profile/switch-personal-account">
+              Passer à compte personnel
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link href="/dashboard/profile/switch-business-account">
+              Passer à compte Business
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
