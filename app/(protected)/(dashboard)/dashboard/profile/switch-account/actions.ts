@@ -2,85 +2,53 @@
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { switchToPersonalAccountSchema } from "@/lib/definitions";
-import axios from "axios";
+import {
+  personnalVerificationSchema,
+  uploadFileSchema,
+} from "@/lib/definitions";
 import { redirect } from "next/navigation";
+import * as z from "zod";
 
-const baseUrl = process.env.NEXT_APP_URL;
-
-// interface UploadResult {
-//   file: string;
-// }
-
-export async function SwitchToPersonalAccountAction(simpleData: FormData) {
+export async function personnalVerificationAction(
+  formData: z.infer<typeof personnalVerificationSchema>
+) {
   const session = await auth();
-
-  const formData = {
-    idType: simpleData.get("idType") as string,
-    idNumber: simpleData.get("idNumber") as string,
-    name: simpleData.get("name") as string,
-    surname: simpleData.get("surname") as string,
-    idExpires: simpleData.get("idExpires") as string,
-    NIU: simpleData.get("NIU") as File,
-    idPicture: simpleData.get("idPicture") as File,
-    idOnHand: simpleData.get("idOnHand") as File,
-    locationPlan: simpleData.get("locationPlan") as File,
-  };
-
-  // Vérification de la session utilisateur
-  if (!session || !session.user) {
+  if (!session || !session?.user) {
     return redirect("/sign-in?callback=/dashboard/profile");
   }
 
-  // Validation des données via Zod
-  const validationResult = switchToPersonalAccountSchema.safeParse(formData);
+  const validationResult = personnalVerificationSchema.safeParse(formData);
+
   if (!validationResult.success) {
-    return { error: "Les données ne sont pas valides !" };
+    return { error: "Les données ne sont pas valides !", data: {} };
   }
 
-  // Extraction des champs
-  const {
-    idType,
-    idNumber,
-    name,
-    surname,
-    idExpires,
-    NIU,
-    idPicture,
-    idOnHand,
-    locationPlan,
-  } = formData;
-  const files = [NIU, idPicture, idOnHand, locationPlan];
+  const user = await db.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+  });
 
-  // Upload des fichiers et création des entrées en base de données
-  try {
-    await Promise.all(
-      files.map(async (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
+  if (!user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
 
-        await axios
-          .post(`${baseUrl}/api/upload`, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          })
-          .then(async (response) => {
-            const data = response.data;
-            await db.media.create({
-              data: {
-                name: file.name,
-                type: data.format,
-                url: data.imgUrl,
-              },
-            });
-          })
-          .catch((err) => {
-            console.log("errue cloudinary", err);
-          });
-      })
-    );
+  const { id, idType, idNumber, name, surname, idExpires } = formData;
 
+  if (id) {
+    await db.kyc.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        surname,
+        idExpires,
+        idType,
+        idNumber,
+      },
+    });
+  } else {
     await db.kyc.create({
       data: {
         name,
@@ -95,18 +63,74 @@ export async function SwitchToPersonalAccountAction(simpleData: FormData) {
         },
       },
     });
-
-    return {
-      success:
-        "Votre identification KYC a été soumise et sera traitée dans un délai de 24h.",
-    };
-  } catch (error) {
-    console.error(
-      "Erreur lors de l'upload ou de la création en base de données :"
-      // error
-    );
-    return {
-      error: "Erreur lors de la soumission des données. Veuillez réessayer.",
-    };
   }
+
+  return { success: "Informations mises à jour" };
+}
+
+export async function personnalVerificationFileAction(fileData: FormData) {
+  const session = await auth();
+
+  const formData = {
+    imgUrl: fileData.get("imgUrl") as string,
+    fileType: fileData.get("fileType") as string,
+    kycId: fileData.get("kycId") as string,
+    fileName: fileData.get("fileName") as string,
+    field: fileData.get("field") as string,
+  };
+
+  if (!session || !session?.user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
+  const validationResult = uploadFileSchema.safeParse(formData);
+  if (!validationResult.success) {
+    return { error: "Les données ne sont pas valides !" };
+  }
+
+  const user = await db.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+  });
+
+  if (!user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
+  const media = await db.media.create({
+    data: {
+      name: formData.fileName,
+      type: formData.fileType,
+      url: formData.imgUrl,
+    },
+  });
+
+  await db.kyc.update({
+    where: {
+      id: formData.kycId,
+    },
+    data: {
+      [formData.field]: media.id,
+    },
+  });
+
+  return {
+    success: "Documents mis à jour avec succès !",
+  };
+}
+
+export async function getKycAction() {
+  const session = await auth();
+  if (!session || !session?.user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
+  const kyc = db.kyc.findUnique({
+    where: {
+      userId: session.user.id,
+    },
+  });
+
+  return kyc;
 }

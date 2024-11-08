@@ -139,7 +139,8 @@ export const UpdateInfoSchema = z.object({
     }),
 });
 
-export const switchToPersonalAccountSchema = z.object({
+export const personnalVerificationSchema = z.object({
+  id: z.string(),
   idType: z.string().min(1, {
     message: "Vous devez sélectionner le type de pièces",
   }),
@@ -155,6 +156,17 @@ export const switchToPersonalAccountSchema = z.object({
   idExpires: z.string().min(8, {
     message: "Vous devez sélectionner une date",
   }),
+});
+
+export const uploadFileSchema = z.object({
+  fileName: z.string().min(1),
+  fileType: z.string().min(1),
+  kycId: z.string().min(1),
+  imgUrl: z.string().min(1),
+  field: z.string().min(1),
+});
+
+export const personnalVerificationFileSchema = z.object({
   NIU: z
     .instanceof(File)
     .refine(

@@ -1,3 +1,5 @@
+"use client";
+
 import { SwitchAccountForm } from "./_components/switch-account-form";
 
 const page = () => {

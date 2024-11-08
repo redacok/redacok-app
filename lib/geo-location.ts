@@ -12,6 +12,6 @@ export async function geoLocation() {
     `http://ip-api.com/json/${ip}?fields=status,country,countryCode,query`
   );
   const locationDatas = await response.json();
-  console.log(locationDatas);
+  // console.log(locationDatas);
   return locationDatas;
 }
