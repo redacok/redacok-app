@@ -140,17 +140,17 @@ export const UpdateInfoSchema = z.object({
 });
 
 export const personnalVerificationSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   idType: z.string().min(1, {
     message: "Vous devez sélectionner le type de pièces",
   }),
   idNumber: z.string().min(7, {
     message: "Vous devez sélectionner le type de pièces",
   }),
-  name: z.string().min(4, {
+  name: z.string().min(1, {
     message: "Vous devez renseigner votre nom de famille",
   }),
-  surname: z.string().min(4, {
+  surname: z.string().min(1, {
     message: "Vous devez renseigner votre prénom",
   }),
   idExpires: z.string().min(8, {

@@ -12,17 +12,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { personnalVerificationFileSchema } from "@/lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Kyc } from "@prisma/client";
 import axios from "axios";
 import { LoaderCircle } from "lucide-react";
+import { redirect } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { personnalVerificationFileAction } from "../actions";
+import { getKycAction, personnalVerificationFileAction } from "../actions";
 
-export const KycPersonalFiles = ({ kyc }: { kyc: Kyc }) => {
+export const KycPersonalFiles = () => {
   const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof personnalVerificationFileSchema>>({
     resolver: zodResolver(personnalVerificationFileSchema),
     defaultValues: {
@@ -36,7 +37,8 @@ export const KycPersonalFiles = ({ kyc }: { kyc: Kyc }) => {
   const onSubmit = async (
     formData: z.infer<typeof personnalVerificationFileSchema>
   ) => {
-    if (!kyc) {
+    const kycExist = await getKycAction();
+    if (!kycExist) {
       toast.error(
         "Vous devez d'abord renseigner vos informations personnelles"
       );
@@ -59,7 +61,7 @@ export const KycPersonalFiles = ({ kyc }: { kyc: Kyc }) => {
             })
             .then(async (response) => {
               const data = response.data;
-              fileData.append("kycId", kyc.id);
+              fileData.append("kycId", kycExist.id);
               fileData.append("fileType", file.type);
               fileData.append("fileName", file.name);
               fileData.append("imgUrl", data.imgUrl);
@@ -89,6 +91,7 @@ export const KycPersonalFiles = ({ kyc }: { kyc: Kyc }) => {
             });
         })
       );
+      redirect("/dashboard/profile/switch-personal-account");
     });
   };
 

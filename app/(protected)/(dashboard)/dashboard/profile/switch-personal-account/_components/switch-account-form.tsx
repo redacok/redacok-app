@@ -43,7 +43,7 @@ export const SwitchAccountForm = () => {
         <SkeletonWrapper isLoading={isLoading}>
           {addDocument ? (
             <>
-              <KycPersonalFiles kyc={kycAction!} />
+              <KycPersonalFiles />
             </>
           ) : (
             <>
