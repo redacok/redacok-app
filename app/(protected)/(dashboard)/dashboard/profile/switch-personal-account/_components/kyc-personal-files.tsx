@@ -36,6 +36,13 @@ export const KycPersonalFiles = ({ kyc }: { kyc: Kyc }) => {
   const onSubmit = async (
     formData: z.infer<typeof personnalVerificationFileSchema>
   ) => {
+    if (!kyc) {
+      toast.error(
+        "Vous devez d'abord renseigner vos informations personnelles"
+      );
+      return;
+    }
+
     const { NIU, idPicture, idOnHand, locationPlan } = formData;
     const files = [NIU, idPicture, idOnHand, locationPlan];
     startTransition(async () => {
