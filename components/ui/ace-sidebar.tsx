@@ -125,6 +125,7 @@ export const MobileSidebar = ({
           <PanelLeftOpen
             className="text-neutral-800 dark:text-slate-200"
             onClick={() => setOpen(!open)}
+            aria-label="Ouvrir le menu latéral"
           />
           <Link
             href="/"

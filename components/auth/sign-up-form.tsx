@@ -60,7 +60,7 @@ export const SignUpForm = () => {
   const options = getCountriesOptions();
 
   // You can use a the country of the phone number to set the default country
-  const defaultCountry = parsePhoneNumber("+33651117119")?.country;
+  const defaultCountry = parsePhoneNumber("+237651117119")?.country;
   const defaultCountryOption = options.find(
     (option) => option.value === defaultCountry
   );

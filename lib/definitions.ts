@@ -19,6 +19,21 @@ export const SignInWithNumberSchema = z.object({
   }),
 });
 
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .email({
+      message: "Entrez une adrese mail valide",
+    })
+    .optional(),
+  phone: z
+    .string()
+    .optional()
+    .refine((value) => !value || value.length >= 6, {
+      message: "Le numéro de téléphone n'est pas valide",
+    }),
+});
+
 export const SignUpSchema = z.object({
   email: z.string().email({
     message: "Entrez une adrese mail valide",
