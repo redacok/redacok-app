@@ -2,7 +2,7 @@ import { generateVerificationToken } from "@/data/tokens";
 import { getUserByEmail, getUserByPhone } from "@/data/user";
 import { getVerificationTokenByIdentifier } from "@/data/verification-token";
 import { ForgotPasswordSchema } from "@/lib/definitions";
-import { sendVerificationEmail } from "@/lib/mail";
+import { sendForgotPasswordVerificationEmail } from "@/lib/mail";
 import { User } from "@prisma/client";
 import { z } from "zod";
 
@@ -46,12 +46,14 @@ export async function ForgotPasswordAction(
     );
 
     if (email && email.length > 1) {
-      sendVerificationEmail(
+      sendForgotPasswordVerificationEmail(
         verificationToken.identifier,
         verificationToken.token
       );
     }
   }
 
-  return { success: "Un mail de vérification vous a été envoyé par mail" };
+  return {
+    success: "Un lien de vérification vous a été envoyé à l'adresse mentionnée",
+  };
 }
