@@ -122,11 +122,12 @@ export const MobileSidebar = ({
         {...props}
       >
         <div className="flex z-20 w-full items-center justify-between">
-          <PanelLeftOpen
-            className="text-neutral-800 dark:text-slate-200"
-            onClick={() => setOpen(!open)}
-            aria-label="Ouvrir le menu latéral"
-          />
+          <Button variant={"ghost"} onClick={() => setOpen(!open)}>
+            <PanelLeftOpen
+              className="text-neutral-800 dark:text-slate-200"
+              aria-label="Ouvrir le menu latéral"
+            />
+          </Button>
           <Link
             href="/"
             className={cn(
