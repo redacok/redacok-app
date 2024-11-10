@@ -7,7 +7,7 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
+  // CommandInput,
   CommandItem,
   CommandList,
 } from "../ui/command";
@@ -38,7 +38,7 @@ export function ComboboxCountryInput<T extends Option>({
   options,
   renderOption,
   renderValue,
-  placeholder,
+  // placeholder,
   emptyMessage,
 }: ComboboxCountryInputProps<T>) {
   const [open, setOpen] = React.useState(false);
@@ -58,7 +58,7 @@ export function ComboboxCountryInput<T extends Option>({
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-2 pb-0" align="start">
         <Command>
-          <CommandInput placeholder={placeholder} className="h-9" />
+          {/* <CommandInput placeholder={placeholder} className="h-9" /> */}
           <CommandEmpty>{emptyMessage}</CommandEmpty>
           <CommandList>
             <CommandGroup className="mt-2 h-full max-h-48 overflow-auto p-0 [&_div[cmdk-group-items]]:flex [&_div[cmdk-group-items]]:flex-col [&_div[cmdk-group-items]]:gap-1">
