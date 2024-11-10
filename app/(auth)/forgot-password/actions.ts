@@ -1,3 +1,5 @@
+"use server";
+
 import { generateVerificationToken } from "@/data/tokens";
 import { getUserByEmail, getUserByPhone } from "@/data/user";
 import { getVerificationTokenByIdentifier } from "@/data/verification-token";

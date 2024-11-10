@@ -34,6 +34,15 @@ export const ForgotPasswordSchema = z.object({
     }),
 });
 
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(1, {
+    message: "Action non autorisée",
+  }),
+  password: z.string().min(4, {
+    message: "Le code PIN doit avoir au moins 4 chiffres",
+  }),
+});
+
 export const SignUpSchema = z.object({
   email: z.string().email({
     message: "Entrez une adrese mail valide",

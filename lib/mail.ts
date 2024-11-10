@@ -20,7 +20,7 @@ export const sendForgotPasswordVerificationEmail = async (
   email: string,
   token: string
 ) => {
-  const confirmLink = `${baseUrl}/auth/forgot-password/verification?token=${token}`;
+  const confirmLink = `${baseUrl}/forgot-password/verification?token=${token}`;
 
   await resend.emails.send({
     from: "forgot-password@redacok.laclass.dev",
