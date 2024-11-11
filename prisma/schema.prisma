@@ -102,19 +102,21 @@ model Kyc {
   idType          String?
   idNumber        String?
   idExpires       DateTime?
-  niu             String? @unique
-  idPicture       String? @unique
-  idOnHand        String? @unique
-  locationPlan    String? @unique
+  niu             String?   @unique
+  idPicture       String?   @unique
+  idOnHand        String?   @unique
+  locationPlan    String?   @unique
   isValid         Boolean   @default(false)
   invalidReason   String?
+  type            String?   @default("personal")
+  isProcessing    Boolean   @default(true)
 
   userId          String    @unique
 
-  niuMedia           Media?     @relation(name: "KycNiuMedia", fields: [niu], references: [id])
-  pictureMedia       Media?     @relation(name: "KycPictureMedia", fields: [idPicture], references: [id])
-  OnHandMedia      Media?     @relation(name: "KycOnHandMedia", fields: [idOnHand], references: [id])
-  locationPlanMedia   Media?     @relation(name: "KycLocationPlanMedia", fields: [locationPlan], references: [id])
+  niuMedia            Media?  @relation(name: "KycNiuMedia", fields: [niu], references: [id])
+  pictureMedia        Media?  @relation(name: "KycPictureMedia", fields: [idPicture], references: [id])
+  OnHandMedia         Media?  @relation(name: "KycOnHandMedia", fields: [idOnHand], references: [id])
+  locationPlanMedia   Media?  @relation(name: "KycLocationPlanMedia", fields: [locationPlan], references: [id])
   
   user            User      @relation(fields: [userId], references: [id])
   organisation    Organisation?
@@ -131,12 +133,23 @@ model Organisation {
   name      String
   type      String
   logo      String?
+  isValid   Boolean @default(false)
 
   userId    String  @unique
   kycId     String  @unique
+  isProcessing    Boolean   @default(true)
+
+  organisationDocument  String? @unique
+  founderDocument       String? @unique
+  investorDocument      String? @unique
 
   user      User    @relation(fields: [userId], references: [id])
   kyc       Kyc     @relation(fields: [kycId], references: [id])
+
+  organisationDocumentMedia  Media?     @relation(name: "organisationDocumentMedia", fields: [organisationDocument], references: [id])
+  founderDocumentMedia       Media?     @relation(name: "founderDocumentMedia", fields: [founderDocument], references: [id])
+  investorDocumentMedia      Media?     @relation(name: "investorDocumentMedia", fields: [investorDocument], references: [id])
+
   @@index([userId])
 }
 
@@ -146,10 +159,14 @@ model Media {
   type      String
   url       String
 
-  kycNiu    Kyc?      @relation(name: "KycNiuMedia")
-  kycPicture Kyc?      @relation(name: "KycPictureMedia")
-  kycOnHand Kyc?     @relation(name: "KycOnHandMedia")
-  kycLocationPlan Kyc?     @relation(name: "KycLocationPlanMedia")
+  kycNiu          Kyc?  @relation(name: "KycNiuMedia")
+  kycPicture      Kyc?  @relation(name: "KycPictureMedia")
+  kycOnHand       Kyc?  @relation(name: "KycOnHandMedia")
+  kycLocationPlan Kyc?  @relation(name: "KycLocationPlanMedia")
+
+  organisationDocument Organisation?       @relation(name: "organisationDocumentMedia")
+  founderDocument      Organisation?       @relation(name: "founderDocumentMedia")
+  investorDocument     Organisation?       @relation(name: "investorDocumentMedia")
 }
 
 model Country {

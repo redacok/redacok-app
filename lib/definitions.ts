@@ -182,6 +182,16 @@ export const personnalVerificationSchema = z.object({
   }),
 });
 
+export const businessVerificationSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1, {
+    message: "Vous devez renseigner votre nom de famille",
+  }),
+  surname: z.string().min(1, {
+    message: "Vous devez renseigner votre prénom",
+  }),
+});
+
 export const uploadFileSchema = z.object({
   fileName: z.string().min(1),
   fileType: z.string().min(1),
