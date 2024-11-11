@@ -3,30 +3,41 @@
 import addDocumentStore from "@/store/add-document-store";
 
 import SkeletonWrapper from "@/components/skeleton-wrapper";
-import { Kyc } from "@prisma/client";
+import { Kyc, Organisation } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { SwitchVerificationBtn } from "../../_components/switch-verification-btn";
 import { kycSubmited } from "../../actions";
 // import { KycPersonalFiles } from "./kyc-personal-files";
 import { VerificationState } from "../../switch-personal-account/_components/verification-state";
-import { getKycAction } from "../../switch-personal-account/actions";
+import {
+  getKycAction,
+  getKycOrganisationAction,
+} from "../../switch-personal-account/actions";
+import { KycBusinessFiles } from "./kyc-business-files";
 import { KycBusinessInfo } from "./kyc-business-info";
 
 export const SwitchToBusinessForm = () => {
   const { addDocument } = addDocumentStore();
   const [kycAction, setKycAction] = useState<Kyc | null>(null);
+  const [organisationInfo, setOrganisationInfo] = useState<Organisation | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmited, setIsSubmited] = useState(false);
 
   useEffect(() => {
     const fetchKycAction = async () => {
-      const action = await getKycAction();
+      const action = await getKycAction("business");
       if (action) {
-        const fetchVerificationStatus = async () => {
-          const submit = await kycSubmited(action);
-          setIsSubmited(submit);
-        };
-        fetchVerificationStatus();
+        const orgInfo = await getKycOrganisationAction(action);
+        if (orgInfo) {
+          const fetchVerificationStatus = async () => {
+            const submit = await kycSubmited(action, "business");
+            setIsSubmited(submit);
+          };
+          fetchVerificationStatus();
+        }
+        setOrganisationInfo(orgInfo);
       }
       setKycAction(action);
       setIsLoading(false);
@@ -42,10 +53,13 @@ export const SwitchToBusinessForm = () => {
       <div className="max-w-[800px] w-full md:w-3/4 mx-auto mb-6 md:mb-0 pb-6">
         <SkeletonWrapper isLoading={isLoading}>
           {addDocument ? (
-            <>{/* <KycPersonalFiles /> */}</>
+            <>{<KycBusinessFiles />}</>
           ) : (
             <>
-              <KycBusinessInfo kyc={kycAction!} />
+              <KycBusinessInfo
+                kyc={kycAction!}
+                organisation={organisationInfo!}
+              />
             </>
           )}
         </SkeletonWrapper>

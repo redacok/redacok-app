@@ -10,11 +10,19 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { businessType } from "@/constants";
 import { businessVerificationSchema } from "@/lib/definitions";
 import { cn } from "@/lib/utils";
 import addDocumentStore from "@/store/add-document-store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Kyc } from "@prisma/client";
+import { Kyc, Organisation } from "@prisma/client";
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -24,7 +32,13 @@ import { toast } from "sonner";
 import * as z from "zod";
 import { BusinessVerificationAction } from "../actions";
 
-export const KycBusinessInfo = ({ kyc }: { kyc: Kyc }) => {
+export const KycBusinessInfo = ({
+  kyc,
+  organisation,
+}: {
+  kyc: Kyc;
+  organisation: Organisation;
+}) => {
   const [isPending, startTransition] = useTransition();
   const { addDocument, toggle } = addDocumentStore();
   const [next, setNext] = useState(false);
@@ -33,7 +47,10 @@ export const KycBusinessInfo = ({ kyc }: { kyc: Kyc }) => {
   const form = useForm<z.infer<typeof businessVerificationSchema>>({
     resolver: zodResolver(businessVerificationSchema),
     defaultValues: {
-      id: kyc?.id ?? undefined,
+      kycId: kyc?.id ?? undefined,
+      orgId: organisation?.id ?? undefined,
+      orgName: organisation?.name ?? undefined,
+      type: organisation?.type ?? undefined,
       name: kyc?.name ?? "",
       surname: kyc?.surname ?? "",
     },
@@ -94,6 +111,50 @@ export const KycBusinessInfo = ({ kyc }: { kyc: Kyc }) => {
                     {...field}
                     disabled={isPending}
                     placeholder="Ex: Landry"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sélectionnez le type de votre entreprise</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez votre pièce d'identité" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {businessType.map((business, index) => (
+                      <SelectItem key={index} value={business.type}>
+                        {business.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="orgName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nom de la structure</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    disabled={isPending}
+                    placeholder="Ex: Democam SARL"
                   />
                 </FormControl>
                 <FormMessage />

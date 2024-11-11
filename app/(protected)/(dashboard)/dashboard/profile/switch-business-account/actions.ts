@@ -2,7 +2,10 @@
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { businessVerificationSchema } from "@/lib/definitions";
+import {
+  businessVerificationSchema,
+  uploadBusinessFileSchema,
+} from "@/lib/definitions";
 import { redirect } from "next/navigation";
 import * as z from "zod";
 
@@ -30,23 +33,33 @@ export async function BusinessVerificationAction(
     return redirect("/sign-in?callback=/dashboard/profile");
   }
 
-  const { id, name, surname } = formData;
+  const { kycId, orgId, name, surname, orgName, type } = formData;
 
-  if (id) {
+  if (kycId && orgId) {
     await db.kyc.update({
       where: {
-        id,
+        id: kycId,
       },
       data: {
         name,
         surname,
       },
     });
+
+    await db.organisation.update({
+      where: {
+        id: orgId,
+      },
+      data: {
+        name,
+      },
+    });
   } else {
-    await db.kyc.create({
+    const newKyc = await db.kyc.create({
       data: {
         name,
         surname,
+        type: "business",
         user: {
           connect: {
             id: session.user.id,
@@ -54,7 +67,76 @@ export async function BusinessVerificationAction(
         },
       },
     });
+
+    await db.organisation.create({
+      data: {
+        name: orgName,
+        type,
+        user: {
+          connect: {
+            id: session.user.id,
+          },
+        },
+        kyc: {
+          connect: {
+            id: newKyc.id,
+          },
+        },
+      },
+    });
   }
 
   return { success: "Informations mises à jour" };
+}
+
+export async function businessVerificationFileAction(fileData: FormData) {
+  const session = await auth();
+
+  const formData = {
+    imgUrl: fileData.get("imgUrl") as string,
+    fileType: fileData.get("fileType") as string,
+    organisationId: fileData.get("kycId") as string,
+    fileName: fileData.get("fileName") as string,
+    field: fileData.get("field") as string,
+  };
+
+  if (!session || !session?.user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
+  const validationResult = uploadBusinessFileSchema.safeParse(formData);
+  if (!validationResult.success) {
+    return { error: "Les données ne sont pas valides !" };
+  }
+
+  const user = await db.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+  });
+
+  if (!user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
+  const media = await db.media.create({
+    data: {
+      name: formData.fileName,
+      type: formData.fileType,
+      url: formData.imgUrl,
+    },
+  });
+
+  await db.organisation.update({
+    where: {
+      id: formData.organisationId,
+    },
+    data: {
+      [formData.field]: media.id,
+    },
+  });
+
+  return {
+    success: "Documents mis à jour avec succès !",
+  };
 }

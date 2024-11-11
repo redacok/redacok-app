@@ -87,7 +87,7 @@ model User {
   bankAccounts  BankAccount[]
   transactions  Transaction[]
   organisation  Organisation?
-  kyc           Kyc?
+  kyc           Kyc[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -105,17 +105,19 @@ model Kyc {
   niu             String?   @unique
   idPicture       String?   @unique
   idOnHand        String?   @unique
+  entirePhoto     String?   @unique
   locationPlan    String?   @unique
   isValid         Boolean   @default(false)
   invalidReason   String?
   type            String?   @default("personal")
   isProcessing    Boolean   @default(true)
 
-  userId          String    @unique
+  userId          String    
 
   niuMedia            Media?  @relation(name: "KycNiuMedia", fields: [niu], references: [id])
   pictureMedia        Media?  @relation(name: "KycPictureMedia", fields: [idPicture], references: [id])
-  OnHandMedia         Media?  @relation(name: "KycOnHandMedia", fields: [idOnHand], references: [id])
+  onHandMedia         Media?  @relation(name: "KycOnHandMedia", fields: [idOnHand], references: [id])
+  entirePhotoMedia         Media?  @relation(name: "KycEntirePhotoMedia", fields: [entirePhoto], references: [id])
   locationPlanMedia   Media?  @relation(name: "KycLocationPlanMedia", fields: [locationPlan], references: [id])
   
   user            User      @relation(fields: [userId], references: [id])
@@ -126,6 +128,8 @@ model Kyc {
   @@index([idPicture])
   @@index([idOnHand])
   @@index([locationPlan])
+
+  @@unique([userId, type])
 }
 
 model Organisation {
@@ -162,6 +166,7 @@ model Media {
   kycNiu          Kyc?  @relation(name: "KycNiuMedia")
   kycPicture      Kyc?  @relation(name: "KycPictureMedia")
   kycOnHand       Kyc?  @relation(name: "KycOnHandMedia")
+  kycEntirePhoto  Kyc?  @relation(name: "KycEntirePhotoMedia")
   kycLocationPlan Kyc?  @relation(name: "KycLocationPlanMedia")
 
   organisationDocument Organisation?       @relation(name: "organisationDocumentMedia")

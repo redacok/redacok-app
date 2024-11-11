@@ -6,6 +6,7 @@ import {
   personnalVerificationSchema,
   uploadFileSchema,
 } from "@/lib/definitions";
+import { Kyc } from "@prisma/client";
 import { redirect } from "next/navigation";
 import * as z from "zod";
 
@@ -120,17 +121,36 @@ export async function personnalVerificationFileAction(fileData: FormData) {
   };
 }
 
-export async function getKycAction() {
+export async function getKycAction(type: string = "personal") {
   const session = await auth();
   if (!session || !session?.user) {
     return redirect("/sign-in?callback=/dashboard/profile");
   }
 
-  const kyc = db.kyc.findUnique({
+  const kyc = await db.kyc.findUnique({
     where: {
-      userId: session.user.id,
+      userId_type: {
+        userId: session.user.id!,
+        type,
+      },
     },
   });
 
   return kyc;
+}
+
+export async function getKycOrganisationAction(kyc: Kyc) {
+  const session = await auth();
+  if (!session || !session?.user) {
+    return redirect("/sign-in?callback=/dashboard/profile");
+  }
+
+  const organisation = await db.organisation.findUnique({
+    where: {
+      userId: session.user.id!,
+      kycId: kyc.id,
+    },
+  });
+
+  return organisation;
 }

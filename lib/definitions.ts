@@ -183,19 +183,67 @@ export const personnalVerificationSchema = z.object({
 });
 
 export const businessVerificationSchema = z.object({
-  id: z.string().optional(),
+  kycId: z.string().optional(),
+  orgId: z.string().optional(),
   name: z.string().min(1, {
     message: "Vous devez renseigner votre nom de famille",
   }),
   surname: z.string().min(1, {
     message: "Vous devez renseigner votre prénom",
   }),
+  orgName: z.string().min(1, {
+    message: "Vous devez renseigner votre prénom",
+  }),
+  type: z.string().min(1, {
+    message: "Vous devez renseigner votre prénom",
+  }),
+});
+
+export const businessVerificationFileSchema = z.object({
+  organisationDocument: z
+    .instanceof(File)
+    .refine(
+      (file) =>
+        ["image/jpeg", "image/png", "application/pdf"].includes(file.type),
+      {
+        message: "Format de fichier non supporté",
+      }
+    )
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
+  investorDocument: z
+    .instanceof(File)
+    .optional()
+    .refine((file) => file && ["application/pdf"].includes(file.type), {
+      message: "Format de fichier non supporté",
+    })
+    .refine((file) => file && file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
+  founderDocument: z
+    .instanceof(File)
+    .optional()
+    .refine((file) => file && ["application/pdf"].includes(file.type), {
+      message: "Format de fichier non supporté",
+    })
+    .refine((file) => file && file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
 });
 
 export const uploadFileSchema = z.object({
   fileName: z.string().min(1),
   fileType: z.string().min(1),
   kycId: z.string().min(1),
+  imgUrl: z.string().min(1),
+  field: z.string().min(1),
+});
+
+export const uploadBusinessFileSchema = z.object({
+  fileName: z.string().min(1),
+  fileType: z.string().min(1),
+  organisationId: z.string().min(1),
   imgUrl: z.string().min(1),
   field: z.string().min(1),
 });
@@ -226,6 +274,14 @@ export const personnalVerificationFileSchema = z.object({
       message: "Le fichier doit être inférieur à 5 Mo",
     }),
   idOnHand: z
+    .instanceof(File)
+    .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
+      message: "Format de fichier non supporté",
+    })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Le fichier doit être inférieur à 5 Mo",
+    }),
+  entirePhoto: z
     .instanceof(File)
     .refine((file) => ["image/jpeg", "image/png"].includes(file.type), {
       message: "Format de fichier non supporté",

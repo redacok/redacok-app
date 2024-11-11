@@ -1,9 +1,9 @@
 "use client";
 
-import PersonalFileInput from "@/components/personal-file-input";
+import BusinessFileInput from "@/components/business-file-input";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { personnalVerificationFileSchema } from "@/lib/definitions";
+import { businessVerificationFileSchema } from "@/lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { LoaderCircle } from "lucide-react";
@@ -12,26 +12,25 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { getKycAction, personnalVerificationFileAction } from "../actions";
+import { getKycAction } from "../../switch-personal-account/actions";
+import { businessVerificationFileAction } from "../actions";
 
-export const KycPersonalFiles = () => {
+export const KycBusinessFiles = () => {
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof personnalVerificationFileSchema>>({
-    resolver: zodResolver(personnalVerificationFileSchema),
+  const form = useForm<z.infer<typeof businessVerificationFileSchema>>({
+    resolver: zodResolver(businessVerificationFileSchema),
     defaultValues: {
-      idPicture: undefined,
-      NIU: undefined,
-      idOnHand: undefined,
-      entirePhoto: undefined,
-      locationPlan: undefined,
+      organisationDocument: undefined,
+      investorDocument: undefined,
+      founderDocument: undefined,
     },
   });
 
   const onSubmit = async (
-    formData: z.infer<typeof personnalVerificationFileSchema>
+    formData: z.infer<typeof businessVerificationFileSchema>
   ) => {
-    const kycExist = await getKycAction();
+    const kycExist = await getKycAction("business");
     if (!kycExist) {
       toast.error(
         "Vous devez d'abord renseigner vos informations personnelles"
@@ -39,8 +38,13 @@ export const KycPersonalFiles = () => {
       return;
     }
 
-    const { NIU, idPicture, idOnHand, locationPlan } = formData;
-    const files = [NIU, idPicture, idOnHand, locationPlan];
+    const { organisationDocument, investorDocument, founderDocument } =
+      formData;
+    const files = [
+      organisationDocument,
+      investorDocument,
+      founderDocument,
+    ].filter((file): file is File => file !== undefined);
     startTransition(async () => {
       await Promise.all(
         files.map(async (file: File, index) => {
@@ -58,18 +62,14 @@ export const KycPersonalFiles = () => {
               fileData.append("kycId", kycExist.id);
               fileData.append("fileType", file.type);
               fileData.append("fileName", file.name);
-              fileData.append("imgUrl", data.imgUrl);
+              fileData.append("fileUrl", data.imgUrl);
               fileData.append(
                 "field",
                 index === 1
-                  ? "niu"
+                  ? "organisationDocument"
                   : index === 2
-                  ? "idPicture"
-                  : index === 3
-                  ? "idOnHand"
-                  : index === 4
-                  ? "entirePhoto"
-                  : "locationPlan"
+                  ? "investorDocument"
+                  : "founderDocument"
               );
               console.log(fileData.get("kycId"));
               console.log(fileData.get("fileType"));
@@ -77,7 +77,7 @@ export const KycPersonalFiles = () => {
               console.log(fileData.get("imgUrl"));
               console.log(fileData.get("field"));
 
-              personnalVerificationFileAction(fileData).then((data) => {
+              businessVerificationFileAction(fileData).then((data) => {
                 if (data.success) toast.success(data.success);
                 if (data.error) toast.error(data.error);
               });
@@ -97,31 +97,22 @@ export const KycPersonalFiles = () => {
         Fichiers d&apos;identification
       </h1>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <PersonalFileInput
-          label="Photo Recto/Verso de votre pièce d'identité"
-          name="idPicture"
+        <BusinessFileInput
           form={form}
+          name="organisationDocument"
+          label="Documents de l'entreprise (en 1 PDF)"
         />
-        <PersonalFileInput
-          label="Photo de votre Numéro d'identification unique"
-          name="NIU"
+        <BusinessFileInput
           form={form}
+          name="founderDocument"
+          label="Documents du fondateur de la structure (en 1 PDF)"
         />
-        <PersonalFileInput
-          label="Photo de vous, tenant votre pièce d'identité face caméra"
-          name="idOnHand"
+        <BusinessFileInput
           form={form}
+          name="investorDocument"
+          label="Documents d'un investisseur de la structure (en 1 PDF)"
         />
-        <PersonalFileInput
-          label="Photo Entière de vous"
-          name="locationPlan"
-          form={form}
-        />
-        <PersonalFileInput
-          label="Plan de localisation"
-          name="locationPlan"
-          form={form}
-        />
+
         <Button type="submit" className="w-full gap-x-2" disabled={isPending}>
           {isPending && <LoaderCircle className="size-5 animate-spin" />}
           Mettre à jour mes documents

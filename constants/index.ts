@@ -67,3 +67,10 @@ export const idTypes = [
   { type: "DiverLicence", label: "Permi de conduire" },
   { type: "Reciep", label: "Récépissé CNI" },
 ];
+
+export const businessType = [
+  { type: "boutique", label: "Boutique" },
+  { type: "entreprise", label: "Entreprise" },
+  { type: "etablissement scolaire", label: "Etablissement Scolaire" },
+  { type: "microfinance", label: "MicroFinance" },
+];
