@@ -95,13 +95,16 @@ export async function businessVerificationFileAction(fileData: FormData) {
   const formData = {
     fileUrl: fileData.get("fileUrl") as string,
     fileType: fileData.get("fileType") as string,
-    organisationId: fileData.get("kycId") as string,
+    kycId: fileData.get("kycId") as string,
+    organisationId: fileData.get("organisationId") as string,
     fileName: fileData.get("fileName") as string,
     field: fileData.get("field") as string,
   };
 
   if (!session || !session?.user) {
-    return redirect("/sign-in?callback=/dashboard/profile");
+    return redirect(
+      "/sign-in?callback=/dashboard/profile/switch-business-account"
+    );
   }
 
   const validationResult = uploadBusinessFileSchema.safeParse(formData);
@@ -116,7 +119,9 @@ export async function businessVerificationFileAction(fileData: FormData) {
   });
 
   if (!user) {
-    return redirect("/sign-in?callback=/dashboard/profile");
+    return redirect(
+      "/sign-in?callback=/dashboard/profile/switch-business-account"
+    );
   }
 
   const media = await db.media.create({

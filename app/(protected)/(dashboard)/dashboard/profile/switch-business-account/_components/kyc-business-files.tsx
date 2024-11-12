@@ -84,11 +84,11 @@ export const KycBusinessFiles = () => {
               });
             })
             .catch((err) => {
-              console.log("errue cloudinary", err);
+              console.log("erreur cloudinary ", err);
             });
         })
       );
-      redirect("/dashboard/profile/switch-personal-account");
+      redirect("/dashboard/profile/switch-business-account");
     });
   };
 
