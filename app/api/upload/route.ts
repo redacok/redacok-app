@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     if (res.success && res.result) {
       return NextResponse.json({
         message: "success",
-        imgUrl: res.result.secure_url,
+        fileUrl: res.result.secure_url,
       });
     } else return NextResponse.json({ message: "failure" });
   } catch (error) {

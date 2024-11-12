@@ -12,7 +12,10 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { getKycAction } from "../../switch-personal-account/actions";
+import {
+  getKycAction,
+  getKycOrganisationAction,
+} from "../../switch-personal-account/actions";
 import { businessVerificationFileAction } from "../actions";
 
 export const KycBusinessFiles = () => {
@@ -38,18 +41,27 @@ export const KycBusinessFiles = () => {
       return;
     }
 
+    const existOrg = await getKycOrganisationAction(kycExist);
+    if (!existOrg) {
+      toast.error("Une erreur inatendue s'est prosuite");
+      return;
+    }
+
     const { organisationDocument, investorDocument, founderDocument } =
       formData;
     const files = [
-      organisationDocument,
-      investorDocument,
-      founderDocument,
-    ].filter((file): file is File => file !== undefined);
+      { file: organisationDocument, field: "organisationDocument" },
+      { file: investorDocument, field: "investorDocument" },
+      { file: founderDocument, field: "founderDocument" },
+    ].filter(
+      (doc): doc is { file: File; field: string } => doc.file !== undefined
+    );
+
     startTransition(async () => {
       await Promise.all(
-        files.map(async (file: File, index) => {
+        files.map(async (file) => {
           const fileData = new FormData();
-          fileData.append("file", file);
+          fileData.append("file", file.file);
 
           await axios
             .post(`https://redacok.laclass.dev/api/upload`, fileData, {
@@ -60,22 +72,11 @@ export const KycBusinessFiles = () => {
             .then(async (response) => {
               const data = response.data;
               fileData.append("kycId", kycExist.id);
-              fileData.append("fileType", file.type);
-              fileData.append("fileName", file.name);
-              fileData.append("fileUrl", data.imgUrl);
-              fileData.append(
-                "field",
-                index === 1
-                  ? "organisationDocument"
-                  : index === 2
-                  ? "investorDocument"
-                  : "founderDocument"
-              );
-              console.log(fileData.get("kycId"));
-              console.log(fileData.get("fileType"));
-              console.log(fileData.get("fileName"));
-              console.log(fileData.get("imgUrl"));
-              console.log(fileData.get("field"));
+              fileData.append("organisationId", existOrg.id);
+              fileData.append("fileType", file.file.type);
+              fileData.append("fileName", file.file.name);
+              fileData.append("fileUrl", data.fileUrl);
+              fileData.append("field", file.field);
 
               businessVerificationFileAction(fileData).then((data) => {
                 if (data.success) toast.success(data.success);

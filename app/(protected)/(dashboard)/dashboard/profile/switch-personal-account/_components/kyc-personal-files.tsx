@@ -39,13 +39,19 @@ export const KycPersonalFiles = () => {
       return;
     }
 
-    const { NIU, idPicture, idOnHand, locationPlan } = formData;
-    const files = [NIU, idPicture, idOnHand, locationPlan];
+    const { NIU, idPicture, idOnHand, locationPlan, entirePhoto } = formData;
+    const files = [
+      { file: NIU, field: "niu" },
+      { file: idPicture, field: "idPicture" },
+      { file: idOnHand, field: "idOnHand" },
+      { file: locationPlan, field: "locationPlan" },
+      { file: entirePhoto, field: "entirePhoto" },
+    ];
     startTransition(async () => {
       await Promise.all(
-        files.map(async (file: File, index) => {
+        files.map(async (file) => {
           const fileData = new FormData();
-          fileData.append("file", file);
+          fileData.append("file", file.file as File);
 
           await axios
             .post(`https://redacok.laclass.dev/api/upload`, fileData, {
@@ -56,26 +62,10 @@ export const KycPersonalFiles = () => {
             .then(async (response) => {
               const data = response.data;
               fileData.append("kycId", kycExist.id);
-              fileData.append("fileType", file.type);
-              fileData.append("fileName", file.name);
-              fileData.append("imgUrl", data.imgUrl);
-              fileData.append(
-                "field",
-                index === 1
-                  ? "niu"
-                  : index === 2
-                  ? "idPicture"
-                  : index === 3
-                  ? "idOnHand"
-                  : index === 4
-                  ? "entirePhoto"
-                  : "locationPlan"
-              );
-              console.log(fileData.get("kycId"));
-              console.log(fileData.get("fileType"));
-              console.log(fileData.get("fileName"));
-              console.log(fileData.get("imgUrl"));
-              console.log(fileData.get("field"));
+              fileData.append("fileType", file.file.type);
+              fileData.append("fileName", file.file.name);
+              fileData.append("fileUrl", data.fileUrl);
+              fileData.append("field", file.field);
 
               personnalVerificationFileAction(fileData).then((data) => {
                 if (data.success) toast.success(data.success);

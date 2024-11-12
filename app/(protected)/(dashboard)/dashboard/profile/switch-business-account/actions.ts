@@ -51,7 +51,7 @@ export async function BusinessVerificationAction(
         id: orgId,
       },
       data: {
-        name,
+        name: orgName,
       },
     });
   } else {
@@ -93,7 +93,7 @@ export async function businessVerificationFileAction(fileData: FormData) {
   const session = await auth();
 
   const formData = {
-    imgUrl: fileData.get("imgUrl") as string,
+    fileUrl: fileData.get("fileUrl") as string,
     fileType: fileData.get("fileType") as string,
     organisationId: fileData.get("kycId") as string,
     fileName: fileData.get("fileName") as string,
@@ -123,7 +123,7 @@ export async function businessVerificationFileAction(fileData: FormData) {
     data: {
       name: formData.fileName,
       type: formData.fileType,
-      url: formData.imgUrl,
+      url: formData.fileUrl,
     },
   });
 

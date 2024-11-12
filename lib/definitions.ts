@@ -236,15 +236,16 @@ export const uploadFileSchema = z.object({
   fileName: z.string().min(1),
   fileType: z.string().min(1),
   kycId: z.string().min(1),
-  imgUrl: z.string().min(1),
+  fileUrl: z.string().min(1),
   field: z.string().min(1),
 });
 
 export const uploadBusinessFileSchema = z.object({
   fileName: z.string().min(1),
   fileType: z.string().min(1),
+  kycId: z.string().min(1),
   organisationId: z.string().min(1),
-  imgUrl: z.string().min(1),
+  fileUrl: z.string().min(1),
   field: z.string().min(1),
 });
 
