@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { DeleteTransaction } from "../actions/delete-transaction";
+import { DeleteTransaction } from "../actions";
 
 interface DeleteCategoryDialogProps {
   open: boolean;
