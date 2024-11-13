@@ -1,4 +1,5 @@
-import { Currencies } from "@/constants";
+import { Currencies, MAX_DATE_RANGE_DAYS } from "@/constants";
+import { differenceInDays } from "date-fns";
 import * as z from "zod";
 
 export const SignInSchema = z.object({
@@ -305,3 +306,17 @@ export const personnalVerificationFileSchema = z.object({
       message: "Le fichier doit être inférieur à 5 Mo",
     }),
 });
+
+export const OverviewQuerySchema = z
+  .object({
+    from: z.coerce.date(),
+    to: z.coerce.date(),
+  })
+  .refine((args) => {
+    const { from, to } = args;
+    const days = differenceInDays(to, from);
+
+    const isValidRange = days >= 0 && days <= MAX_DATE_RANGE_DAYS;
+
+    return isValidRange;
+  });

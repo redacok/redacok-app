@@ -213,6 +213,7 @@ model Transaction {
 
   amount        Float
   description   String
+  type          String      @default("expense")
   date          DateTime
   bankAccountId String
   userId        String

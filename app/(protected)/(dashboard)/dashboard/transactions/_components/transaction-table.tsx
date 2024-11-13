@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTransactionsHistoryResponseType } from "@/app/api/transactions-history/route";
 import { DataTableColumnHeader } from "@/components/datatable/column-header";
 import { DataTableViewOptions } from "@/components/datatable/column-toggle";
@@ -38,7 +39,7 @@ interface TransactionTableProps {
   to: Date;
 }
 
-const emptyData: any[] = [];
+const emptyData: TransactionHistoryRow[] = [];
 
 export type TransactionHistoryRow = getTransactionsHistoryResponseType[0];
 
@@ -53,8 +54,8 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
-        {row.original.categoryIcon}
-        <div className="capitalize">{row.original.category}</div>
+        {/* {row.original.category.icon} */}
+        <div className="capitalize">{row.original.category?.name}</div>
       </div>
     ),
   },
@@ -167,7 +168,8 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
     history.data?.forEach((transaction) => {
       categoriesMap.set(transaction.category, {
         value: transaction.category,
-        label: `${transaction.categoryIcon} ${transaction.category}`,
+        label: `${transaction.category}`,
+        // label: `${transaction.categoryIcon} ${transaction.category}`,
       });
     });
     const uniqueCategories = new Set(categoriesMap.values());
@@ -204,7 +206,7 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
                 Catégorie: row.original.category,
-                Icone: row.original.categoryIcon,
+                // Icone: row.original.category.icon,
                 Description: row.original.description,
                 Type: row.original.type,
                 Montant: row.original.amount,

@@ -34,11 +34,12 @@ export async function DeleteTransaction(id: string) {
     // Update month History
     db.monthHistory.update({
       where: {
-        day_month_year_userId: {
-          userId: user.id,
+        day_month_year_userId_bankAccountId: {
+          userId: user.id!,
           day: transaction.date.getUTCDate(),
           month: transaction.date.getUTCMonth(),
           year: transaction.date.getUTCFullYear(),
+          bankAccountId: transaction.bankAccountId,
         },
       },
       data: {
@@ -57,10 +58,11 @@ export async function DeleteTransaction(id: string) {
     // Update year History
     db.yearHistory.update({
       where: {
-        month_year_userId: {
-          userId: user.id,
+        month_year_userId_bankAccountId: {
+          userId: user.id!,
           month: transaction.date.getUTCMonth(),
           year: transaction.date.getUTCFullYear(),
+          bankAccountId: transaction.bankAccountId,
         },
       },
       data: {
