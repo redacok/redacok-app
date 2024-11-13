@@ -73,11 +73,18 @@ async function getTransactionsHistory(userId: string, from: Date, to: Date) {
         },
       });
 
+      const bankAccount = await db.bankAccount.findUnique({
+        where: {
+          id: transaction.bankAccountId,
+        },
+      });
+
       return {
         ...transaction,
         // format the amount with the user currency
         formattedAmount: formatter.format(transaction.amount),
         category,
+        bankAccount,
       };
     })
   );

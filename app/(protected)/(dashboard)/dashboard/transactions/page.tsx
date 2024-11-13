@@ -13,9 +13,9 @@ const Transactions = () => {
     to: new Date(),
   });
   return (
-    <>
+    <div className="container mx-auto">
       <div className="border-b bg-card">
-        <div className="md:container px-4 flex flex-wrap items-center justify-between gap-6 py-8">
+        <div className="md:container mx-auto px-4 flex flex-wrap items-center justify-between gap-6 py-8">
           <div>
             <p className="text-3xl font-bold">Transaction</p>
             <p className="text-muted-foreground">
@@ -45,7 +45,7 @@ const Transactions = () => {
       <div className="md:container px-4 flex flex-col gap-4 py-4">
         <TransactionTable from={dateRange.from} to={dateRange.to} />
       </div>
-    </>
+    </div>
   );
 };
 

@@ -45,6 +45,28 @@ export type TransactionHistoryRow = getTransactionsHistoryResponseType[0];
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
+    accessorKey: "nomCompte",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Compte" />
+    ),
+    cell: ({ row }) => (
+      <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
+        {row.original.bankAccount?.name}
+      </p>
+    ),
+  },
+  {
+    accessorKey: "amount",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Montant" />
+    ),
+    cell: ({ row }) => (
+      <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
+        {row.original.formattedAmount}
+      </p>
+    ),
+  },
+  {
     accessorKey: "category",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Catégorie" />
@@ -106,17 +128,6 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
     ),
   },
   {
-    accessorKey: "amount",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Montant" />
-    ),
-    cell: ({ row }) => (
-      <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
-        {row.original.formattedAmount}
-      </p>
-    ),
-  },
-  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => <RowActions transaction={row.original} />,
@@ -166,9 +177,9 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
   const categoriesOptions = useMemo(() => {
     const categoriesMap = new Map();
     history.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.category, {
-        value: transaction.category,
-        label: `${transaction.category}`,
+      categoriesMap.set(transaction.categoryId, {
+        value: transaction.categoryId,
+        label: `${transaction.category?.name}`,
         // label: `${transaction.categoryIcon} ${transaction.category}`,
       });
     });
@@ -176,14 +187,34 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
     return Array.from(uniqueCategories);
   }, [history.data]);
 
+  const bankAccountsOptions = useMemo(() => {
+    const bankAccountsMap = new Map();
+    history.data?.forEach((transaction) => {
+      bankAccountsMap.set(transaction.bankAccountId, {
+        value: transaction.bankAccountId,
+        label: `${transaction.bankAccount?.name}`,
+        // label: `${transaction.categoryIcon} ${transaction.category}`,
+      });
+    });
+    const uniqueBankAccounts = new Set(bankAccountsMap.values());
+    return Array.from(uniqueBankAccounts);
+  }, [history.data]);
+
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
         <div className="flex gap-2">
+          {table.getColumn("type") && (
+            <DataTableFacetedFilter
+              title="Compte bancaire"
+              column={table.getColumn("bankAccountId")}
+              options={bankAccountsOptions}
+            />
+          )}
           {table.getColumn("category") && (
             <DataTableFacetedFilter
               title="Catégories"
-              column={table.getColumn("category")}
+              column={table.getColumn("categoryId")}
               options={categoriesOptions}
             />
           )}
@@ -192,8 +223,8 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
               title="Types de transaction"
               column={table.getColumn("type")}
               options={[
-                { label: "Revenus", value: "income" },
-                { label: "Dépenses", value: "expense" },
+                { label: "Entrées", value: "income" },
+                { label: "Sorties", value: "expense" },
               ]}
             />
           )}
@@ -223,7 +254,7 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
         </div>
       </div>
       <SkeletonWrapper isLoading={history.isFetching}>
-        <div className="rounded-md border">
+        <div className="rounded-md border p-2">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
