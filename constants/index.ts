@@ -6,6 +6,8 @@ import {
   Wallet,
 } from "lucide-react";
 
+export const MAX_DATE_RANGE_DAYS = 90;
+
 export const Currencies = [
   { value: "XAF", label: "Franc CFA", locale: "fr-FR" },
   { value: "XOF", label: "Franc CFAO", locale: "fr-FR" },
