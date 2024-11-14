@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { UpdateUserCurrency } from "@/app/(protected)/(dashboard)/(user)/dashboard/settings/action";
+import { UpdateUserCurrency } from "@/app/(protected)/(dashboard)/dashboard/settings/action";
 import { Button } from "@/components/ui/button";
 import {
   Command,
