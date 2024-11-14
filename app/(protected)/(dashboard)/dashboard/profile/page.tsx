@@ -19,14 +19,14 @@ const Profile = async () => {
 
   return (
     <div className="flex flex-1 flex-col">
-      <div className="container mx-auto w-full border-b bg-card py-8">
+      <div className="md:container mx-auto px-4 w-full border-b bg-card py-8">
         <p className="text-3xl font-bold">Profile</p>
         <p className="text-muted-foreground">
           Gérez vos informations personnelles
         </p>
       </div>
-      <div className="w-full flex flex-col md:flex-row md:gap-2 container mx-auto">
-        <div className="w-full md:w-1/2 p-2 space-y-4">
+      <div className="w-full flex flex-col md:flex-row gap-4 container mx-auto py-4 mb-6 md:mb-0">
+        <div className="w-full md:w-1/2 p-2 space-y-7">
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Devise</CardTitle>

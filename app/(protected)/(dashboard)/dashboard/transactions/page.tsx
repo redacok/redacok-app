@@ -19,7 +19,7 @@ const Transactions = () => {
           <div>
             <p className="text-3xl font-bold">Transaction</p>
             <p className="text-muted-foreground">
-              Gérez toutes vos transactions
+              Retrouvez toutes vos transactions
             </p>
           </div>
           <DateRangePicker

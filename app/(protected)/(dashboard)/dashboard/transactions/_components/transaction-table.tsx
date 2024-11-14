@@ -203,7 +203,7 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
-        <div className="flex gap-2">
+        <div className="flex flex-auto flex-wrap md:flex-nowrap gap-2">
           {table.getColumn("type") && (
             <DataTableFacetedFilter
               title="Compte bancaire"
@@ -254,11 +254,14 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
         </div>
       </div>
       <SkeletonWrapper isLoading={history.isFetching}>
-        <div className="rounded-md border p-2">
+        <div className="rounded-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow
+                  className="items-center flex justify-evenly py-1"
+                  key={headerGroup.id}
+                >
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead key={header.id}>
@@ -297,7 +300,7 @@ const TransactionTable = ({ from, to }: TransactionTableProps) => {
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No results.
+                    Aucune transaction trouvée.
                   </TableCell>
                 </TableRow>
               )}

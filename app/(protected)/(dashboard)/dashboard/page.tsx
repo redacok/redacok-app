@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { FcCurrencyExchange, FcDebt, FcMoneyTransfer } from "react-icons/fc";
 import { StatCard } from "./_components/stat-card";
 
-const page = async () => {
+const UserDashboard = async () => {
   const session = await auth();
   if (!session?.user) {
     redirect("/sign-in?callback=/dashboard");
@@ -23,19 +23,19 @@ const page = async () => {
   return (
     <div className="flex flex-col gap-y-4 w-full mx-auto pb-4">
       <div className="bg-card border-b w-full">
-        <div className="flex items-center justify-between container mx-auto">
+        <div className="flex items-center justify-between md:container px-4 mx-auto">
           <h1 className="font-semibold text-3xl">Dashboard</h1>
         </div>
       </div>
       <div className="border-b">
-        <div className="container mx-auto py-8">
+        <div className="md:container px-4 mx-auto py-8">
           <p className="text-3xl font-bold">Salut {session.user.name}!</p>
           <p className="text-xl">
             bienvenue dans votre compte d&apos;épargne à 10%
           </p>
         </div>
       </div>
-      <div className="relative container mx-auto flex w-full flex-wrap gap-4 md:flex-nowrap">
+      <div className="relative md:container px-2 mx-auto flex w-full flex-wrap gap-4 md:flex-nowrap">
         <StatCard
           title="Solde courant"
           value={253000}
@@ -61,7 +61,7 @@ const page = async () => {
           }
         />
       </div>
-      <div className="flex gap-4 relatice container mx-auto w-full flex-wrap sm:flex-nowrap">
+      <div className="flex gap-4 relatice md:container px-2 mx-auto w-full flex-wrap sm:flex-nowrap">
         {[...new Array(2)].map((i) => (
           <div
             key={"second-array" + i}
@@ -70,7 +70,7 @@ const page = async () => {
         ))}
       </div>
       {/* {JSON.stringify(session?.user)} */}
-      <div className="flex gap-2 container mx-auto flex-1 flex-wrap md:flex-nowrap">
+      <div className="flex gap-2 container px-2 mx-auto flex-1 flex-wrap md:flex-nowrap">
         {[...new Array(4)].map((i) => (
           <div
             key={"first-array" + i}
@@ -82,4 +82,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default UserDashboard;
