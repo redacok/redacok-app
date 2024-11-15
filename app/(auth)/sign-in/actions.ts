@@ -10,10 +10,10 @@ import { sendSms } from "@/lib/sms";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import * as z from "zod";
+import { getRoleBasedRedirectPath } from "@/lib/role-redirect";
 
 export async function signInAction(
-  formData: z.infer<typeof SignInSchema>,
-  redirect: string = DEFAULT_LOGIN_REDIRECT
+  formData: z.infer<typeof SignInSchema>
 ) {
   const validationResult = SignInSchema.safeParse(formData);
 
@@ -56,7 +56,7 @@ export async function signInAction(
   }
 
   try {
-    await signIn("credentials", { email, password, redirectTo: redirect });
+    await signIn("credentials", { email, password, redirectTo: getRoleBasedRedirectPath(existingUser.role) });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -74,8 +74,7 @@ export async function signInAction(
 }
 
 export async function signInWithNumber(
-  formData: z.infer<typeof SignInWithNumberSchema>,
-  redirect: string = DEFAULT_LOGIN_REDIRECT
+  formData: z.infer<typeof SignInWithNumberSchema>
 ) {
   const validationResult = SignInWithNumberSchema.safeParse(formData);
 
@@ -110,7 +109,7 @@ export async function signInWithNumber(
   }
 
   try {
-    await signIn("credentials", { email, password, redirectTo: redirect });
+    await signIn("credentials", { email, password, redirectTo: getRoleBasedRedirectPath(existingUser.role) });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

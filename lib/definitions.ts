@@ -320,3 +320,12 @@ export const OverviewQuerySchema = z
 
     return isValidRange;
   });
+
+
+export const UpdateUserSchema = z.object({
+    id: z.string(),
+    name: z.string().optional().nullable(),
+    email: z.string().email().optional().nullable(),
+    phone: z.string().optional().nullable(),
+    role: z.enum(["ADMIN", "COMMERCIAL", "BUSINESS", "PERSONAL", "USER"]),
+  });

@@ -80,7 +80,7 @@ export const SignUpForm = () => {
       name: "",
       email: "",
       password: "",
-      country: "",
+      country: country.label,
       countryCode: "",
       phone: "",
       terms: false,

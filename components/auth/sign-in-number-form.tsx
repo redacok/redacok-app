@@ -4,7 +4,6 @@ import * as z from "zod";
 
 import { signInWithNumber } from "@/app/(auth)/sign-in/actions";
 import { SignInWithNumberSchema } from "@/lib/definitions";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import useNumberSignin from "@/store/sign-in-form-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18nIsoCountries from "i18n-iso-countries";
@@ -83,7 +82,6 @@ const SignInNumber = () => {
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
   const { setIsNumberSignin } = useNumberSignin();
-  const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
 
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
@@ -100,7 +98,7 @@ const SignInNumber = () => {
 
   const onSubmit = (formData: z.infer<typeof SignInWithNumberSchema>) => {
     startTransition(() => {
-      signInWithNumber(formData, ref).then((data) => {
+      signInWithNumber(formData).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
         // TODO: Add when we add 2FA

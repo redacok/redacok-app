@@ -22,6 +22,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { CardWrapper } from "./card-wrapper";
+import { toast } from "sonner";
 
 export const ForgotPassword = () => {
   const [error, setError] = useState<string | undefined>();
@@ -40,8 +41,14 @@ export const ForgotPassword = () => {
   const onSubmit = (formData: z.infer<typeof ForgotPasswordSchema>) => {
     startTransition(() => {
       ForgotPasswordAction(formData).then((data) => {
-        setError(data?.error);
-        setSuccess(data?.success);
+        if(data.error) {
+          setError(data?.error);
+          toast.error(data?.error);
+        }
+        if(data.success) {
+          setSuccess(data?.success);
+          toast.success(data?.success);
+        }
         // TODO: Add when we add 2FA
       });
     });

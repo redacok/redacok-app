@@ -20,27 +20,27 @@ export type Currency = (typeof Currencies)[0];
 export const AdminLinks = [
   {
     label: "Dashboard",
-    href: "/dashboard",
+    href: "/admin/dashboard",
     icon: TerminalIcon,
   },
   {
     label: "Utilisateurs",
-    href: "/dashboard/users",
+    href: "/admin/dashboard/users",
     icon: Users2Icon,
   },
   {
     label: "Transations",
-    href: "/dashboard/transactions",
+    href: "/admin/dashboard/transactions",
     icon: Wallet,
   },
   {
     label: "Paramètres",
-    href: "/dashboard/settings",
+    href: "/admin/dashboard/settings",
     icon: Settings2Icon,
   },
   {
     label: "Profile",
-    href: "/dashboard/profile",
+    href: "/admin/dashboard/profile",
     icon: User2Icon,
   },
 ];

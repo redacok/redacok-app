@@ -4,7 +4,6 @@ import * as z from "zod";
 
 import { signInAction } from "@/app/(auth)/sign-in/actions";
 import { SignInSchema } from "@/lib/definitions";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import useNumberSignin from "@/store/sign-in-form-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
@@ -33,7 +32,6 @@ const SignIn = () => {
   const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const searchParams = useSearchParams();
-  const ref = searchParams.get("callback") || DEFAULT_LOGIN_REDIRECT;
 
   const { setIsNumberSignin } = useNumberSignin();
 
@@ -52,7 +50,7 @@ const SignIn = () => {
 
   const onSubmit = (formData: z.infer<typeof SignInSchema>) => {
     startTransition(() => {
-      signInAction(formData, ref).then((data) => {
+      signInAction(formData).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
         // TODO: Add when we add 2FA
