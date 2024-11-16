@@ -37,6 +37,7 @@ import RowActions from "./row-actions";
 interface TransactionTableProps {
   from: Date;
   to: Date;
+  userId?: string
 }
 
 const emptyData: TransactionHistoryRow[] = [];
@@ -140,17 +141,23 @@ const csvConfig = mkConfig({
   useKeysAsHeaders: true,
 });
 
-const TransactionTable = ({ from, to }: TransactionTableProps) => {
+const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  let fetchUrl: string = `/api/transactions-history?from=${DateToUTCDate(
+          from
+        )}&to=${DateToUTCDate(to)}`
+
+  if(userId) {
+    fetchUrl = `/api/transactions-history/${userId}?from=${DateToUTCDate(
+          from
+        )}&to=${DateToUTCDate(to)}`
+  }
 
   const history = useQuery<getTransactionsHistoryResponseType>({
     queryKey: ["transactions", "history", from, to],
     queryFn: () =>
-      fetch(
-        `/api/transactions-history?from=${DateToUTCDate(
-          from
-        )}&to=${DateToUTCDate(to)}`
+      fetch(fetchUrl
       ).then((res) => res.json()),
   });
 

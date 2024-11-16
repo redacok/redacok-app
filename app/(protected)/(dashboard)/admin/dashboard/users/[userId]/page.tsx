@@ -1,6 +1,7 @@
 "use client";
 
-import { UserAvatar } from "@/components/user-avatar";
+import TransactionTable from "@/app/(protected)/(dashboard)/dashboard/transactions/_components/transaction-table";
+import { DateRangePicker } from "@/components/date-range-picker";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,16 +26,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UserAvatar } from "@/components/user-avatar";
+import { MAX_DATE_RANGE_DAYS } from "@/constants";
 import { UpdateUserSchema } from "@/lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserRole } from "@prisma/client";
+import axios from "axios";
+import { differenceInDays, startOfMonth } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { updateUser } from "../actions";
-import * as z from "zod";
 import { toast } from "sonner";
-import axios from "axios";
+import * as z from "zod";
+import { updateUser } from "../actions";
 
 interface User {
   id: string;
@@ -49,6 +53,10 @@ export default function UserById() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  });
 
   const form = useForm<z.infer<typeof UpdateUserSchema>>({
     resolver: zodResolver(UpdateUserSchema),
@@ -96,7 +104,7 @@ export default function UserById() {
         router.refresh();
       }
     } catch (error) {
-      console.error("something whent wrong", error)
+      console.error("something whent wrong", error);
       toast.error("Une erreur est survenue, veuillez réessayer plus tard");
     }
   };
@@ -110,28 +118,71 @@ export default function UserById() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="border-b bg-card mb-8">
-        <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-4 gap-4">
+      <div className="border-b bg-card">
+        <div className="container mx-auto px-4 pb-6">
           <div className="flex items-center gap-4">
             <UserAvatar name={user.name} className="h-16 w-16" />
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{user.name}</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
+                {user.name}
+              </h1>
               <p className="text-muted-foreground">{user.email}</p>
             </div>
           </div>
         </div>
       </div>
+      <div className="border-b bg-card">
+        <div className="md:container mx-auto px-4 flex flex-wrap items-center justify-between gap-6 py-6">
+          <div>
+            <p className="text-xl md:text-3xl font-bold">Transactions</p>
+            <p className="text-muted-foreground text-sm mt-2">
+              Transactions de {user.name}
+            </p>
+          </div>
+          <DateRangePicker
+            initialDateFrom={dateRange.from}
+            initialDateTo={dateRange.to}
+            showCompare={false}
+            onUpdate={(values) => {
+              const { from, to } = values.range;
 
+              if (!from || !to) return;
+              if (differenceInDays(to, from) > MAX_DATE_RANGE_DAYS) {
+                toast.error(
+                  `L'intervalle sélectionné est trop grand, le maximum autorisé est de ${MAX_DATE_RANGE_DAYS} jours`
+                );
+                return;
+              }
+
+              setDateRange({ from, to });
+            }}
+          />
+        </div>
+      </div>
+      <div className="md:container px-4 flex flex-col gap-4 py-4">
+        <TransactionTable
+          from={dateRange.from}
+          to={dateRange.to}
+          userId={user.id}
+        />
+      </div>
       <div className="grid gap-8">
         <Card>
-          <CardHeader>
-            <CardTitle>User Information</CardTitle>
-            <CardDescription>Update user details and role</CardDescription>
+          <CardHeader className="border-b">
+            <CardTitle className="text-xl md:text-3xl font-bold">
+              User Informations
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Informations de l&apos;utilisateur
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -139,11 +190,7 @@ export default function UserById() {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                      <Input 
-                        {...field} 
-                        value={field.value ?? ''}
-                        disabled
-                      />
+                        <Input {...field} value={field.value ?? ""} disabled />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -157,12 +204,12 @@ export default function UserById() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                      <Input 
-                        {...field} 
-                        value={field.value ?? ''}
-                        type="email"
-                        disabled
-                      />
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          type="email"
+                          disabled
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -176,11 +223,7 @@ export default function UserById() {
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                      <Input 
-                        {...field} 
-                        value={field.value ?? ''}
-                        disabled
-                      />
+                        <Input {...field} value={field.value ?? ""} disabled />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -223,7 +266,7 @@ export default function UserById() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Danger Zone</CardTitle>
+            <CardTitle className="text-xl md:text-3xl">Danger Zone</CardTitle>
             <CardDescription>
               Careful, these actions cannot be undone
             </CardDescription>
