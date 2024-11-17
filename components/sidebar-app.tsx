@@ -7,7 +7,13 @@ import { signOutUser } from "@/app/(auth)/sign-in/actions";
 import { AdminLinks, UserLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { LogOut, LucideIcon, PanelLeftCloseIcon, User2 } from "lucide-react";
+import {
+  Home,
+  LogOut,
+  LucideIcon,
+  PanelLeftCloseIcon,
+  User2,
+} from "lucide-react";
 import { User } from "next-auth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -82,7 +88,7 @@ export function SidebarApp({
                     className={cn(
                       "hover:bg-slate-200 rounded-md py-4 items-center justify-center",
                       isActive &&
-                        "bg-slate-200/90 rounded-md py-4 px-1 border-2 border-l-blue-600",
+                        "bg-gray-200/90 rounded-md py-4 px-1 border-2 border-l-blue-900",
                       open && "px-2 justify-start",
                       open && isActive && "border-l-4"
                     )}
@@ -152,10 +158,10 @@ export function SidebarApp({
                 variant: "ghost",
                 size: "sm",
               }),
-              "w-fit ml-auto text-lg hover:text-foreground hidden md:flex"
+              "w-fit hover:bg-gray-100 ml-auto text-lg hover:text-foreground hidden md:flex"
             )}
           >
-            <LogOut className="w-4 h-4 mr-2" />
+            <Home className="w-4 h-4 mr-2" />
             Accueil
           </Link>
         </div>

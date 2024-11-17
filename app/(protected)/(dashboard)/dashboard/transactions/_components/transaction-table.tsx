@@ -37,7 +37,8 @@ import RowActions from "./row-actions";
 interface TransactionTableProps {
   from: Date;
   to: Date;
-  userId?: string
+  userId?: string;
+  all?: boolean;
 }
 
 const emptyData: TransactionHistoryRow[] = [];
@@ -141,24 +142,28 @@ const csvConfig = mkConfig({
   useKeysAsHeaders: true,
 });
 
-const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
+const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   let fetchUrl: string = `/api/transactions-history?from=${DateToUTCDate(
-          from
-        )}&to=${DateToUTCDate(to)}`
+    from
+  )}&to=${DateToUTCDate(to)}`;
 
-  if(userId) {
+  if (userId) {
     fetchUrl = `/api/transactions-history/${userId}?from=${DateToUTCDate(
-          from
-        )}&to=${DateToUTCDate(to)}`
+      from
+    )}&to=${DateToUTCDate(to)}`;
+  }
+
+  if (all) {
+    fetchUrl = `/api/transactions-history?from=${DateToUTCDate(
+      from
+    )}&to=${DateToUTCDate(to)}&size=all`;
   }
 
   const history = useQuery<getTransactionsHistoryResponseType>({
     queryKey: ["transactions", "history", from, to],
-    queryFn: () =>
-      fetch(fetchUrl
-      ).then((res) => res.json()),
+    queryFn: () => fetch(fetchUrl).then((res) => res.json()),
   });
 
   const handleExportCsv = (data: any[]) => {
@@ -208,7 +213,7 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
   }, [history.data]);
 
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
         <div className="flex flex-auto flex-wrap md:flex-nowrap gap-2">
           {table.getColumn("type") && (

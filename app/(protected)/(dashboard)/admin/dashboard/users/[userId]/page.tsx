@@ -33,6 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { UserRole } from "@prisma/client";
 import axios from "axios";
 import { differenceInDays, startOfMonth } from "date-fns";
+import { Loader } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -110,7 +111,12 @@ export default function UserById() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center gap-10 pt-16">
+        <p className="text-2xl font-semibold">Chargement...</p>
+        <Loader className="size-10 animate-spin" />
+      </div>
+    );
   }
 
   if (!user) {
@@ -118,24 +124,22 @@ export default function UserById() {
   }
 
   return (
-    <div className="container mx-auto py-4 gap-4">
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 pb-6">
+    <div className="container mx-auto py-4 gap-4 max-h-screen">
+      <div className="bg-card">
+        <div className="container mx-auto px-4 py-6 rounded-xl border">
           <div className="flex items-center gap-4">
             <UserAvatar name={user.name} className="h-16 w-16" />
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">
-                {user.name}
-              </h1>
+              <h1 className="text-xl md:text-2xl font-bold">{user.name}</h1>
               <p className="text-muted-foreground">{user.email}</p>
             </div>
           </div>
         </div>
       </div>
-      <div className="border-b bg-card">
+      <div className="bg-card space-y-2 my-4 py-4 rounded-xl border">
         <div className="md:container mx-auto px-4 flex flex-wrap items-center justify-between gap-6 py-6">
           <div>
-            <p className="text-xl md:text-3xl font-bold">Transactions</p>
+            <p className="text-xl md:text-2xl font-bold">Transactions</p>
             <p className="text-muted-foreground text-sm mt-2">
               Transactions de {user.name}
             </p>
@@ -159,18 +163,18 @@ export default function UserById() {
             }}
           />
         </div>
+        <div className="px-4">
+          <TransactionTable
+            from={dateRange.from}
+            to={dateRange.to}
+            userId={user.id}
+          />
+        </div>
       </div>
-      <div className="md:container px-4 flex flex-col gap-4 py-4">
-        <TransactionTable
-          from={dateRange.from}
-          to={dateRange.to}
-          userId={user.id}
-        />
-      </div>
-      <div className="grid gap-8">
+      <div className="grid gap-4">
         <Card>
           <CardHeader className="border-b">
-            <CardTitle className="text-xl md:text-3xl font-bold">
+            <CardTitle className="text-xl md:text-2xl font-bold">
               User Informations
             </CardTitle>
             <CardDescription className="text-muted-foreground">
@@ -266,14 +270,14 @@ export default function UserById() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl md:text-3xl">Danger Zone</CardTitle>
+            <CardTitle className="text-xl md:text-2xl">Danger Zone</CardTitle>
             <CardDescription>
-              Careful, these actions cannot be undone
+              Attention, la suppression de compte est irréversible !
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 space-x-2">
-            <Button variant="destructive">Disable Account</Button>
-            <Button variant="destructive">Delete Account</Button>
+            <Button variant="destructive">Désactiver le compte</Button>
+            <Button variant="destructive">Supprimer le compte</Button>
           </CardContent>
         </Card>
       </div>

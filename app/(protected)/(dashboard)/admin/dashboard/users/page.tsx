@@ -64,7 +64,7 @@ export default function UserManagement() {
 
       <div className="border rounded-lg">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-white">
             <TableRow>
               <TableHead>Nom</TableHead>
               <TableHead>Email</TableHead>

@@ -27,17 +27,20 @@ const Profile = async () => {
       </div>
       <div className="w-full flex flex-col md:flex-row gap-4 container mx-auto py-4 mb-6 md:mb-0">
         <div className="w-full md:w-1/2 p-2 space-y-7">
-          <Card className="w-full">
-            <CardHeader>
-              <CardTitle>Devise</CardTitle>
-              <CardDescription>
-                Choisissez votre devise par défaut
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <CurrencyComboBox />
-            </CardContent>
-          </Card>
+          {session.user.role !== "ADMIN" &&
+            session.user.role !== "COMMERCIAL" && (
+              <Card className="w-full">
+                <CardHeader>
+                  <CardTitle>Devise</CardTitle>
+                  <CardDescription>
+                    Choisissez votre devise par défaut
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CurrencyComboBox />
+                </CardContent>
+              </Card>
+            )}
           <Card className="w-full">
             <CardHeader>
               <CardTitle>Type de compte</CardTitle>
