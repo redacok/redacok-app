@@ -150,7 +150,7 @@ export function SidebarApp({
         </SidebarBody>
       </Sidebar>
       <div className="flex flex-col flex-1 overflow-y-auto min-h-screen">
-        <div className="w-full border-b justify-end items-center p-2">
+        <div className="w-full border-b justify-end items-center p-2 h-[65px]">
           <Link
             href="/"
             className={cn(

@@ -124,9 +124,9 @@ export default function UserById() {
   }
 
   return (
-    <div className="container mx-auto py-4 gap-4 max-h-screen">
-      <div className="bg-card">
-        <div className="container mx-auto px-4 py-6 rounded-xl border">
+    <div className="container mx-auto space-y-4 ">
+      <div className="bg-card border rounded-xl">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             <UserAvatar name={user.name} className="h-16 w-16" />
             <div>

@@ -1,7 +1,12 @@
+import { PageHeader } from "@/components/page-header";
+
 export default function AdminDashboard() {
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="container mx-auto space-y-4">
+      <PageHeader
+        title="Admin Dashboard"
+        description="Bienvenu dans votre interface d'administration"
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Add your admin dashboard components here */}
         <div className="p-6 bg-white rounded-lg shadow">

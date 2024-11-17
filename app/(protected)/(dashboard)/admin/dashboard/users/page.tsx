@@ -1,6 +1,8 @@
 "use client";
 
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -9,12 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
-import { UserRole } from "@prisma/client";
-import { getUsers } from "./actions";
-import Link from "next/link";
 import { UserAvatar } from "@/components/user-avatar";
+import { UserRole } from "@prisma/client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getUsers } from "./actions";
 
 interface User {
   id: string;
@@ -42,15 +43,8 @@ export default function UserManagement() {
   }, [searchQuery]);
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="border-b bg-card mb-8">
-        <div className="md:container mx-auto px-4 py-8">
-          <h1 className="text-2xl md:text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">
-            Manage and monitor user accounts
-          </p>
-        </div>
-      </div>
+    <div className="container mx-auto space-y-4">
+      <PageHeader title="Utilisateurs" description="Gérez les utilisateurs" />
 
       <div className="flex justify-between items-center mb-6">
         <Input
@@ -62,7 +56,7 @@ export default function UserManagement() {
         <Button>Add New User</Button>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="border rounded-xl">
         <Table>
           <TableHeader className="bg-white">
             <TableRow>
@@ -93,11 +87,14 @@ export default function UserManagement() {
                     className="hover:text-primary/80"
                     href={`/admin/dashboard/users/${user.id}`}
                   >
-                    <TableCell> <UserAvatar name={user.name} image={null} /></TableCell>
+                    <TableCell>
+                      {" "}
+                      <UserAvatar name={user.name} image={null} />
+                    </TableCell>
                     <TableCell> {user.name} </TableCell>
                   </Link>
-                  <TableCell>{user.email || 'N/A'}</TableCell>
-                  <TableCell>{user.phone || 'N/A'}</TableCell>
+                  <TableCell>{user.email || "N/A"}</TableCell>
+                  <TableCell>{user.phone || "N/A"}</TableCell>
                   <TableCell>{user.role}</TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" className="mr-2">

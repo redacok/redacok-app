@@ -47,7 +47,7 @@ export type TransactionHistoryRow = getTransactionsHistoryResponseType[0];
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
-    accessorKey: "nomCompte",
+    accessorKey: "accountName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Compte" />
     ),
@@ -216,17 +216,17 @@ const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
     <div className="w-full h-full">
       <div className="flex flex-wrap items-end justify-between gap-2 py-4">
         <div className="flex flex-auto flex-wrap md:flex-nowrap gap-2">
-          {table.getColumn("type") && (
+          {table.getColumn("accountName") && (
             <DataTableFacetedFilter
               title="Compte bancaire"
-              column={table.getColumn("bankAccountId")}
+              column={table.getColumn("accountName")}
               options={bankAccountsOptions}
             />
           )}
           {table.getColumn("category") && (
             <DataTableFacetedFilter
               title="Catégories"
-              column={table.getColumn("categoryId")}
+              column={table.getColumn("category")}
               options={categoriesOptions}
             />
           )}

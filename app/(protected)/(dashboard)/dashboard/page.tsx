@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { PageHeader } from "@/components/page-header";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { FcCurrencyExchange, FcDebt, FcMoneyTransfer } from "react-icons/fc";
@@ -21,20 +22,11 @@ const UserDashboard = async () => {
   }
 
   return (
-    <div className="flex flex-col gap-y-4 w-full mx-auto pb-4">
-      <div className="bg-card border-b w-full">
-        <div className="flex items-center justify-between md:container px-4 mx-auto">
-          <h1 className="font-semibold text-3xl">Dashboard</h1>
-        </div>
-      </div>
-      <div className="border-b">
-        <div className="md:container px-4 mx-auto py-8">
-          <p className="text-3xl font-bold">Salut {session.user.name}!</p>
-          <p className="text-xl">
-            bienvenue dans votre compte d&apos;épargne à 10%
-          </p>
-        </div>
-      </div>
+    <div className="container space-y-4 w-full mx-auto pb-4">
+      <PageHeader
+        title={`Salut ${user.name!}`}
+        description="Bienvenu dans votre compte d'épargne à 10%"
+      />
       <div className="relative md:container px-2 mx-auto flex w-full flex-wrap gap-4 md:flex-nowrap">
         <StatCard
           title="Solde courant"

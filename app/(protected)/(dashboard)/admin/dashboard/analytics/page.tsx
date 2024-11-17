@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -11,15 +12,11 @@ import {
 
 export default function Analytics() {
   return (
-    <div className="container mx-auto py-8">
-      <div className="border-b bg-card mb-8">
-        <div className="md:container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold">System Analytics</h1>
-          <p className="text-muted-foreground">
-            Monitor system performance and user activity
-          </p>
-        </div>
-      </div>
+    <div className="container mx-auto space-y-4">
+      <PageHeader
+        title="Analitics"
+        description="Données d'analise des transactions"
+      />
 
       <div className="flex justify-end mb-6">
         <Select defaultValue="7days">
@@ -62,7 +59,9 @@ export default function Analytics() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Transactions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5,678</div>
