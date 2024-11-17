@@ -43,7 +43,7 @@ export default function UserManagement() {
   }, [searchQuery]);
 
   return (
-    <div className="container mx-auto space-y-4">
+    <div className="container mx-auto space-y-4 pb-10 md:pb-0">
       <PageHeader title="Utilisateurs" description="Gérez les utilisateurs" />
 
       <div className="flex gap-4 justify-between items-center mb-6">

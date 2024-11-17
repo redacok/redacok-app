@@ -81,7 +81,7 @@ export const SignUpForm = () => {
       email: "",
       password: "",
       country: country.label,
-      countryCode: "",
+      countryCode: country.value,
       phone: "",
       terms: false,
       termsAge: false,

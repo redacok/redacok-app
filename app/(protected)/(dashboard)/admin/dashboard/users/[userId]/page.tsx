@@ -124,7 +124,7 @@ export default function UserById() {
   }
 
   return (
-    <div className="container mx-auto space-y-4 ">
+    <div className="container mx-auto space-y-4 pb-10 md:pb-0">
       <div className="bg-card border rounded-xl">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">

@@ -2,7 +2,7 @@
 import { signOutUser } from "@/app/(auth)/sign-in/actions";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, LucideIcon, PanelLeftOpen, X } from "lucide-react";
+import { Home, LogOut, LucideIcon, PanelLeftOpen, X } from "lucide-react";
 import Link, { LinkProps } from "next/link";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Button, buttonVariants } from "./button";
@@ -123,25 +123,31 @@ export const MobileSidebar = ({
         {...props}
       >
         <div className="flex z-20 w-full items-center justify-between">
-          <Button variant={"ghost"} size={"sm"} onClick={() => setOpen(!open)}>
+          <Button variant={"ghost"} onClick={() => setOpen(!open)}>
             <PanelLeftOpen
-              className="text-neutral-800 dark:text-slate-200 h-4 w-4"
+              className="text-neutral-800 dark:text-slate-200 h-6 w-6"
               aria-label="Ouvrir le menu latéral"
             />
           </Button>
-          <Link
-            href="/"
-            className={cn(
-              buttonVariants({
-                variant: "ghost",
-                size: "sm",
-              }),
-              "w-fit justify-end text-md items-center hover:text-foreground"
-            )}
-          >
-            <Home className="w-4 h-4" />
-            Accueil
-          </Link>
+          <div className="flex-gap-2 items-center">
+            <Link
+              href="/"
+              className={cn(
+                buttonVariants({
+                  variant: "ghost",
+                  size: "sm",
+                }),
+                "w-fit justify-end items-center hover:text-foreground"
+              )}
+            >
+              <Home className="w-4 h-4" />
+              Accueil
+            </Link>
+            <Button size={"sm"} onClick={async () => signOutUser()}>
+              <LogOut className="rotate-180" />
+              Déconnexion
+            </Button>
+          </div>
         </div>
         <AnimatePresence>
           {open && (
@@ -199,13 +205,9 @@ export const SidebarLink = ({
         className
       )}
       {...props}
-      onClick={async () => {
-        if (link.label === "Déconnexion") {
-          signOutUser();
-        } else if (isClient && window.innerWidth < 768 && !button) {
-          setOpen(!open);
-        }
-      }}
+      onClick={() =>
+        isClient && window.innerWidth < 768 && !button && setOpen(!open)
+      }
     >
       <link.icon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
 

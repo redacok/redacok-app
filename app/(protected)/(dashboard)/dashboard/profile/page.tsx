@@ -19,7 +19,7 @@ const Profile = async () => {
   }
 
   return (
-    <div className="flex flex-1 flex-col space-y-4">
+    <div className="flex flex-1 flex-col space-y-4 pb-10 md:pb-0">
       <div className="container mx-auto bg-card border rounded-xl">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
