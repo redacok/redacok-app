@@ -139,5 +139,5 @@ export async function signInSocial(provider: "google" | "github") {
 
 export async function signOutUser() {
   "use server";
-  await signOut({ redirectTo: "/sign-in?callback=/dashboard" });
+  await signOut({ redirectTo: "/" });
 }

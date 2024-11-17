@@ -46,14 +46,14 @@ export default function UserManagement() {
     <div className="container mx-auto space-y-4">
       <PageHeader title="Utilisateurs" description="Gérez les utilisateurs" />
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex gap-4 justify-between items-center mb-6">
         <Input
           placeholder="Rechercher un utilisateur..."
-          className="max-w-sm"
+          className="w-fit max-w-sm"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <Button>Add New User</Button>
+        <Button>Nouvel utilisateur</Button>
       </div>
 
       <div className="border rounded-xl">
@@ -83,23 +83,24 @@ export default function UserManagement() {
             ) : (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <Link
-                    className="hover:text-primary/80"
-                    href={`/admin/dashboard/users/${user.id}`}
-                  >
-                    <TableCell>
-                      {" "}
+                  <TableCell className="">
+                    <Link
+                      className="hover:text-primary/80 flex gap-3 items-center my-auto"
+                      href={`/admin/dashboard/users/${user.id}`}
+                    >
                       <UserAvatar name={user.name} image={null} />
-                    </TableCell>
-                    <TableCell> {user.name} </TableCell>
-                  </Link>
+                      {user.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{user.email || "N/A"}</TableCell>
                   <TableCell>{user.phone || "N/A"}</TableCell>
                   <TableCell>{user.role}</TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="sm" className="mr-2">
-                      Edit
-                    </Button>
+                  <TableCell className="flex gap-2">
+                    <Link href={`/admin/dashboard/users/${user.id}`}>
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                    </Link>
                     <Button variant="destructive" size="sm">
                       Disable
                     </Button>

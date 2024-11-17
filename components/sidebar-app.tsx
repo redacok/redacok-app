@@ -61,7 +61,7 @@ export function SidebarApp({
     <div
       className={cn(
         "rounded-md flex flex-col md:flex-row bg-white dark:bg-neutral-800 w-full flex-1 mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden",
-        "h-screen"
+        "fixed top-0 bottom-0 left-0"
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
@@ -90,7 +90,8 @@ export function SidebarApp({
                       isActive &&
                         "bg-gray-200/90 rounded-md py-4 px-1 border-2 border-l-blue-900",
                       open && "px-2 justify-start",
-                      open && isActive && "border-l-4"
+                      open && isActive && "border-l-4",
+                      link.label === "Déconnexion" && "sm:hidden"
                     )}
                     key={idx}
                     link={link}
@@ -150,7 +151,7 @@ export function SidebarApp({
         </SidebarBody>
       </Sidebar>
       <div className="flex flex-col flex-1 overflow-y-auto min-h-screen">
-        <div className="w-full border-b justify-end items-center p-2 h-[65px]">
+        <div className="w-full border-b justify-end items-center p-2">
           <Link
             href="/"
             className={cn(
