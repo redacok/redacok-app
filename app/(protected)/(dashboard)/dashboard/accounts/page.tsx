@@ -20,9 +20,9 @@ const AccountsPage = async () => {
   }
 
   return (
-    <>
+    <div className="min-h-[calc(100vh-80px)] pb-4">
       <DisplayAccounts user={user} />
-    </>
+    </div>
   );
 }
 

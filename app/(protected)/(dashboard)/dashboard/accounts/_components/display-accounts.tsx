@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { AccountCard } from './account-card';
+import { CreateAccountButtons } from './create-account-buttons';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { BankAccount } from '@/lib/bank-account';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
-import { AccountType, BankAccount } from '@/lib/bank-account';
 import { PageHeader } from '@/components/page-header';
-import { AccountCard } from './account-card';
-import axios from 'axios';
 import { User } from '@prisma/client';
-import { CreateAccountButtons } from './create-account-buttons';
 import TransactionsPage from '../../transactions/page';
 
 interface DisplayAccountsProps {
@@ -19,39 +19,21 @@ interface DisplayAccountsProps {
 export function DisplayAccounts({ user }: DisplayAccountsProps) {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
-
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
 
   const fetchAccounts = async () => {
     try {
-      const { data } = await axios.get<BankAccount[]>('/api/accounts');
-      setAccounts(data);
+      const response = await axios.get('/api/accounts');
+      setAccounts(response.data);
     } catch (error) {
-      toast.error('Échec de récupération des comptes');
+      toast.error('Erreur lors de la récupération des comptes');
     } finally {
       setLoading(false);
     }
   };
 
-  const createAccount = async (type: AccountType) => {
-    setCreating(true);
-    try {
-      await axios.post('/api/accounts', { type });
-      await fetchAccounts();
-      toast.success(`Compte ${type} créé avec succès`);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response?.status === 400) {
-        toast.error(error.response.data.error);
-      } else {
-        toast.error('Erreur lors de la création du compte');
-      }
-    } finally {
-      setCreating(false);
-    }
-  };
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
 
   if (loading) {
     return (
@@ -61,35 +43,25 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
     );
   }
 
-  // Check if all account types exist
-  const hasAllAccountTypes = ['epargne', 'courant', 'béni'].every(type =>
-    accounts.some(account => account.name === `Compte ${type.charAt(0).toUpperCase() + type.slice(1)}`)
-  );
-
-  // Check if some account types exist
-  const hasSomeAccountTypes = ['epargne', 'courant', 'béni'].some(type =>
-    accounts.some(account => account.name === `Compte ${type.charAt(0).toUpperCase() + type.slice(1)}`)
-  );
-
   return (
     <div className="container mx-auto p-6 space-y-4">
       <PageHeader title="Mes Comptes" description="Gestion de vos comptes bancaires" />
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <CreateAccountButtons 
+        accounts={accounts}
+        onAccountCreated={fetchAccounts}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {accounts.map((account) => (
-          <AccountCard 
-            key={account.id} 
-            account={account} 
-            currency={user.currency || 'XAF'} 
-          />
+          <AccountCard key={account.id} account={account} currency={user.currency || 'XAF'} />
         ))}
       </div>
-
-      {!hasAllAccountTypes && (
-        <CreateAccountButtons accounts={accounts} creating={creating} createAccount={createAccount} />
+      {accounts.length === 0 && (
+        <div className="bg-white rounded-xl p-6 text-center text-muted-foreground">
+          Vous n&apos;avez pas encore de compte. Créez-en un pour commencer.
+        </div>
       )}
-
-      {hasSomeAccountTypes && (
+      {accounts.length > 0 && (
         <TransactionsPage />
       )}
     </div>
