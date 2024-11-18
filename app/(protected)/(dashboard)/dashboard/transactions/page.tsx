@@ -9,7 +9,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import TransactionTable from "./_components/transaction-table";
 
-const Transactions = () => {
+const TransactionsPage = () => {
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -50,4 +50,4 @@ const Transactions = () => {
   );
 };
 
-export default Transactions;
+export default TransactionsPage;
