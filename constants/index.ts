@@ -23,6 +23,12 @@ export const AdminLinks = [
     href: "/admin/dashboard",
     icon: TerminalIcon,
   },
+  
+  {
+    label: "Analytics",
+    href: "/admin/dashboard/analytics",
+    icon: Settings2Icon,
+  },
   {
     label: "Utilisateurs",
     href: "/admin/dashboard/users",
@@ -50,6 +56,11 @@ export const UserLinks = [
     label: "Dashboard",
     href: "/dashboard",
     icon: TerminalIcon,
+  },
+  {
+    label: "Mes comptes",
+    href: "/dashboard/accounts",
+    icon: Wallet,
   },
   {
     label: "Transations",

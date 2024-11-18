@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <Toaster richColors position="bottom-right" />
+      <Toaster richColors position="bottom-right" expand={true} />
       <body className={`${inter.className} antialiased h-full`}>
         <RootProvider>{children}</RootProvider>
       </body>

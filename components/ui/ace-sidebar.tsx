@@ -1,5 +1,4 @@
 "use client";
-import { signOutUser } from "@/app/(auth)/sign-in/actions";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { Home, LogOut, LucideIcon, PanelLeftOpen, X } from "lucide-react";
@@ -125,29 +124,23 @@ export const MobileSidebar = ({
         <div className="flex z-20 w-full items-center justify-between">
           <Button variant={"ghost"} onClick={() => setOpen(!open)}>
             <PanelLeftOpen
-              className="text-neutral-800 dark:text-slate-200 h-6 w-6"
+              className="text-neutral-800 dark:text-slate-200"
               aria-label="Ouvrir le menu latéral"
             />
           </Button>
-          <div className="flex-gap-2 items-center">
-            <Link
-              href="/"
-              className={cn(
-                buttonVariants({
-                  variant: "ghost",
-                  size: "sm",
-                }),
-                "w-fit justify-end items-center hover:text-foreground"
-              )}
-            >
-              <Home className="w-4 h-4" />
-              Accueil
-            </Link>
-            <Button size={"sm"} onClick={async () => signOutUser()}>
-              <LogOut className="rotate-180" />
-              Déconnexion
-            </Button>
-          </div>
+          <Link
+            href="/"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                size: "sm",
+              }),
+              "w-fit justify-end text-lg hover:text-foreground"
+            )}
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Accueil
+          </Link>
         </div>
         <AnimatePresence>
           {open && (
