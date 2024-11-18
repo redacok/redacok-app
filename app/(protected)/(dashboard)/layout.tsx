@@ -30,7 +30,7 @@ export default async function Layout({
   return (
     <SidebarApp session={session.user}>
       <main className="w-full flex py-3 bg-gray-50">
-        <div className="px-2 sm:px-3 w-full">{children}</div>
+        <div className="container mx-auto w-full">{children}</div>
       </main>
     </SidebarApp>
   );

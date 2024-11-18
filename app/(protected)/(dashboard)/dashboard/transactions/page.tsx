@@ -43,7 +43,7 @@ const TransactionsPage = () => {
           </div>
         }
       />
-      <div className="md:container px-2 flex flex-col gap-4">
+      <div className="container border bg-card p-2 mb-4 rounded-xl flex flex-col gap-4">
         <TransactionTable from={dateRange.from} to={dateRange.to} />
       </div>
     </div>
