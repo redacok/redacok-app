@@ -3,7 +3,8 @@ import { AccountType } from "@prisma/client";
 export interface BankAccount {
   id: string;
   name: string;
-  code: string;
+  rib: string;
+  type: AccountType;
   amount: number;
   createdAt: string;
   updatedAt: string;
@@ -29,7 +30,7 @@ export function getAccountTypeName(type: AccountType): string {
     case 'epargne':
       return 'Compte Épargne';
     case 'business':
-      return 'Compte Béni';
+      return 'Compte Business';
   }
 }
 

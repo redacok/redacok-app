@@ -30,10 +30,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { BankAccount } from "@/lib/bank-account";
+import bankStore from "@/store/bank-store";
 
 const accountSchema = z.object({
   accountType: z.enum(["epargne", "courant", "business"]),
@@ -48,13 +50,16 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export function CreateAccountDialog({ user }: { user: User }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [accounts, setAccounts] = useState<BankAccount[]>([]);
+  const lastUpdate = bankStore((state) => state.lastUpdate);
+  const invalidateData = bankStore((state) => state.invalidateData);
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
     defaultValues: {
       accountType: "epargne",
       currency: user.currency as "XAF" | "EUR" | "USD" | undefined,
-      initialDeposit: 1000,
+      initialDeposit: 3000,
     },
   });
 
@@ -68,6 +73,7 @@ export function CreateAccountDialog({ user }: { user: User }) {
       }
 
       toast.success("Compte créé avec succès");
+      invalidateData();
       setOpen(false);
       form.reset();
     } catch (error) {
@@ -83,6 +89,26 @@ export function CreateAccountDialog({ user }: { user: User }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await axios.get("/api/accounts");
+        setAccounts(response.data);
+      } catch (error) {
+        toast.error("Erreur lors de la récupération des comptes");
+      }
+    };
+    fetchAccounts();
+  }, [lastUpdate]);
+
+  const availableAccountTypes = ["epargne", "courant", "business"].filter(
+    (type) => !accounts.some((account) => account.type === type)
+  );
+
+  if (availableAccountTypes.length === 0) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -115,11 +141,13 @@ export function CreateAccountDialog({ user }: { user: User }) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="epargne">Compte Épargne</SelectItem>
-                      <SelectItem value="courant">Compte Courant</SelectItem>
-                      <SelectItem value="business">
-                        Compte Professionnel
-                      </SelectItem>
+                      {availableAccountTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type === "epargne" && "Compte Épargne"}
+                          {type === "courant" && "Compte Courant"}
+                          {type === "business" && "Compte Professionnel"}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -159,13 +187,15 @@ export function CreateAccountDialog({ user }: { user: User }) {
               name="initialDeposit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dépôt initial (min. 1000 XAF)</FormLabel>
+                  <FormLabel>Dépoto initial (min. 3000 XAF)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
+                      min={3000}
+                      step={100}
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
-                      placeholder="Montant du dépôt initial"
+                      placeholder="Montant du dépoto initial"
                     />
                   </FormControl>
                   <FormMessage />

@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { type, amount, fromAccount, toAccount, description } = body;
+    const { type, amount, fromAccount, toAccount, account, description } = body;
 
     // Validation de base
     if (!type || !amount || amount <= 0) {
@@ -31,8 +31,52 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifier le compte source pour les retraits et transferts
-    if (type === "WITHDRAWAL" || type === "TRANSFER") {
+    // Vérifier le compte pour les dépôts et retraits
+    if (type === "DEPOSIT" || type === "WITHDRAWAL") {
+      if (!account) {
+        return NextResponse.json(
+          { success: false, message: "Compte non spécifié" },
+          { status: 400 }
+        );
+      }
+
+      const bankAccount = await db.bankAccount.findUnique({
+        where: { id: account },
+      });
+
+      if (!bankAccount) {
+        return NextResponse.json(
+          { success: false, message: "Compte non trouvé" },
+          { status: 404 }
+        );
+      }
+
+      // Vérifier que le compte appartient à l'utilisateur
+      if (bankAccount.userId !== session.user.id) {
+        return NextResponse.json(
+          { success: false, message: "Ce compte ne vous appartient pas" },
+          { status: 403 }
+        );
+      }
+
+      // Vérifier le solde disponible pour les retraits
+      if (type === "WITHDRAWAL") {
+        const availableBalance = bankAccount.amount - MIN_BALANCE;
+        if (availableBalance < amount) {
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                "Solde insuffisant. N'oubliez pas que vous devez maintenir un solde minimum de 1000 XAF",
+            },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    // Vérifier le compte source pour les transferts
+    if (type === "TRANSFER") {
       const sourceAccount = await db.bankAccount.findUnique({
         where: { id: fromAccount },
       });
@@ -49,19 +93,6 @@ export async function POST(req: Request) {
         return NextResponse.json(
           { success: false, message: "Ce compte ne vous appartient pas" },
           { status: 403 }
-        );
-      }
-
-      // Vérifier le solde disponible
-      const availableBalance = sourceAccount.amount - MIN_BALANCE;
-      if (availableBalance < amount) {
-        return NextResponse.json(
-          {
-            success: false,
-            message:
-              "Solde insuffisant. N'oubliez pas que vous devez maintenir un solde minimum de 1000 XAF",
-          },
-          { status: 400 }
         );
       }
     }
@@ -101,8 +132,8 @@ export async function POST(req: Request) {
           type === "DEPOSIT"
             ? TransactionStatus.COMPLETED
             : TransactionStatus.PENDING,
-        fromAccountId: fromAccount,
-        toAccountId: type === "TRANSFER" ? toAccount : null,
+        fromAccountId: type === "TRANSFER" ? fromAccount : (type === "WITHDRAWAL" ? account : null),
+        toAccountId: type === "TRANSFER" ? toAccount : (type === "DEPOSIT" ? fromAccount : null),
         userId: session.user.id,
       },
     });
@@ -110,7 +141,7 @@ export async function POST(req: Request) {
     // Pour les dépôts, mettre à jour immédiatement le solde
     if (type === "DEPOSIT") {
       await db.bankAccount.update({
-        where: { id: fromAccount },
+        where: { id: account },
         data: {
           amount: {
             increment: amount,

@@ -22,13 +22,13 @@ export function AccountCard({ account, currency }: AccountCardProps) {
           <p className="text-2xl font-semibold">
             {formatter.format(account.amount)}
           </p>
-          {/* <p className="text-sm text-muted-foreground">
-            Dernière mise à jour: {new Date(account.updatedAt).toLocaleDateString('fr-FR')}
-          </p> */}
+          <p className="text-sm text-muted-foreground">
+            Dernière transaction: {new Date(account.updatedAt).toLocaleDateString('fr-FR')}
+          </p>
         </div>
         <div className="pt-2 border-t">
           <p className="text-sm text-muted-foreground font-mono">
-            RIB: {formatRIB(account.code)}
+            RIB: {formatRIB(account.rib)}
           </p>
           <p className="text-xs text-muted-foreground">
             Créé le {new Date(account.createdAt).toLocaleDateString('fr-FR')}

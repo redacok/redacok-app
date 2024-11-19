@@ -11,6 +11,7 @@ import { Loader2 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { User } from '@prisma/client';
 import TransactionsPage from '../../transactions/page';
+import bankStore from '@/store/bank-store';
 
 interface DisplayAccountsProps {
   user: User;
@@ -19,6 +20,7 @@ interface DisplayAccountsProps {
 export function DisplayAccounts({ user }: DisplayAccountsProps) {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
+  const lastUpdate = bankStore((state) => state.lastUpdate);
 
   const fetchAccounts = async () => {
     try {
@@ -33,7 +35,7 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
 
   useEffect(() => {
     fetchAccounts();
-  }, []);
+  }, [lastUpdate]);
 
   if (loading) {
     return (

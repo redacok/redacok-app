@@ -35,6 +35,7 @@ import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { BankAccount } from "@/lib/bank-account";
 import { useDebounce } from "@/hooks/use-debounce";
+import bankStore from "@/store/bank-store";
 
 const MIN_BALANCE = 1000; // 1000 XAF minimum balance
 const RIB_LENGTH = 23; // Longueur standard d'un RIB
@@ -50,6 +51,7 @@ const transactionSchema = z.object({
   amount: z.coerce.number().min(1),
   fromAccount: z.string().optional(),
   toAccount: z.string().optional(),
+  account: z.string(),
   description: z.string().optional(),
 }).refine((data) => {
   if (data.type === "TRANSFER") {
@@ -69,6 +71,7 @@ export function CreateTransactionDialog() {
   const [userAccounts, setUserAccounts] = useState<BankAccount[]>([]);
   const [recipientInfo, setRecipientInfo] = useState<RecipientInfo | null>(null);
   const [loadingRecipient, setLoadingRecipient] = useState(false);
+  const invalidateData = bankStore((state) => state.invalidateData);
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -76,6 +79,7 @@ export function CreateTransactionDialog() {
       type: "DEPOSIT",
       amount: undefined,
       description: "",
+      account: "",
     },
   });
 
@@ -137,6 +141,7 @@ export function CreateTransactionDialog() {
       if (data.type !== "DEPOSIT" && data.type !== "TRANSFER") {
         toast.info("La transaction sera traitée après approbation d'un administrateur");
       }
+      invalidateData();
       setOpen(false);
       form.reset();
     } catch (error) {
@@ -188,6 +193,33 @@ export function CreateTransactionDialog() {
                 </FormItem>
               )}
             />
+
+            {(transactionType === "DEPOSIT" || transactionType === "WITHDRAWAL") && (
+              <FormField
+                control={form.control}
+                name="account"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Compte {transactionType === "DEPOSIT" ? "destinataire" : "source"}</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner le compte" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {userAccounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            {account.name} - Solde: {account.amount}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             {transactionType === "TRANSFER" && (
               <>

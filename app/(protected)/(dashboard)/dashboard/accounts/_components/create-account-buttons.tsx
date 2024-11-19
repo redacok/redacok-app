@@ -12,6 +12,7 @@ import { CreateAccountForm } from './create-account-form';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { AccountType } from '@prisma/client';
+import bankStore from '@/store/bank-store';
 
 interface CreateAccountButtonsProps {
   accounts: { name: string }[];
@@ -21,6 +22,8 @@ interface CreateAccountButtonsProps {
 export function CreateAccountButtons({ accounts, onAccountCreated }: CreateAccountButtonsProps) {
   const [selectedType, setSelectedType] = useState<AccountType | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const invalidateData = bankStore((state) => state.invalidateData);
 
   // Check if all account types exist
   const hasAllAccountTypes = ['epargne', 'courant', 'béni'].every(type =>
@@ -31,19 +34,23 @@ export function CreateAccountButtons({ accounts, onAccountCreated }: CreateAccou
     if (!selectedType) return;
 
     try {
+      setLoading(true);
       await axios.post('/api/accounts', { 
         type: selectedType,
         initialAmount: amount 
       });
       await onAccountCreated();
-      toast.success(`Compte ${selectedType} créé avec succès`);
+      invalidateData();
       setIsOpen(false);
+      toast.success('Compte créé avec succès');
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 400) {
         toast.error(error.response.data.error);
       } else {
         toast.error('Erreur lors de la création du compte');
       }
+    } finally {
+      setLoading(false);
     }
   };
 

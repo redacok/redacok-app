@@ -33,6 +33,7 @@ import { useMemo, useState } from "react";
 import { download, generateCsv, mkConfig } from "export-to-csv";
 import { DownloadIcon } from "lucide-react";
 import RowActions from "./row-actions";
+import bankStore from "@/store/bank-store";
 
 interface TransactionTableProps {
   from: Date;
@@ -146,6 +147,7 @@ const csvConfig = mkConfig({
 const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const lastUpdate = bankStore((state) => state.lastUpdate);
   let fetchUrl: string = `/api/transactions-history?from=${DateToUTCDate(
     from
   )}&to=${DateToUTCDate(to)}`;
@@ -163,7 +165,7 @@ const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
   }
 
   const history = useQuery<getTransactionsHistoryResponseType>({
-    queryKey: ["transactions", "history", from, to],
+    queryKey: ["transactions", "history", from, to, lastUpdate],
     queryFn: () => fetch(fetchUrl).then((res) => res.json()),
   });
 
