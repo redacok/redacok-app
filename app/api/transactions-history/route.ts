@@ -69,51 +69,77 @@ export async function getTransactionsHistory(
   if (size && size === "all") {
     transactions = await db.transaction.findMany({
       where: {
-        date: {
+        createdAt: {
           gte: from,
           lte: to,
         },
       },
       orderBy: {
-        date: "desc",
+        createdAt: "desc",
       },
     });
   } else {
-    transactions = await db.transaction.findMany({
+  //   transactions = await db.transaction.findMany({
+  //     where: {
+  //       userId,
+  //       createdAt: {
+  //         gte: from,
+  //         lte: to,
+  //       },
+  //     },
+  //     orderBy: {
+  //       createdAt: "desc",
+  //     },
+  //   });
+  // }
+
+  // return Promise.all(
+  //   transactions.map(async (transaction) => {
+  //     const category = await db.category.findUnique({
+  //       where: {
+  //         transactions: transaction.id,
+  //       },
+  //     });
+
+  //     const bankAccount = await db.bankAccount.findUnique({
+  //       where: {
+  //         id: transaction.bankAccountId,
+  //       },
+  //     });
+
+  //     return {
+  //       ...transaction,
+  //       // format the amount with the user currency
+  //       formattedAmount: formatter.format(transaction.amount),
+  //       category,
+  //       bankAccount,
+  //     };
+  //   })
+  // );
+
+    const transactions = await db.transaction.findMany({
       where: {
-        userId,
-        date: {
+        ...(size !== "all" ? { userId } : {}),
+        createdAt: {
           gte: from,
           lte: to,
         },
       },
+      include: {
+        fromAccount: true,
+        toAccount: true,
+        categories: true,
+      },
       orderBy: {
-        date: "desc",
+        createdAt: "desc",
       },
     });
+
+    return transactions.map((transaction) => ({
+      ...transaction,
+      formattedAmount: formatter.format(transaction.amount),
+      bankAccount: transaction.fromAccount,
+      category: transaction.categories[0], // Pour la compatibilité avec l'interface existante
+    }));
   }
-
-  return Promise.all(
-    transactions.map(async (transaction) => {
-      const category = await db.category.findUnique({
-        where: {
-          id: transaction.categoryId,
-        },
-      });
-
-      const bankAccount = await db.bankAccount.findUnique({
-        where: {
-          id: transaction.bankAccountId,
-        },
-      });
-
-      return {
-        ...transaction,
-        // format the amount with the user currency
-        formattedAmount: formatter.format(transaction.amount),
-        category,
-        bankAccount,
-      };
-    })
-  );
 }

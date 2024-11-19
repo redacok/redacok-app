@@ -8,6 +8,7 @@ import { differenceInDays, startOfMonth } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
 import TransactionTable from "./_components/transaction-table";
+import { CreateTransactionDialog } from "./_components/create-transaction-dialog";
 
 const TransactionsPage = () => {
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
@@ -21,7 +22,7 @@ const TransactionsPage = () => {
         description="Retrouvez toutes vos transactions"
         block={
           <div className="flex flex-col gap-3">
-            <Button>Nouvelle Transaction</Button>
+            <CreateTransactionDialog />
             <DateRangePicker
               initialDateFrom={dateRange.from}
               initialDateTo={dateRange.to}

@@ -41,9 +41,8 @@ interface TransactionTableProps {
   all?: boolean;
 }
 
-const emptyData: TransactionHistoryRow[] = [];
-
-export type TransactionHistoryRow = getTransactionsHistoryResponseType[0];
+export type TransactionHistoryRow = NonNullable<getTransactionsHistoryResponseType>[number];
+const emptyData: TransactionHistoryRow[] = [];[0];
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
@@ -52,7 +51,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Compte" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.original.bankAccountId);
+      return value.includes(row.original.bankAccount?.name);
     },
     cell: ({ row }) => (
       <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
@@ -77,7 +76,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Catégorie" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.original.categoryId);
+      return value.includes(row.original.category?.id);
     },
     cell: ({ row }) => (
       <div className="flex gap-2 capitalize">
@@ -100,7 +99,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Date" />
     ),
     cell: ({ row }) => {
-      const date = new Date(row.original.date);
+      const date = new Date(row.original.createdAt);
       const formattedDate = date.toLocaleDateString("default", {
         timeZone: "UTC",
         year: "numeric",
@@ -122,12 +121,12 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <div
         className={cn(
           "capitalize rounded-md text-center p-2",
-          row.original.type === "income" &&
+          row.original.type !== "TRANSFER" &&
             "bg-emerald-400/10 text-emerald-500",
-          row.original.type === "expense" && "bg-red-400/20 text-red-500"
+          row.original.type === "TRANSFER" && "bg-red-400/20 text-red-500"
         )}
       >
-        {row.original.type === "income" ? "Revenus" : "Dépense"}
+        {row.original.type === "DEPOSIT" ? "Dépot" : row.original.type === "WITHDRAWAL" ? "Retrait" : "Transfert"}
       </div>
     ),
   },
@@ -191,8 +190,8 @@ const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
   const categoriesOptions = useMemo(() => {
     const categoriesMap = new Map();
     history.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.categoryId, {
-        value: transaction.categoryId,
+      categoriesMap.set(transaction.category?.id, {
+        value: transaction.category?.id,
         label: `${transaction.category?.name}`,
         // label: `${transaction.categoryIcon} ${transaction.category}`,
       });
@@ -204,8 +203,8 @@ const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
   const bankAccountsOptions = useMemo(() => {
     const bankAccountsMap = new Map();
     history.data?.forEach((transaction) => {
-      bankAccountsMap.set(transaction.bankAccountId, {
-        value: transaction.bankAccountId,
+      bankAccountsMap.set(transaction.bankAccount?.id, {
+        value: transaction.bankAccount?.id,
         label: `${transaction.bankAccount?.name}`,
         // label: `${transaction.categoryIcon} ${transaction.category}`,
       });
@@ -256,7 +255,7 @@ const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
                 Type: row.original.type,
                 Montant: row.original.amount,
                 "Montant formaté": row.original.formattedAmount,
-                Date: row.original.date,
+                Date: row.original.createdAt,
               }));
               handleExportCsv(data);
             }}

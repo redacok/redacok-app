@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AccountCard } from './account-card';
-import { CreateAccountButtons } from './create-account-buttons';
+import { CreateAccountDialog } from './create-account-dialog';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { BankAccount } from '@/lib/bank-account';
@@ -45,11 +45,14 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
 
   return (
     <div className="container mx-auto p-6 space-y-4">
-      <PageHeader title="Mes Comptes" description="Gestion de vos comptes bancaires" />
-      
-      <CreateAccountButtons 
-        accounts={accounts}
-        onAccountCreated={fetchAccounts}
+      <PageHeader
+        title="Mes Comptes"
+        description="Gestion de vos comptes bancaires"
+        block={
+          <div className="flex flex-col gap-3">
+            <CreateAccountDialog />
+          </div>
+        }
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {accounts.map((account) => (

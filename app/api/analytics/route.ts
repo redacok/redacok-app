@@ -40,7 +40,7 @@ export async function GET(req: Request) {
       where: {
         transactions: {
           some: {
-            date: {
+            createdAt: {
               gte: startDate,
               lte: now,
             },
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
     // Get total transactions in time range
     const totalTransactions = await db.transaction.count({
       where: {
-        date: {
+        createdAt: {
           gte: startDate,
           lte: now,
         },
@@ -84,7 +84,7 @@ export async function GET(req: Request) {
 
     const previousTotalTransactions = await db.transaction.count({
       where: {
-        date: {
+        createdAt: {
           gte: previousStartDate,
           lte: previousEndDate,
         },
@@ -95,7 +95,7 @@ export async function GET(req: Request) {
       where: {
         transactions: {
           some: {
-            date: {
+            createdAt: {
               gte: previousStartDate,
               lte: previousEndDate,
             },

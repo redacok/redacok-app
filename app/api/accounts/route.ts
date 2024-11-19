@@ -5,10 +5,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const createAccountSchema = z.object({
-  type: z.enum(["epargne", "courant", "béni"] as const),
-  initialAmount: z
-    .number()
-    .min(500, { message: "Le montant minimum est de 500 XAF" }),
+  accountType: z.enum(["savings", "checking", "business"]),
+  currency: z.enum(["XAF", "EUR", "USD"]).default("XAF"),
+  initialDeposit: z.number().min(1000, "Le dépôt initial doit être d'au moins 1000 XAF"),
+  accountName: z.string().min(3, "Le nom du compte doit contenir au moins 3 caractères"),
 });
 
 export async function GET() {
@@ -57,60 +57,57 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { type, initialAmount } = result.data;
+    const { accountType, currency, initialDeposit, accountName } = result.data;
 
-    // Check if user already has this type of account
+    // Check if user already has an account with this name
     const existingAccount = await db.bankAccount.findFirst({
       where: {
         userId: session.user.id,
-        name: getAccountTypeName(type),
+        name: accountName,
       },
     });
 
     if (existingAccount) {
       return NextResponse.json(
-        { error: `Vous avez déjà un compte ${type}` },
+        { error: "Vous avez déjà un compte avec ce nom" },
         { status: 400 }
       );
     }
 
     // Create account with initial transaction
     const account = await db.$transaction(async (tx) => {
-      // Create the account
       const userId = session.user.id;
       if (!userId) {
-        return NextResponse.json(
-          { error: "Utilisateur non trouvé" },
-          { status: 400 }
-        );
+        throw new Error("Utilisateur non trouvé");
       }
 
       const account = await tx.bankAccount.create({
         data: {
-          userId: userId,
-          name: getAccountTypeName(type),
-          code: generateRIB(type, userId),
-          amount: initialAmount,
+          userId,
+          name: accountName,
+          type: accountType,
+          currency,
+          amount: initialDeposit,
+          rib: generateRIB(accountType, userId),
         },
       });
 
       // Create initial transaction
       await tx.transaction.create({
         data: {
-          bankAccountId: account.id,
           type: "DEPOSIT",
-          amount: initialAmount,
+          amount: initialDeposit,
           description: "Dépôt initial",
-          date: new Date(),
-          userId: userId,
-          categoryId: "",
+          status: "COMPLETED",
+          fromAccountId: account.id,
+          userId,
         },
       });
 
       return account;
     });
 
-    return NextResponse.json(account);
+    return NextResponse.json({ success: true, account });
   } catch (error) {
     console.error("Error creating account:", error);
     return NextResponse.json(

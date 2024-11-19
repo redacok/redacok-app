@@ -183,18 +183,47 @@ model Country {
   @@unique([name, code])
 }
 
-model BankAccount {
-  id            String   @id @default(cuid())
-  name          String
-  userId        String
-  code          String   @unique
-  amount        Float    @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  user          User     @relation(fields: [userId], references: [id])
-  transactions  Transaction[]
+enum AccountType {
+  savings
+  checking
+  business
+}
 
-  @@unique([userId, code])
+enum Currency {
+  XAF
+  EUR
+  USD
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+model BankAccount {
+  id            String      @id @default(cuid())
+  name          String
+  type          AccountType @default(savings)
+  currency      Currency    @default(XAF)
+  rib           String      @unique
+  amount        Float       @default(0)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  
+  // Transactions liées à ce compte
+  fromTransactions Transaction[] @relation("FromAccount")
+  toTransactions   Transaction[] @relation("ToAccount")
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
   @@index([userId])
 }
 
@@ -205,32 +234,37 @@ model Category {
   enabled     Boolean  @default(true)
   createdAt   DateTime @default(now())
   
-  transactions  Transaction[]
+  transactions Transaction[] @relation("TransactionCategories")
 
   @@unique([name, type])
 }
 
 model Transaction {
-  id            String @id @default(uuid())
-
+  id            String            @id @default(cuid())
+  type          TransactionType
   amount        Float
-  description   String
-  type          String      @default("expense")
-  date          DateTime
-  bankAccountId String
+  description   String?
+  status        TransactionStatus @default(PENDING)
+  
+  // Comptes source et destination
+  fromAccountId String?
+  fromAccount   BankAccount?      @relation("FromAccount", fields: [fromAccountId], references: [id])
+  
+  toAccountId   String?
+  toAccount     BankAccount?      @relation("ToAccount", fields: [toAccountId], references: [id])
+  
+  // Utilisateur qui a initié la transaction
   userId        String
-  categoryId    String
+  user          User              @relation(fields: [userId], references: [id])
+  
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
-  bankAccount   BankAccount     @relation(fields: [bankAccountId], references: [id])
-  user          User            @relation(fields: [userId], references: [id])
-  category      Category        @relation(fields: [categoryId], references: [id])
+  categories Category[] @relation("TransactionCategories")
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
-
-  @@index([bankAccountId])
+  @@index([fromAccountId])
+  @@index([toAccountId])
   @@index([userId])
-  @@index([categoryId])
 }
 
 model MonthHistory {
