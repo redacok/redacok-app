@@ -50,7 +50,7 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
         description="Gestion de vos comptes bancaires"
         block={
           <div className="flex flex-col gap-3">
-            <CreateAccountDialog />
+            <CreateAccountDialog user={user} />
           </div>
         }
       />

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { AccountType, getAccountTypeName } from '@/lib/bank-account';
+import {  getAccountTypeName } from '@/lib/bank-account';
 import {
   Popover,
   PopoverContent,
@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { CreateAccountForm } from './create-account-form';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { AccountType } from '@prisma/client';
 
 interface CreateAccountButtonsProps {
   accounts: { name: string }[];

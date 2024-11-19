@@ -1,4 +1,4 @@
-export type AccountType = 'epargne' | 'courant' | 'béni';
+import { AccountType } from "@prisma/client";
 
 export interface BankAccount {
   id: string;
@@ -18,7 +18,7 @@ export function getAccountTypeFromRIB(rib: string): AccountType | null {
   const typeDigit = rib[10];
   if (typeDigit === '1') return 'courant';
   if (typeDigit === '2') return 'epargne';
-  if (typeDigit === '3') return 'béni';
+  if (typeDigit === '3') return 'business';
   return null;
 }
 
@@ -28,7 +28,7 @@ export function getAccountTypeName(type: AccountType): string {
       return 'Compte Courant';
     case 'epargne':
       return 'Compte Épargne';
-    case 'béni':
+    case 'business':
       return 'Compte Béni';
   }
 }

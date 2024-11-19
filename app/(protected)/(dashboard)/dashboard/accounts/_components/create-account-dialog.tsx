@@ -45,7 +45,7 @@ const accountSchema = z.object({
 
 type AccountFormValues = z.infer<typeof accountSchema>;
 
-export async function CreateAccountDialog({ user }: { user: User }) {
+export function CreateAccountDialog({ user }: { user: User }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 

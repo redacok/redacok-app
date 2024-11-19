@@ -42,7 +42,7 @@ interface TransactionTableProps {
 }
 
 export type TransactionHistoryRow = NonNullable<getTransactionsHistoryResponseType>[number];
-const emptyData: TransactionHistoryRow[] = [];[0];
+const emptyData: TransactionHistoryRow[] = [];
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {

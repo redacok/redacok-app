@@ -184,8 +184,8 @@ model Country {
 }
 
 enum AccountType {
-  savings
-  checking
+  epargne
+  courant
   business
 }
 
@@ -210,7 +210,7 @@ enum TransactionStatus {
 model BankAccount {
   id            String      @id @default(cuid())
   name          String
-  type          AccountType @default(savings)
+  type          AccountType @default(epargne)
   currency      Currency    @default(XAF)
   rib           String      @unique
   amount        Float       @default(0)

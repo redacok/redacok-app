@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Loader2 } from 'lucide-react';
-import { AccountType } from '@/lib/bank-account';
+import { AccountType } from '@prisma/client';
 
 const formSchema = z.object({
   amount: z.string().refine(

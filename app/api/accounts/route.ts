@@ -1,14 +1,14 @@
 import { auth } from "@/auth";
 import { generateRIB, getAccountTypeName } from "@/lib/bank-account";
 import { db } from "@/lib/db";
+import { AccountType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const createAccountSchema = z.object({
-  accountType: z.enum(["savings", "checking", "business"]),
+  accountType: z.enum(["epargne", "courant", "business"]),
   currency: z.enum(["XAF", "EUR", "USD"]).default("XAF"),
-  initialDeposit: z.number().min(1000, "Le dépôt initial doit être d'au moins 1000 XAF"),
-  accountName: z.string().min(3, "Le nom du compte doit contenir au moins 3 caractères"),
+  initialDeposit: z.number().min(3000, "Le dépôt initial doit être d'au moins 1000 XAF"),
 });
 
 export async function GET() {
@@ -57,13 +57,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { accountType, currency, initialDeposit, accountName } = result.data;
+    const { accountType, currency, initialDeposit } = result.data;
 
     // Check if user already has an account with this name
     const existingAccount = await db.bankAccount.findFirst({
       where: {
         userId: session.user.id,
-        name: accountName,
+        name: getAccountTypeName(accountType),
       },
     });
 
@@ -84,11 +84,11 @@ export async function POST(req: NextRequest) {
       const account = await tx.bankAccount.create({
         data: {
           userId,
-          name: accountName,
-          type: accountType,
+          name: getAccountTypeName(accountType),
+          type: accountType as AccountType,
           currency,
           amount: initialDeposit,
-          rib: generateRIB(accountType, userId),
+          rib: generateRIB(accountType as AccountType, userId),
         },
       });
 
