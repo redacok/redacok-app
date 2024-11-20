@@ -34,6 +34,7 @@ import { download, generateCsv, mkConfig } from "export-to-csv";
 import { DownloadIcon } from "lucide-react";
 import RowActions from "./row-actions";
 import bankStore from "@/store/bank-store";
+import { UserAvatar } from "@/components/user-avatar";
 
 interface TransactionTableProps {
   from: Date;
@@ -47,12 +48,27 @@ const emptyData: TransactionHistoryRow[] = [];
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
+    accessorKey: "username",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Utilisateur" />
+    ),
+    filterFn: (row, id, value) => {
+      return value.includes(row.original.userId);
+    },
+    cell: ({ row }) => (
+      <div className="flex gap-2 items-center capitalize  p-2 font-medium">
+        <UserAvatar image={null} name={row.original.user?.name} />
+        {row.original.user && row.original.user.name}
+      </div>
+    ),
+  },
+  {
     accessorKey: "accountName",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Compte" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.original.bankAccount?.name);
+      return value.includes(row.original.bankAccount?.id);
     },
     cell: ({ row }) => (
       <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
@@ -91,7 +107,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Description" />
     ),
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.description}</div>
+      <div className="capitalize justify-start">{row.original.description}</div>
     ),
   },
   {
@@ -116,7 +132,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Type" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+      return value.includes(row.original.type);
     },
     cell: ({ row }) => (
       <div
@@ -124,7 +140,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
           "capitalize rounded-md text-center p-2",
           row.original.type !== "TRANSFER" &&
             "bg-emerald-400/10 text-emerald-500",
-          row.original.type === "TRANSFER" && "bg-red-400/20 text-red-500"
+          row.original.type === "TRANSFER" && "bg-red-400/20 text-yellow-500"
         )}
       >
         {row.original.type === "DEPOSIT" ? "Dépot" : row.original.type === "WITHDRAWAL" ? "Retrait" : "Transfert"}
@@ -144,7 +160,7 @@ const csvConfig = mkConfig({
   useKeysAsHeaders: true,
 });
 
-const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
+const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const lastUpdate = bankStore((state) => state.lastUpdate);
@@ -156,12 +172,6 @@ const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
     fetchUrl = `/api/transactions-history/${userId}?from=${DateToUTCDate(
       from
     )}&to=${DateToUTCDate(to)}`;
-  }
-
-  if (all) {
-    fetchUrl = `/api/transactions-history?from=${DateToUTCDate(
-      from
-    )}&to=${DateToUTCDate(to)}&size=all`;
   }
 
   const history = useQuery<getTransactionsHistoryResponseType>({
@@ -192,9 +202,9 @@ const TransactionTable = ({ from, to, userId, all }: TransactionTableProps) => {
   const categoriesOptions = useMemo(() => {
     const categoriesMap = new Map();
     history.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.category?.id, {
-        value: transaction.category?.id,
-        label: `${transaction.category?.name}`,
+      categoriesMap.set(transaction.type, {
+        value: transaction.type,
+        label: `${transaction.type}`,
         // label: `${transaction.categoryIcon} ${transaction.category}`,
       });
     });

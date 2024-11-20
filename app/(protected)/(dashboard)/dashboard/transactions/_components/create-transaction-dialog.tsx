@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,19 +26,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { useDebounce } from "@/hooks/use-debounce";
+import { BankAccount } from "@/lib/bank-account";
+import bankStore from "@/store/bank-store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
-import { BankAccount } from "@/lib/bank-account";
-import { useDebounce } from "@/hooks/use-debounce";
-import bankStore from "@/store/bank-store";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
-const MIN_BALANCE = 1000; // 1000 XAF minimum balance
+// const MIN_BALANCE = 1000; // 1000 XAF minimum balance
 const RIB_LENGTH = 23; // Longueur standard d'un RIB
 
 interface RecipientInfo {
@@ -46,22 +46,28 @@ interface RecipientInfo {
   userName: string;
 }
 
-const transactionSchema = z.object({
-  type: z.enum(["DEPOSIT", "WITHDRAWAL", "TRANSFER"]),
-  amount: z.coerce.number().min(1),
-  fromAccount: z.string().optional(),
-  toAccount: z.string().optional(),
-  account: z.string(),
-  description: z.string().optional(),
-}).refine((data) => {
-  if (data.type === "TRANSFER") {
-    return data.fromAccount && data.toAccount;
-  }
-  return true;
-}, {
-  message: "Les comptes source et destination sont requis pour un transfert",
-  path: ["fromAccount"]
-});
+const transactionSchema = z
+  .object({
+    type: z.enum(["DEPOSIT", "WITHDRAWAL", "TRANSFER"]),
+    amount: z.coerce.number().min(1),
+    fromAccount: z.string().optional(),
+    toAccount: z.string().optional(),
+    account: z.string(),
+    description: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.type === "TRANSFER") {
+        return data.fromAccount && data.toAccount;
+      }
+      return true;
+    },
+    {
+      message:
+        "Les comptes source et destination sont requis pour un transfert",
+      path: ["fromAccount"],
+    }
+  );
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
 
@@ -69,7 +75,9 @@ export function CreateTransactionDialog() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userAccounts, setUserAccounts] = useState<BankAccount[]>([]);
-  const [recipientInfo, setRecipientInfo] = useState<RecipientInfo | null>(null);
+  const [recipientInfo, setRecipientInfo] = useState<RecipientInfo | null>(
+    null
+  );
   const [loadingRecipient, setLoadingRecipient] = useState(false);
   const invalidateData = bankStore((state) => state.invalidateData);
 
@@ -103,7 +111,9 @@ export function CreateTransactionDialog() {
       if (debouncedRib?.length === RIB_LENGTH) {
         setLoadingRecipient(true);
         try {
-          const response = await axios.get(`/api/accounts/validate-rib/${debouncedRib}`);
+          const response = await axios.get(
+            `/api/accounts/validate-rib/${debouncedRib}`
+          );
           if (response.data.success) {
             setRecipientInfo(response.data.recipient);
             toast.success(`Compte trouvé: ${response.data.recipient.userName}`);
@@ -134,19 +144,26 @@ export function CreateTransactionDialog() {
       const response = await axios.post("/api/transactions", data);
 
       if (!response.data.success) {
-        throw new Error(response.data.message || "Failed to create transaction");
+        throw new Error(
+          response.data.message || "Failed to create transaction"
+        );
       }
 
       toast.success("Transaction créée avec succès");
       if (data.type !== "DEPOSIT" && data.type !== "TRANSFER") {
-        toast.info("La transaction sera traitée après approbation d'un administrateur");
+        toast.info(
+          "La transaction sera traitée après approbation d'un administrateur"
+        );
       }
       invalidateData();
       setOpen(false);
       form.reset();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Erreur lors de la création de la transaction");
+        toast.error(
+          error.response?.data?.message ||
+            "Erreur lors de la création de la transaction"
+        );
       } else {
         toast.error("Erreur lors de la création de la transaction");
       }
@@ -166,7 +183,8 @@ export function CreateTransactionDialog() {
         <DialogHeader>
           <DialogTitle>Créer une Transaction</DialogTitle>
           <DialogDescription>
-            Remplissez les informations ci-dessous pour créer une nouvelle transaction.
+            Remplissez les informations ci-dessous pour créer une nouvelle
+            transaction.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -177,7 +195,10 @@ export function CreateTransactionDialog() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Type de transaction</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Sélectionner le type" />
@@ -194,14 +215,23 @@ export function CreateTransactionDialog() {
               )}
             />
 
-            {(transactionType === "DEPOSIT" || transactionType === "WITHDRAWAL") && (
+            {(transactionType === "DEPOSIT" ||
+              transactionType === "WITHDRAWAL") && (
               <FormField
                 control={form.control}
                 name="account"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Compte {transactionType === "DEPOSIT" ? "destinataire" : "source"}</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel>
+                      Compte{" "}
+                      {transactionType === "DEPOSIT"
+                        ? "destinataire"
+                        : "source"}
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Sélectionner le compte" />
@@ -229,7 +259,10 @@ export function CreateTransactionDialog() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Compte source</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Sélectionner le compte source" />
@@ -267,9 +300,13 @@ export function CreateTransactionDialog() {
                             </div>
                           )}
                           {recipientInfo && (
-                            <div className="rounded-md border p-3 text-sm">
-                              <p className="font-medium">{recipientInfo.userName}</p>
-                              <p className="text-muted-foreground">{recipientInfo.accountName}</p>
+                            <div className="rounded-md border p-3 text-sm border-sky-100 bg-sky-100/50">
+                              <p className="font-medium">
+                                {recipientInfo.userName}
+                              </p>
+                              <p className="text-muted-foreground">
+                                {recipientInfo.accountName}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -307,7 +344,10 @@ export function CreateTransactionDialog() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Description de la transaction" />
+                    <Input
+                      {...field}
+                      placeholder="Description de la transaction"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

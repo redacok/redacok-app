@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Home, LogOut, LucideIcon, PanelLeftOpen, X } from "lucide-react";
+import { Home, LucideIcon, PanelLeftOpen, X } from "lucide-react";
 import Link, { LinkProps } from "next/link";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Button, buttonVariants } from "./button";

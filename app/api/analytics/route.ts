@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   try {
@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     const timeRange = searchParams.get("timeRange") || "7days";
 
     const now = new Date();
-    let startDate = new Date();
+    const startDate = new Date();
 
     switch (timeRange) {
       case "24h":
@@ -62,7 +62,7 @@ export async function GET(req: Request) {
     // Get previous period metrics for comparison
     const previousStartDate = new Date(startDate);
     const previousEndDate = new Date(now);
-    
+
     switch (timeRange) {
       case "24h":
         previousStartDate.setHours(previousStartDate.getHours() - 24);
@@ -105,13 +105,17 @@ export async function GET(req: Request) {
     });
 
     // Calculate percentage changes
-    const transactionChange = previousTotalTransactions === 0 
-      ? 100 
-      : ((totalTransactions - previousTotalTransactions) / previousTotalTransactions) * 100;
-    
-    const activeUsersChange = previousActiveUsers === 0 
-      ? 100 
-      : ((activeUsers - previousActiveUsers) / previousActiveUsers) * 100;
+    const transactionChange =
+      previousTotalTransactions === 0
+        ? 100
+        : ((totalTransactions - previousTotalTransactions) /
+            previousTotalTransactions) *
+          100;
+
+    const activeUsersChange =
+      previousActiveUsers === 0
+        ? 100
+        : ((activeUsers - previousActiveUsers) / previousActiveUsers) * 100;
 
     return NextResponse.json({
       totalUsers,
@@ -121,7 +125,7 @@ export async function GET(req: Request) {
       metrics: {
         transactionChange: transactionChange.toFixed(1),
         activeUsersChange: activeUsersChange.toFixed(1),
-      }
+      },
     });
   } catch (error) {
     console.error("[ANALYTICS_ERROR]", error);

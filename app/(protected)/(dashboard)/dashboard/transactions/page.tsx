@@ -2,13 +2,12 @@
 
 import { DateRangePicker } from "@/components/date-range-picker";
 import { PageHeader } from "@/components/page-header";
-import { Button } from "@/components/ui/button";
 import { MAX_DATE_RANGE_DAYS } from "@/constants";
 import { differenceInDays, startOfMonth } from "date-fns";
 import { useState } from "react";
 import { toast } from "sonner";
-import TransactionTable from "./_components/transaction-table";
 import { CreateTransactionDialog } from "./_components/create-transaction-dialog";
+import TransactionTable from "./_components/transaction-table";
 
 const TransactionsPage = () => {
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
