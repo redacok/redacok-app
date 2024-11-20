@@ -5,7 +5,6 @@ import {
   getCountries,
   getCountryCallingCode,
 } from "libphonenumber-js";
-import { db } from "./db";
 
 const Currencies = [
   { value: "EUR", label: "€ Euro", locale: "fr-FR" },

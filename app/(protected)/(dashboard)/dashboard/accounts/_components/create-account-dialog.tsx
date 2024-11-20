@@ -26,16 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BankAccount } from "@/lib/bank-account";
+import bankStore from "@/store/bank-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { BankAccount } from "@/lib/bank-account";
-import bankStore from "@/store/bank-store";
 
 const accountSchema = z.object({
   accountType: z.enum(["epargne", "courant", "business"]),
@@ -96,6 +96,7 @@ export function CreateAccountDialog({ user }: { user: User }) {
         const response = await axios.get("/api/accounts");
         setAccounts(response.data);
       } catch (error) {
+        console.error(error);
         toast.error("Erreur lors de la récupération des comptes");
       }
     };

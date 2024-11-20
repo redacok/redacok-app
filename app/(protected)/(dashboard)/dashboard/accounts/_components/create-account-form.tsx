@@ -1,7 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,13 +8,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { Loader2 } from 'lucide-react';
-import { AccountType } from '@prisma/client';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AccountType } from "@prisma/client";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 const formSchema = z.object({
   amount: z.string().refine(
@@ -24,7 +24,7 @@ const formSchema = z.object({
       return !isNaN(num) && num >= 3000;
     },
     {
-      message: 'Le montant minimum est de 500 XAF',
+      message: "Le montant minimum est de 500 XAF",
     }
   ),
 });
@@ -36,7 +36,6 @@ interface CreateAccountFormProps {
 }
 
 export function CreateAccountForm({
-  type,
   onSubmit,
   onCancel,
 }: CreateAccountFormProps) {
@@ -45,7 +44,7 @@ export function CreateAccountForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: '',
+      amount: "",
     },
   });
 

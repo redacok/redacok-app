@@ -1,17 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { AccountCard } from './account-card';
-import { CreateAccountDialog } from './create-account-dialog';
-import axios from 'axios';
-import { toast } from 'sonner';
-import { BankAccount } from '@/lib/bank-account';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { PageHeader } from '@/components/page-header';
-import { User } from '@prisma/client';
-import TransactionsPage from '../../transactions/page';
-import bankStore from '@/store/bank-store';
+import { PageHeader } from "@/components/page-header";
+import { BankAccount } from "@/lib/bank-account";
+import bankStore from "@/store/bank-store";
+import { User } from "@prisma/client";
+import axios from "axios";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import TransactionsPage from "../../transactions/page";
+import { AccountCard } from "./account-card";
+import { CreateAccountDialog } from "./create-account-dialog";
 
 interface DisplayAccountsProps {
   user: User;
@@ -24,10 +23,11 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
 
   const fetchAccounts = async () => {
     try {
-      const response = await axios.get('/api/accounts');
+      const response = await axios.get("/api/accounts");
       setAccounts(response.data);
     } catch (error) {
-      toast.error('Erreur lors de la récupération des comptes');
+      console.error(error);
+      toast.error("Erreur lors de la récupération des comptes");
     } finally {
       setLoading(false);
     }
@@ -58,7 +58,11 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {accounts.map((account) => (
-          <AccountCard key={account.id} account={account} currency={user.currency || 'XAF'} />
+          <AccountCard
+            key={account.id}
+            account={account}
+            currency={user.currency || "XAF"}
+          />
         ))}
       </div>
       {accounts.length === 0 && (
@@ -66,9 +70,7 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
           Vous n&apos;avez pas encore de compte. Créez-en un pour commencer.
         </div>
       )}
-      {accounts.length > 0 && (
-        <TransactionsPage />
-      )}
+      {accounts.length > 0 && <TransactionsPage />}
     </div>
   );
 }
