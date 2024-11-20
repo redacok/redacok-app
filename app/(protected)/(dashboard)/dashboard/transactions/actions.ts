@@ -36,19 +36,19 @@ export async function DeleteTransaction(id: string) {
       where: {
         day_month_year_userId_bankAccountId: {
           userId: user.id!,
-          day: transaction.date.getUTCDate(),
-          month: transaction.date.getUTCMonth(),
-          year: transaction.date.getUTCFullYear(),
-          bankAccountId: transaction.bankAccountId,
+          day: transaction.createdAt.getUTCDate(),
+          month: transaction.createdAt.getUTCMonth(),
+          year: transaction.createdAt.getUTCFullYear(),
+          bankAccountId: transaction.fromAccountId!,
         },
       },
       data: {
-        ...(transaction.type === "expense" && {
+        ...(transaction.type === "DEPOSIT" && {
           expense: {
             decrement: transaction.amount,
           },
         }),
-        ...(transaction.type === "income" && {
+        ...(transaction.type === "TRANSFER" && {
           income: {
             decrement: transaction.amount,
           },
@@ -60,18 +60,18 @@ export async function DeleteTransaction(id: string) {
       where: {
         month_year_userId_bankAccountId: {
           userId: user.id!,
-          month: transaction.date.getUTCMonth(),
-          year: transaction.date.getUTCFullYear(),
-          bankAccountId: transaction.bankAccountId,
+          month: transaction.createdAt.getUTCMonth(),
+          year: transaction.createdAt.getUTCFullYear(),
+          bankAccountId: transaction.fromAccountId!,
         },
       },
       data: {
-        ...(transaction.type === "expense" && {
+        ...(transaction.type === "DEPOSIT" && {
           expense: {
             decrement: transaction.amount,
           },
         }),
-        ...(transaction.type === "income" && {
+        ...(transaction.type === "TRANSFER" && {
           income: {
             decrement: transaction.amount,
           },
