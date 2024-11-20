@@ -98,6 +98,7 @@ export function CreateTransactionDialog() {
         const response = await axios.get("/api/accounts");
         setUserAccounts(response.data);
       } catch (error) {
+        console.error(error);
         toast.error("Erreur lors de la récupération de vos comptes");
       }
     };

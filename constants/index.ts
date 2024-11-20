@@ -10,7 +10,7 @@ export const MAX_DATE_RANGE_DAYS = 90;
 
 export const Currencies = [
   { value: "XAF", label: "Franc CFA", locale: "fr-FR" },
-  { value: "XOF", label: "Franc CFAO", locale: "fr-FR" },
+  // { value: "XOF", label: "Franc CFAO", locale: "fr-FR" },
   { value: "EUR", label: "€ Euro", locale: "fr-FR" },
   { value: "USD", label: "$ Dollar", locale: "us-US" },
 ];
@@ -23,7 +23,7 @@ export const AdminLinks = [
     href: "/admin/dashboard",
     icon: TerminalIcon,
   },
-  
+
   {
     label: "Analytics",
     href: "/admin/dashboard/analytics",

@@ -2,11 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Form,
   FormControl,
   FormField,
@@ -14,6 +9,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -21,15 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { useState } from "react";
-import { toast } from "sonner";
 import axios from "axios";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
-const MIN_BALANCE = 1000; // 1000 XAF minimum balance
+// const MIN_BALANCE = 1000; // 1000 XAF minimum balance
 
 const transactionSchema = z.object({
   type: z.enum(["deposit", "withdrawal", "transfer"]),
@@ -62,13 +62,18 @@ export function CreateTransactionPopover() {
 
       toast.success("Transaction créée avec succès");
       if (data.type !== "deposit") {
-        toast.info("La transaction sera traitée après approbation d'un administrateur");
+        toast.info(
+          "La transaction sera traitée après approbation d'un administrateur"
+        );
       }
       setOpen(false);
       form.reset();
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Erreur lors de la création de la transaction");
+        toast.error(
+          error.response?.data?.message ||
+            "Erreur lors de la création de la transaction"
+        );
       } else {
         toast.error("Erreur lors de la création de la transaction");
       }
@@ -122,7 +127,10 @@ export function CreateTransactionPopover() {
                       <FormItem>
                         <FormLabel>Compte source</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Sélectionner le compte source" />
+                          <Input
+                            {...field}
+                            placeholder="Sélectionner le compte source"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -135,7 +143,10 @@ export function CreateTransactionPopover() {
                       <FormItem>
                         <FormLabel>Compte destination</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="Sélectionner le compte destination" />
+                          <Input
+                            {...field}
+                            placeholder="Sélectionner le compte destination"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -170,7 +181,10 @@ export function CreateTransactionPopover() {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Description de la transaction" />
+                      <Input
+                        {...field}
+                        placeholder="Description de la transaction"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
