@@ -87,20 +87,20 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       </p>
     ),
   },
-  {
-    accessorKey: "category",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Catégorie" />
-    ),
-    filterFn: (row, id, value) => {
-      return value.includes(row.original.category?.id);
-    },
-    cell: ({ row }) => (
-      <div className="flex gap-2 capitalize">
-        <div className="capitalize">{row.original.category?.name}</div>
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: "category",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Catégorie" />
+  //   ),
+  //   filterFn: (row, id, value) => {
+  //     return value.includes(row.original.category?.id);
+  //   },
+  //   cell: ({ row }) => (
+  //     <div className="flex gap-2 capitalize">
+  //       <div className="capitalize">{row.original.category?.name}</div>
+  //     </div>
+  //   ),
+  // },
   {
     accessorKey: "description",
     header: ({ column }) => (
@@ -261,8 +261,8 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
             className="ml-auto h-8 lg:flex"
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
-                Catégorie: row.original.category,
-                // Icone: row.original.category.icon,
+                // Catégorie: row.original.category,
+                Utilisateur: row.original.user.name,
                 Description: row.original.description,
                 Type: row.original.type,
                 Montant: row.original.amount,

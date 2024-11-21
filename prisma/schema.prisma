@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  // provider = "mysql"
+  // provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -95,24 +95,48 @@ model User {
   @@index([countryId])
 }
 
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum KycType {
+  PERSONAL
+  BUSINESS
+}
+
 model Kyc {
   id              String    @id @default(cuid())
-  name            String?
-  surname         String?
+  type            KycType   @default(PERSONAL)
+  status          KycStatus @default(PENDING)
+  userId          String    
+  user            User      @relation(fields: [userId], references: [id])
+
+  // Personnal informations
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime
+  nationality     String
+  
+  // Personnal informations documents
   idType          String?
   idNumber        String?
-  idExpires       DateTime?
+  idExpirationDate DateTime?
+
+  // uploaded documents
   niu             String?   @unique
   idPicture       String?   @unique
   idOnHand        String?   @unique
   entirePhoto     String?   @unique
   locationPlan    String?   @unique
-  isValid         Boolean   @default(false)
-  invalidReason   String?
-  type            String?   @default("personal")
-  isProcessing    Boolean   @default(true)
 
-  userId          String    
+  // Metadatas
+  submittedAt     DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  reviewedAt      DateTime?
+  reviewedBy      String?   // ID de l'admin qui a examiné la demande
+  rejectionReason String?
 
   niuMedia            Media?  @relation(name: "KycNiuMedia", fields: [niu], references: [id])
   pictureMedia        Media?  @relation(name: "KycPictureMedia", fields: [idPicture], references: [id])
@@ -120,7 +144,6 @@ model Kyc {
   entirePhotoMedia         Media?  @relation(name: "KycEntirePhotoMedia", fields: [entirePhoto], references: [id])
   locationPlanMedia   Media?  @relation(name: "KycLocationPlanMedia", fields: [locationPlan], references: [id])
   
-  user            User      @relation(fields: [userId], references: [id])
   organisation    Organisation?
 
   @@index([userId])

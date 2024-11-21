@@ -6,7 +6,7 @@ import {
   personnalVerificationSchema,
   uploadFileSchema,
 } from "@/lib/definitions";
-import { Kyc } from "@prisma/client";
+import { Kyc, KycType } from "@prisma/client";
 import { redirect } from "next/navigation";
 import * as z from "zod";
 
@@ -42,9 +42,9 @@ export async function personnalVerificationAction(
         id,
       },
       data: {
-        name,
-        surname,
-        idExpires,
+        firstName: name,
+        lastName: surname,
+        idExpirationDate: idExpires,
         idType,
         idNumber,
       },
@@ -52,11 +52,14 @@ export async function personnalVerificationAction(
   } else {
     await db.kyc.create({
       data: {
-        name,
-        surname,
-        idExpires,
+        firstName: name,
+        lastName: surname,
+        idExpirationDate: idExpires,
         idType,
         idNumber,
+        dateOfBirth: new Date(),
+        nationality: "FR",
+        type: "PERSONAL",
         user: {
           connect: {
             id: session.user.id,
@@ -121,7 +124,7 @@ export async function personnalVerificationFileAction(fileData: FormData) {
   };
 }
 
-export async function getKycAction(type: string = "personal") {
+export async function getKycAction(type: KycType = "PERSONAL") {
   const session = await auth();
   if (!session || !session?.user) {
     return redirect("/sign-in?callback=/dashboard/profile");

@@ -41,8 +41,8 @@ export async function BusinessVerificationAction(
         id: kycId,
       },
       data: {
-        name,
-        surname,
+        firstName: name,
+        lastName: surname,
       },
     });
 
@@ -57,9 +57,9 @@ export async function BusinessVerificationAction(
   } else {
     const newKyc = await db.kyc.create({
       data: {
-        name,
-        surname,
-        type: "business",
+        firstName: name,
+        lastName: surname,
+        type: "BUSINESS",
         user: {
           connect: {
             id: session.user.id,

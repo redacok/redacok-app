@@ -2,42 +2,56 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { OverviewQuerySchema } from "@/lib/definitions";
 import { getFormatterForCurrency } from "@/lib/helpers";
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation"
+import { checkKycStatus } from "@/middleware/check-kyc-status";
 
 export async function GET(request: Request) {
-  const session = await auth();
-  if (!session || !session.user) {
-    redirect("/sign-in");
-  }
-  const user = session.user;
+  try {
+    // Vérifier le statut KYC
+    const kycCheck = await checkKycStatus();
+    if (!kycCheck.allowed) {
+      return new Response(kycCheck.message, { status: 403 });
+    }
 
-  const { searchParams } = new URL(request.url);
-  const from = searchParams.get("from");
-  const to = searchParams.get("to");
-  const size = searchParams.get("size");
+    const session = await auth();
+    if (!session || !session.user) {
+      redirect("/sign-in");
+    }
+    const user = session.user;
 
-  if (size && size === "all" && user.role !== "ADMIN") {
-    redirect("/");
-  }
+    const { searchParams } = new URL(request.url);
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    const size = searchParams.get("size");
 
-  const queryParams = OverviewQuerySchema.safeParse({
-    from,
-    to,
-  });
+    if (size && size === "all" && user.role !== "ADMIN") {
+      redirect("/");
+    }
 
-  if (!queryParams.success) {
-    return Response.json(queryParams.error.message, {
-      status: 400,
+    const queryParams = OverviewQuerySchema.safeParse({
+      from,
+      to,
+    });
+
+    if (!queryParams.success) {
+      return Response.json(queryParams.error.message, {
+        status: 400,
+      });
+    }
+
+    const transactions = await getTransactionsHistory(
+      user.id!,
+      queryParams.data.from,
+      queryParams.data.to
+    );
+
+    return Response.json(transactions);
+  } catch (error) {
+    console.error(error);
+    return Response.json("Error occurred while processing request", {
+      status: 500,
     });
   }
-
-  const transactions = await getTransactionsHistory(
-    user.id!,
-    queryParams.data.from,
-    queryParams.data.to
-  );
-
-  return Response.json(transactions);
 }
 
 export type getTransactionsHistoryResponseType = Awaited<
@@ -84,7 +98,6 @@ export async function getTransactionsHistory(
     ...transaction,
     formattedAmount: formatter.format(transaction.amount),
     bankAccount: transaction.fromAccount,
-    category: transaction.categories[0],
-    user: transaction.user, // Pour la compatibilité avec l'interface existante
+    user: transaction.user,
   }));
 }

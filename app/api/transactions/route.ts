@@ -132,8 +132,18 @@ export async function POST(req: Request) {
           type === "DEPOSIT"
             ? TransactionStatus.COMPLETED
             : TransactionStatus.PENDING,
-        fromAccountId: type === "TRANSFER" ? fromAccount : (type === "WITHDRAWAL" ? account : null),
-        toAccountId: type === "TRANSFER" ? toAccount : (type === "DEPOSIT" ? fromAccount : null),
+        fromAccountId:
+          type === "TRANSFER"
+            ? fromAccount
+            : type === "WITHDRAWAL"
+            ? account
+            : account,
+        toAccountId:
+          type === "TRANSFER"
+            ? toAccount
+            : type === "DEPOSIT"
+            ? fromAccount
+            : null,
         userId: session.user.id,
       },
     });
