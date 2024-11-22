@@ -9,9 +9,11 @@ import { useEffect, useState } from "react";
 import { getKycAction } from "../switch-personal-account/actions";
 import DocumentsForm from "./_components/documents-form";
 import { PersonalInfoForm } from "./_components/personal-info-form";
+import { useKYCStore } from "@/store/kyc-steps-store";
+// import { toast } from "sonner";
 
 export default function KYCPage() {
-  const [step, setStep] = useState<"personal" | "documents">("personal");
+  const { currentStep, setStep } = useKYCStore();
   const [kycId, setKycId] = useState<string>("");
   const [Kyc, setKyc] = useState<Kyc | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,9 +34,10 @@ export default function KYCPage() {
     setStep("documents");
   };
 
-  const handleDocumentsSuccess = () => {
-    // TODO: Show success message
-  };
+//  const handleDocumentsSuccess = () => {
+//    toast.success("Vérification KYC terminée avec succès!");
+//   //  router.push("/dashboard");
+//  };
 
   if (isLoading) {
     return (
@@ -52,7 +55,7 @@ export default function KYCPage() {
         title="Vérification Intermédiaire"
         description="Vérifiez votre identité"
       />
-      {step === "personal" ? (
+      {currentStep === "personal" ? (
         <Card>
           <CardHeader>
             <CardTitle>Vérification KYC</CardTitle>

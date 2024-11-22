@@ -47,6 +47,7 @@ export function BusinessInfoForm({ kycId, onSuccess }: BusinessInfoFormProps) {
           onSuccess(kycId);
         }
       } catch (error) {
+        console.error(error);
         toast.error("Une erreur est survenue");
       }
     });

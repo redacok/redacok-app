@@ -33,7 +33,7 @@ export default function DocumentsForm() {
     setStep("documents");
   };
 
-  const handleBusinessDocumentsSuccess = (id: string) => {
+  const handleBusinessDocumentsSuccess = () => {
     // TODO: Show success message
   };
 
