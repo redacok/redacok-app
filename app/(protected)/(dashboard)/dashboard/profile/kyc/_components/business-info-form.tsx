@@ -39,7 +39,7 @@ export function BusinessInfoForm({ kycId, onSuccess }: BusinessInfoFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
       const kycExist = await getKycAction("BUSINESS");
-      if (!kycExist) {
+      if (!kycExist || "error" in kycExist) {
         toast.error(
           "Vous devez d'abord renseigner vos informations personnelles"
         );

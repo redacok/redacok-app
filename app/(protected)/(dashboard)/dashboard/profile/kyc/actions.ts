@@ -231,6 +231,7 @@ export async function getKycAction(type: KycType = "PERSONAL") {
         type,
       },
     },
+    select: { id: true },
   });
 
   return kyc;
