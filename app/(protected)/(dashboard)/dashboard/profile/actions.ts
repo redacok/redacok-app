@@ -3,7 +3,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { UpdateInfoSchema } from "@/lib/definitions";
-import { Kyc } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import * as z from "zod";
@@ -81,58 +80,58 @@ export async function updateInfoAction(
   };
 }
 
-export async function kycSubmited(kyc: Kyc, type: string = "personal") {
-  const session = await auth();
+// export async function kycSubmited(kyc: Kyc, type: string = "personal") {
+//   const session = await auth();
 
-  if (!session || !session?.user) {
-    return redirect("/sign-in?callback=/dashboard/profile");
-  }
+//   if (!session || !session?.user) {
+//     return redirect("/sign-in?callback=/dashboard/profile");
+//   }
 
-  if (type === "personal") {
-    if (
-      kyc.idExpires &&
-      kyc.idNumber &&
-      kyc.idOnHand &&
-      kyc.idPicture &&
-      kyc.idType &&
-      kyc.locationPlan &&
-      kyc.name &&
-      kyc.niu &&
-      kyc.surname &&
-      kyc.isProcessing &&
-      kyc.type === type
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  } else if (type === "business") {
-    if (kyc.name && kyc.surname && kyc.type === type) {
-      const organisation = await db.organisation.findUnique({
-        where: {
-          userId: session.user.id,
-          kycId: kyc.id,
-        },
-      });
-      if (organisation) {
-        if (
-          organisation.name &&
-          organisation.type &&
-          organisation.organisationDocument &&
-          (organisation.investorDocument || organisation.founderDocument) &&
-          organisation.isProcessing
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-}
+//   if (type === "personal") {
+//     if (
+//       kyc.idExpires &&
+//       kyc.idNumber &&
+//       kyc.idOnHand &&
+//       kyc.idPicture &&
+//       kyc.idType &&
+//       kyc.locationPlan &&
+//       kyc.name &&
+//       kyc.niu &&
+//       kyc.surname &&
+//       kyc.isProcessing &&
+//       kyc.type === type
+//     ) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   } else if (type === "business") {
+//     if (kyc.name && kyc.surname && kyc.type === type) {
+//       const organisation = await db.organisation.findUnique({
+//         where: {
+//           userId: session.user.id,
+//           kycId: kyc.id,
+//         },
+//       });
+//       if (organisation) {
+//         if (
+//           organisation.name &&
+//           organisation.type &&
+//           organisation.organisationDocument &&
+//           (organisation.investorDocument || organisation.founderDocument) &&
+//           organisation.isProcessing
+//         ) {
+//           return true;
+//         } else {
+//           return false;
+//         }
+//       } else {
+//         return false;
+//       }
+//     } else {
+//       return false;
+//     }
+//   } else {
+//     return false;
+//   }
+// }

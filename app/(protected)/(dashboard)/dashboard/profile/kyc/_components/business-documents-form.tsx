@@ -59,7 +59,7 @@ export function BusinessDocumentsForm({ onSuccess }: DocumentsFormProps) {
           toast.error(result.error);
         } else if (result.success) {
           toast.success("Documents soumis avec succès");
-          onSuccess();
+          onSuccess(kycExist.id);
         }
       } catch (error) {
         console.error("something whent wrong", error);
