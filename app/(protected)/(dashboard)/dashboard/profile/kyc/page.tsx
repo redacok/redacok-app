@@ -3,13 +3,13 @@
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useKYCStore } from "@/store/kyc-steps-store";
 import { Kyc } from "@prisma/client";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getKycAction } from "../switch-personal-account/actions";
 import DocumentsForm from "./_components/documents-form";
 import { PersonalInfoForm } from "./_components/personal-info-form";
-import { useKYCStore } from "@/store/kyc-steps-store";
 // import { toast } from "sonner";
 
 export default function KYCPage() {
@@ -34,10 +34,10 @@ export default function KYCPage() {
     setStep("documents");
   };
 
-//  const handleDocumentsSuccess = () => {
-//    toast.success("Vérification KYC terminée avec succès!");
-//   //  router.push("/dashboard");
-//  };
+  //  const handleDocumentsSuccess = () => {
+  //    toast.success("Vérification KYC terminée avec succès!");
+  //   //  router.push("/dashboard");
+  //  };
 
   if (isLoading) {
     return (
@@ -72,7 +72,7 @@ export default function KYCPage() {
                   </span>
                   <Button
                     variant="ghost"
-                    onClick={() => setStep("documents")}
+                    onClick={() => setStep("infos")}
                     className="flex items-center gap-2"
                     aria-label="suivant"
                   >

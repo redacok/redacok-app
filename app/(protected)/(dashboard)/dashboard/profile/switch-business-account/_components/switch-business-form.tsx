@@ -27,7 +27,7 @@ export const SwitchToBusinessForm = () => {
 
   useEffect(() => {
     const fetchKycAction = async () => {
-      const action = await getKycAction("business");
+      const action = await getKycAction("BUSINESS");
       if (action) {
         const orgInfo = await getKycOrganisationAction(action);
         if (orgInfo) {

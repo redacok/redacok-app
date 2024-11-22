@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -9,25 +10,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Kyc, KycType } from "@prisma/client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { submitPersonalInfo } from "../actions";
-import { useTransition } from "react";
-import { toast } from "sonner";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useKYCStore } from "@/store/kyc-steps-store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Kyc, KycType } from "@prisma/client";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+import { submitPersonalInfo } from "../actions";
 
 const formSchema = z.object({
   firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
@@ -47,17 +52,22 @@ interface PersonalInfoFormProps {
 
 export function PersonalInfoForm({ onSuccess, Kyc }: PersonalInfoFormProps) {
   const [isPending, startTransition] = useTransition();
+  const { setStep } = useKYCStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: Kyc?.firstName || "",
       lastName: Kyc?.lastName || "",
-      dateOfBirth: Kyc?.dateOfBirth ? Kyc.dateOfBirth.toISOString().split("T")[0] : "",
+      dateOfBirth: Kyc?.dateOfBirth
+        ? Kyc.dateOfBirth.toISOString().split("T")[0]
+        : "",
       nationality: Kyc?.nationality || "",
       idType: Kyc?.idType || "",
       idNumber: Kyc?.idNumber || "",
-      idExpirationDate: Kyc?.idExpirationDate ? Kyc.idExpirationDate.toISOString().split("T")[0] : "",
+      idExpirationDate: Kyc?.idExpirationDate
+        ? Kyc.idExpirationDate.toISOString().split("T")[0]
+        : "",
       type: "PERSONAL" as KycType,
     },
   });
@@ -71,6 +81,7 @@ export function PersonalInfoForm({ onSuccess, Kyc }: PersonalInfoFormProps) {
         } else if (result.success && result.kycId) {
           toast.success("Informations personnelles soumises avec succès");
           onSuccess(result.kycId);
+          setStep("infos");
         }
       } catch (error) {
         console.error(error);
@@ -118,11 +129,7 @@ export function PersonalInfoForm({ onSuccess, Kyc }: PersonalInfoFormProps) {
               <FormItem>
                 <FormLabel>Date de naissance</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="date"
-                    disabled={isPending}
-                  />
+                  <Input {...field} type="date" disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -160,7 +167,9 @@ export function PersonalInfoForm({ onSuccess, Kyc }: PersonalInfoFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="CNI">Carte Nationale d&apos;Identité</SelectItem>
+                    <SelectItem value="CNI">
+                      Carte Nationale d&apos;Identité
+                    </SelectItem>
                     <SelectItem value="PASSPORT">Passeport</SelectItem>
                     <SelectItem value="PERMIS">Permis de conduire</SelectItem>
                   </SelectContent>
@@ -213,7 +222,9 @@ export function PersonalInfoForm({ onSuccess, Kyc }: PersonalInfoFormProps) {
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
                         onSelect={(date) =>
                           date && field.onChange(date.toISOString())
                         }

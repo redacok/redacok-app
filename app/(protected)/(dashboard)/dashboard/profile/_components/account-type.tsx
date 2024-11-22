@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 import { Country } from "@prisma/client";
 import { User } from "next-auth";
 import Link from "next/link";
@@ -110,27 +110,34 @@ export const AccountType = ({
           </ul>
         </>
       )}
-      {session.role !== "ADMIN" && session.role !== "COMMERCIAL" && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="w-fit">Vérification Intermédiaire</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full">
-            <DropdownMenuLabel>Changer de type de compte</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href="/dashboard/profile/switch-personal-account">
-                Passer à compte personnel
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href="/dashboard/profile/switch-business-account">
-                Passer à compte Business
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      {session.role !== "ADMIN" &&
+        session.role !== "COMMERCIAL" &&
+        session.role === "USER" && (
+          <>
+            <Link href="/dashboard/profile/kyc">
+              <Button>Vérification intermédiaire</Button>
+            </Link>
+            {/* <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="w-fit">Vérification Intermédiaire</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full">
+              <DropdownMenuLabel>Changer de type de compte</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Link href="/dashboard/profile/switch-personal-account">
+                  Passer à compte personnel
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/dashboard/profile/switch-business-account">
+                  Passer à compte Business
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu> */}
+          </>
+        )}
     </div>
   );
 };

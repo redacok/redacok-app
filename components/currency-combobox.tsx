@@ -87,7 +87,8 @@ export function CurrencyComboBox() {
             <Button
               variant="outline"
               className="w-full justify-start"
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || !selectedOption ? false : true}
+              // disabled
             >
               {selectedOption ? (
                 <>{selectedOption.label}</>

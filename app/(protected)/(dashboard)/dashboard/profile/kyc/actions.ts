@@ -25,6 +25,11 @@ interface DocumentsFormData {
   locationPlan: string;
 }
 
+interface BusinessDocumentsFormData {
+  founderDocument: string;
+  organisationDocument: string;
+}
+
 // Action pour soumettre les informations personnelles
 export async function submitPersonalInfo(formData: PersonalInfoFormData) {
   try {
@@ -64,12 +69,17 @@ export async function submitPersonalInfo(formData: PersonalInfoFormData) {
     return { success: true, kycId: kyc.id };
   } catch (error) {
     console.error("[SUBMIT_PERSONAL_INFO]", error);
-    return { error: "Une erreur est survenue lors de la soumission des informations" };
+    return {
+      error: "Une erreur est survenue lors de la soumission des informations",
+    };
   }
 }
 
 // Action pour soumettre les documents
-export async function submitDocuments(kycId: string, formData: DocumentsFormData) {
+export async function submitDocuments(
+  kycId: string,
+  formData: DocumentsFormData
+) {
   try {
     const session = await auth();
     if (!session?.user) {
@@ -106,7 +116,53 @@ export async function submitDocuments(kycId: string, formData: DocumentsFormData
     return { success: true };
   } catch (error) {
     console.error("[SUBMIT_DOCUMENTS]", error);
-    return { error: "Une erreur est survenue lors de la soumission des documents" };
+    return {
+      error: "Une erreur est survenue lors de la soumission des documents",
+    };
+  }
+}
+
+// Action pour soumettre les documents d'entreprise
+export async function submitBusinessDocuments(
+  kycId: string,
+  formData: BusinessDocumentsFormData
+) {
+  try {
+    const session = await auth();
+    if (!session?.user) {
+      return { error: "Non autorisé" };
+    }
+
+    // Vérifier que le KYC appartient à l'utilisateur
+    const kyc = await db.kyc.findFirst({
+      where: {
+        id: kycId,
+        userId: session.user.id!,
+      },
+    });
+
+    if (!kyc) {
+      return { error: "KYC non trouvé" };
+    }
+
+    // Mettre à jour le KYC avec les documents
+    await db.organisation.update({
+      where: {
+        id: kycId,
+      },
+      data: {
+        founderDocument: formData.founderDocument,
+        organisationDocument: formData.organisationDocument,
+      },
+    });
+
+    revalidatePath("/dashboard/profile/kyc");
+    return { success: true };
+  } catch (error) {
+    console.error("[SUBMIT_DOCUMENTS]", error);
+    return {
+      error: "Une erreur est survenue lors de la soumission des documents",
+    };
   }
 }
 
@@ -126,7 +182,6 @@ export async function submitBusinessInfo(
       where: {
         id: kycId,
         userId: session.user.id,
-        type: "BUSINESS",
       },
     });
 
@@ -156,6 +211,27 @@ export async function submitBusinessInfo(
     return { success: true };
   } catch (error) {
     console.error("[SUBMIT_BUSINESS_INFO]", error);
-    return { error: "Une erreur est survenue lors de la soumission des informations d'entreprise" };
+    return {
+      error:
+        "Une erreur est survenue lors de la soumission des informations d'entreprise",
+    };
   }
+}
+
+export async function getKycAction(type: KycType = "PERSONAL") {
+  const session = await auth();
+  if (!session || !session?.user) {
+    return { error: "Non autorisé" };
+  }
+
+  const kyc = await db.kyc.findUnique({
+    where: {
+      userId_type: {
+        userId: session.user.id!,
+        type,
+      },
+    },
+  });
+
+  return kyc;
 }

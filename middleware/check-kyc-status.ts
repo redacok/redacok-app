@@ -23,11 +23,26 @@ export async function checkKycStatus() {
     };
   }
 
+  // Vérifier si un Kyc est en cours de traitement
+  const kyc = await db.kyc.findFirst({
+    where: {
+      userId: session.user.id,
+      status: "PENDING",
+    },
+  });
+  if (kyc) {
+    return {
+      allowed: false,
+      message: "Veuillez patienter que votre identification soit validé",
+    };
+  }
+
   // Vérifier si l'utilisateur a le rôle approprié
   if (user.role === "USER") {
     return {
       allowed: false,
-      message: "Veuillez soumettre votre vérification intermédiaire pour effectuer cette action",
+      message:
+        "Veuillez soumettre votre vérification intermédiaire pour effectuer cette action",
     };
   }
 

@@ -33,7 +33,7 @@ export const KycBusinessFiles = () => {
   const onSubmit = async (
     formData: z.infer<typeof businessVerificationFileSchema>
   ) => {
-    const kycExist = await getKycAction("business");
+    const kycExist = await getKycAction("BUSINESS");
     if (!kycExist) {
       toast.error(
         "Vous devez d'abord renseigner vos informations personnelles"

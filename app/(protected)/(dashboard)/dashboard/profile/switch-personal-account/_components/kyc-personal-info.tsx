@@ -50,11 +50,13 @@ export const KycPersonalInfo = ({ kyc }: { kyc: Kyc }) => {
     resolver: zodResolver(personnalVerificationSchema),
     defaultValues: {
       id: kyc?.id ?? undefined,
-      name: kyc?.name ?? "",
-      surname: kyc?.surname ?? "",
+      name: kyc?.firstName ?? "",
+      surname: kyc?.lastName ?? "",
       idType: kyc?.idType ?? "",
       idNumber: kyc?.idNumber ?? "",
-      idExpires: kyc?.idExpires ? kyc.idExpires.toISOString() : "",
+      idExpires: kyc?.idExpirationDate
+        ? kyc.idExpirationDate.toISOString()
+        : "",
     },
   });
 

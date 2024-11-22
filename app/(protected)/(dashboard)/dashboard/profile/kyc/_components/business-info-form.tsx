@@ -13,7 +13,7 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { submitBusinessInfo } from "../actions";
+import { getKycAction, submitBusinessInfo } from "../actions";
 
 const formSchema = z.object({
   orgName: z
@@ -38,8 +38,15 @@ export function BusinessInfoForm({ kycId, onSuccess }: BusinessInfoFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async () => {
+      const kycExist = await getKycAction("BUSINESS");
+      if (!kycExist) {
+        toast.error(
+          "Vous devez d'abord renseigner vos informations personnelles"
+        );
+        return;
+      }
       try {
-        const result = await submitBusinessInfo(kycId, values);
+        const result = await submitBusinessInfo(kycExist.id, values);
         if (result.error) {
           toast.error(result.error);
         } else if (result.success) {

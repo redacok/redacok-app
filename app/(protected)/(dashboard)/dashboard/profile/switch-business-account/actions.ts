@@ -60,6 +60,8 @@ export async function BusinessVerificationAction(
         firstName: name,
         lastName: surname,
         type: "BUSINESS",
+        dateOfBirth: new Date(),
+        nationality: "FR",
         user: {
           connect: {
             id: session.user.id,
