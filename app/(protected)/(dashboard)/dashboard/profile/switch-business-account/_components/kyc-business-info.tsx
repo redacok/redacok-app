@@ -51,8 +51,8 @@ export const KycBusinessInfo = ({
       orgId: organisation?.id ?? undefined,
       orgName: organisation?.name ?? undefined,
       type: organisation?.type ?? undefined,
-      name: kyc?.name ?? "",
-      surname: kyc?.surname ?? "",
+      name: kyc?.firstName ?? "",
+      surname: kyc?.lastName ?? "",
     },
   });
 
