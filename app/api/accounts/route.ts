@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { generateRIB, getAccountTypeName } from "@/lib/bank-account";
 import { db } from "@/lib/db";
+import { checkKycStatus } from "@/middleware/check-kyc-status";
 import { AccountType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -44,6 +45,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Vous devez être connecté" },
         { status: 401 }
+      );
+    }
+
+    const kycCheck = await checkKycStatus();
+    if (!kycCheck.allowed) {
+      return NextResponse.json(
+        { error: kycCheck.message }, 
+        { status: 403 }
       );
     }
 

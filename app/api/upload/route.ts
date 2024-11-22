@@ -1,4 +1,5 @@
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -20,10 +21,25 @@ export async function POST(req: Request) {
     const res = await uploadToCloudinary(fileUri, file.name);
 
     if (res.success && res.result) {
+      // return NextResponse.json({
+      //   message: "success",
+      //   fileUrl: res.result.secure_url,
+      // });
+
+      const newMedia = await db.media.create({
+        data: {
+          name: res.result.original_filename,
+          type: file.type,
+          url: res.result.secure_url,
+        }
+      });
+
       return NextResponse.json({
         message: "success",
-        fileUrl: res.result.secure_url,
+        fileUrl: newMedia.url,
+        fileId: newMedia.id
       });
+
     } else return NextResponse.json({ message: "failure" });
   } catch (error) {
     return NextResponse.json(

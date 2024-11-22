@@ -15,13 +15,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { KycType } from "@prisma/client";
+import { Kyc, KycType } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { submitPersonalInfo } from "../actions";
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
 const formSchema = z.object({
   firstName: z.string().min(2, "Le prénom doit contenir au moins 2 caractères"),
@@ -36,21 +42,22 @@ const formSchema = z.object({
 
 interface PersonalInfoFormProps {
   onSuccess: (kycId: string) => void;
+  Kyc: Kyc | null;
 }
 
-export function PersonalInfoForm({ onSuccess }: PersonalInfoFormProps) {
+export function PersonalInfoForm({ onSuccess, Kyc }: PersonalInfoFormProps) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      dateOfBirth: "",
-      nationality: "",
-      idType: "",
-      idNumber: "",
-      idExpirationDate: "",
+      firstName: Kyc?.firstName || "",
+      lastName: Kyc?.lastName || "",
+      dateOfBirth: Kyc?.dateOfBirth ? Kyc.dateOfBirth.toISOString().split("T")[0] : "",
+      nationality: Kyc?.nationality || "",
+      idType: Kyc?.idType || "",
+      idNumber: Kyc?.idNumber || "",
+      idExpirationDate: Kyc?.idExpirationDate ? Kyc.idExpirationDate.toISOString().split("T")[0] : "",
       type: "PERSONAL" as KycType,
     },
   });
@@ -66,6 +73,7 @@ export function PersonalInfoForm({ onSuccess }: PersonalInfoFormProps) {
           onSuccess(result.kycId);
         }
       } catch (error) {
+        console.error(error);
         toast.error("Une erreur est survenue");
       }
     });
@@ -183,11 +191,37 @@ export function PersonalInfoForm({ onSuccess }: PersonalInfoFormProps) {
               <FormItem>
                 <FormLabel>Date d&apos;expiration</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    type="date"
-                    disabled={isPending}
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP", { locale: fr })
+                          ) : (
+                            <span>Sélectionnez une date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={(date) =>
+                          date && field.onChange(date.toISOString())
+                        }
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </FormControl>
                 <FormMessage />
               </FormItem>

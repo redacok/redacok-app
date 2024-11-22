@@ -1,15 +1,31 @@
 "use client";
 
-import { DocumentsForm } from "./_components/documents-form";
-import { PersonalInfoForm } from "./_components/personal-info-form";
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Kyc } from "@prisma/client";
+import { ArrowRight, LoaderCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getKycAction } from "../switch-personal-account/actions";
+import DocumentsForm from "./_components/documents-form";
+import { PersonalInfoForm } from "./_components/personal-info-form";
 
 export default function KYCPage() {
   const [step, setStep] = useState<"personal" | "documents">("personal");
   const [kycId, setKycId] = useState<string>("");
+  const [Kyc, setKyc] = useState<Kyc | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchKycAction = async () => {
+      const action = await getKycAction();
+
+      setKyc(action);
+      setKycId(action?.id ?? "");
+      setIsLoading(false);
+    };
+    fetchKycAction();
+  }, [kycId]);
 
   const handlePersonalInfoSuccess = (id: string) => {
     setKycId(id);
@@ -17,46 +33,61 @@ export default function KYCPage() {
   };
 
   const handleDocumentsSuccess = () => {
-    // Redirect or show success message
+    // TODO: Show success message
   };
 
+  if (isLoading) {
+    return (
+      <div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoaderCircle className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto py-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>Vérification KYC</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {step === "personal" ? (
+    <div className="container mx-auto pb-10 space-y-4">
+      <PageHeader
+        title="Vérification Intermédiaire"
+        description="Vérifiez votre identité"
+      />
+      {step === "personal" ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Vérification KYC</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold">Informations Personnelles</h2>
+                <h2 className="text-xl font-semibold">
+                  Informations Personnelles
+                </h2>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Étape 1/2</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span className="text-sm text-muted-foreground">
+                    Étape 1/2
+                  </span>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setStep("documents")}
+                    className="flex items-center gap-2"
+                    aria-label="suivant"
+                  >
+                    <span className="sr-only">Suivant</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
-              <PersonalInfoForm onSuccess={handlePersonalInfoSuccess} />
+              <PersonalInfoForm
+                Kyc={Kyc}
+                onSuccess={handlePersonalInfoSuccess}
+              />
             </div>
-          ) : (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <Button
-                  variant="ghost"
-                  onClick={() => setStep("personal")}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Retour
-                </Button>
-                <span className="text-sm text-muted-foreground">Étape 2/2</span>
-              </div>
-              <h2 className="text-xl font-semibold mb-6">Documents Requis</h2>
-              <DocumentsForm kycId={kycId} onSuccess={handleDocumentsSuccess} />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <DocumentsForm />
+      )}
     </div>
   );
 }

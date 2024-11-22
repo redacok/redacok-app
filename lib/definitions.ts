@@ -251,7 +251,7 @@ export const uploadBusinessFileSchema = z.object({
 });
 
 export const personnalVerificationFileSchema = z.object({
-  NIU: z
+  niu: z
     .instanceof(File)
     .refine(
       (file) =>

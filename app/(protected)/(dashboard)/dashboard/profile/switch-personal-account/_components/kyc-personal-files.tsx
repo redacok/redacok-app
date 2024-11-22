@@ -20,8 +20,8 @@ export const KycPersonalFiles = () => {
   const form = useForm<z.infer<typeof personnalVerificationFileSchema>>({
     resolver: zodResolver(personnalVerificationFileSchema),
     defaultValues: {
+      niu: undefined,
       idPicture: undefined,
-      NIU: undefined,
       idOnHand: undefined,
       entirePhoto: undefined,
       locationPlan: undefined,
@@ -39,9 +39,9 @@ export const KycPersonalFiles = () => {
       return;
     }
 
-    const { NIU, idPicture, idOnHand, locationPlan, entirePhoto } = formData;
+    const { niu, idPicture, idOnHand, locationPlan, entirePhoto } = formData;
     const files = [
-      { file: NIU, field: "niu" },
+      { file: niu, field: "niu" },
       { file: idPicture, field: "idPicture" },
       { file: idOnHand, field: "idOnHand" },
       { file: locationPlan, field: "locationPlan" },
@@ -94,7 +94,7 @@ export const KycPersonalFiles = () => {
         />
         <PersonalFileInput
           label="Photo de votre Numéro d'identification unique"
-          name="NIU"
+          name="niu"
           form={form}
         />
         <PersonalFileInput

@@ -9,19 +9,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 import { submitBusinessInfo } from "../actions";
-import { useTransition } from "react";
-import { toast } from "sonner";
 
 const formSchema = z.object({
-  orgName: z.string().min(2, "Le nom de l'entreprise doit contenir au moins 2 caractères"),
+  orgName: z
+    .string()
+    .min(2, "Le nom de l'entreprise doit contenir au moins 2 caractères"),
 });
 
 interface BusinessInfoFormProps {
   kycId: string;
-  onSuccess: () => void;
+  onSuccess: (kycId: string) => void;
 }
 
 export function BusinessInfoForm({ kycId, onSuccess }: BusinessInfoFormProps) {
@@ -42,7 +44,7 @@ export function BusinessInfoForm({ kycId, onSuccess }: BusinessInfoFormProps) {
           toast.error(result.error);
         } else if (result.success) {
           toast.success("Informations de l'entreprise soumises avec succès");
-          onSuccess();
+          onSuccess(kycId);
         }
       } catch (error) {
         toast.error("Une erreur est survenue");

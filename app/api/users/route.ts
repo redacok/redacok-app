@@ -20,6 +20,7 @@ export async function GET(request: Request) {
         email: true,
         phone: true,
         role: true,
+        active: true,
       },
       orderBy: {
         createdAt: "desc",

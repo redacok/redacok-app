@@ -4,7 +4,6 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { KycType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 // Types pour les formulaires
 interface PersonalInfoFormData {
@@ -81,7 +80,7 @@ export async function submitDocuments(kycId: string, formData: DocumentsFormData
     const kyc = await db.kyc.findFirst({
       where: {
         id: kycId,
-        userId: session.user.id,
+        userId: session.user.id!,
       },
     });
 

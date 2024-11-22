@@ -21,15 +21,15 @@ export async function POST(req: Request) {
       idNumber,
       idExpirationDate,
 
-      address,
-      city,
-      postalCode,
-      country,
-      idDocument,
-      proofOfAddress,
-      companyName,
-      registrationNumber,
-      companyDocument,
+      // address,
+      // city,
+      // postalCode,
+      // country,
+      // idDocument,
+      // proofOfAddress,
+      // companyName,
+      // registrationNumber,
+      // companyDocument,
     } = data;
 
     // Vérifier si l'utilisateur a déjà une demande KYC en cours

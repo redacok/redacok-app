@@ -3,15 +3,9 @@ import { db } from "@/lib/db";
 import { OverviewQuerySchema } from "@/lib/definitions";
 import { getFormatterForCurrency } from "@/lib/helpers";
 import { redirect } from "next/navigation"
-import { checkKycStatus } from "@/middleware/check-kyc-status";
 
 export async function GET(request: Request) {
   try {
-    // Vérifier le statut KYC
-    const kycCheck = await checkKycStatus();
-    if (!kycCheck.allowed) {
-      return new Response(kycCheck.message, { status: 403 });
-    }
 
     const session = await auth();
     if (!session || !session.user) {

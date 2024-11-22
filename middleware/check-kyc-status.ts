@@ -1,6 +1,7 @@
+"use server";
+
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { NextResponse } from "next/server";
 
 export async function checkKycStatus() {
   const session = await auth();
@@ -23,10 +24,10 @@ export async function checkKycStatus() {
   }
 
   // Vérifier si l'utilisateur a le rôle approprié
-  if (user.role !== "USER") {
+  if (user.role === "USER") {
     return {
       allowed: false,
-      message: "Veuillez soumettre votre KYC pour effectuer des transactions",
+      message: "Veuillez soumettre votre vérification intermédiaire pour effectuer cette action",
     };
   }
 

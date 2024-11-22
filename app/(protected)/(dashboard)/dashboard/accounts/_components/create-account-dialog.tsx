@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BankAccount } from "@/lib/bank-account";
+import { checkKycStatus } from "@/middleware/check-kyc-status";
 import bankStore from "@/store/bank-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
@@ -66,6 +67,11 @@ export function CreateAccountDialog({ user }: { user: User }) {
   const onSubmit = async (data: AccountFormValues) => {
     try {
       setLoading(true);
+      const kycCheck = await checkKycStatus();
+      if (!kycCheck.allowed) {
+        toast.error(kycCheck.message);
+        return;
+      }
       const response = await axios.post("/api/accounts", data);
 
       if (!response.data.success) {

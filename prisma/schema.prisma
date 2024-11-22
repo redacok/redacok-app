@@ -78,6 +78,7 @@ model User {
   phone         String?   @unique
   role          UserRole  @default(USER)
   currency      String?
+  active        Boolean   @default(false)
 
   countryId     String
   country       Country     @relation(fields: [countryId], references: [id])
