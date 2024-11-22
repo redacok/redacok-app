@@ -33,7 +33,7 @@ interface DocumentsFormProps {
 
 export function BusinessDocumentsForm({ onSuccess }: DocumentsFormProps) {
   const [isPending, startTransition] = useTransition();
-  const { currentStep, setStep } = useKYCStore();
+  const { setStep } = useKYCStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,7 +78,7 @@ export function BusinessDocumentsForm({ onSuccess }: DocumentsFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Pièces d'identité du fondateur (En 1 PDF))
+                  Pièces d&apos;identité du fondateur (En 1 PDF))
                 </FormLabel>
                 <FormControl>
                   <FileUpload
