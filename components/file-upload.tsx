@@ -36,7 +36,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       });
 
       if (response.data.fileUrl) {
-        onChange(response.data.fileId);
+        onChange(response.data.fileUrl);
         toast.success(`Ficher ${name} envoyé avec succès`);
       }
     } catch (error) {

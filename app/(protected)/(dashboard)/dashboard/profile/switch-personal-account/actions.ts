@@ -102,20 +102,12 @@ export async function personnalVerificationFileAction(fileData: FormData) {
     return redirect("/sign-in?callback=/dashboard/profile");
   }
 
-  const media = await db.media.create({
-    data: {
-      name: formData.fileName,
-      type: formData.fileType,
-      url: formData.fileUrl,
-    },
-  });
-
   await db.kyc.update({
     where: {
       id: formData.kycId,
     },
     data: {
-      [formData.field]: media.id,
+      [formData.field]: formData.fileUrl,
     },
   });
 

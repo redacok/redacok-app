@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  // provider = "mysql"
+  // provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -139,12 +139,6 @@ model Kyc {
   reviewedBy      String?   // ID de l'admin qui a examiné la demande
   rejectionReason String?
 
-  niuMedia            Media?  @relation(name: "KycNiuMedia", fields: [niu], references: [id])
-  pictureMedia        Media?  @relation(name: "KycPictureMedia", fields: [idPicture], references: [id])
-  onHandMedia         Media?  @relation(name: "KycOnHandMedia", fields: [idOnHand], references: [id])
-  entirePhotoMedia         Media?  @relation(name: "KycEntirePhotoMedia", fields: [entirePhoto], references: [id])
-  locationPlanMedia   Media?  @relation(name: "KycLocationPlanMedia", fields: [locationPlan], references: [id])
-  
   organisation    Organisation?
 
   @@index([userId])
@@ -169,34 +163,14 @@ model Organisation {
 
   organisationDocument  String? @unique
   founderDocument       String? @unique
-  investorDocument      String? @unique
 
   user      User    @relation(fields: [userId], references: [id])
   kyc       Kyc     @relation(fields: [kycId], references: [id])
 
-  organisationDocumentMedia  Media?     @relation(name: "organisationDocumentMedia", fields: [organisationDocument], references: [id])
-  founderDocumentMedia       Media?     @relation(name: "founderDocumentMedia", fields: [founderDocument], references: [id])
-  investorDocumentMedia      Media?     @relation(name: "investorDocumentMedia", fields: [investorDocument], references: [id])
-
   @@index([userId])
 }
 
-model Media {
-  id        String    @id   @default(cuid())
-  name      String?
-  type      String
-  url       String
 
-  kycNiu          Kyc?  @relation(name: "KycNiuMedia")
-  kycPicture      Kyc?  @relation(name: "KycPictureMedia")
-  kycOnHand       Kyc?  @relation(name: "KycOnHandMedia")
-  kycEntirePhoto  Kyc?  @relation(name: "KycEntirePhotoMedia")
-  kycLocationPlan Kyc?  @relation(name: "KycLocationPlanMedia")
-
-  organisationDocument Organisation?       @relation(name: "organisationDocumentMedia")
-  founderDocument      Organisation?       @relation(name: "founderDocumentMedia")
-  investorDocument     Organisation?       @relation(name: "investorDocumentMedia")
-}
 
 model Country {
   id          String   @id @default(cuid())

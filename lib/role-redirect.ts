@@ -3,7 +3,7 @@ import { UserRole } from "@prisma/client";
 export const roleRedirectMap = {
   [UserRole.ADMIN]: "/admin/dashboard",
   [UserRole.COMMERCIAL]: "/commercial/dashboard",
-  [UserRole.BUSINESS]: "/business/dashboard",
+  [UserRole.BUSINESS]: "/dashboard",
   [UserRole.PERSONAL]: "/dashboard",
   [UserRole.USER]: "/dashboard",
 } as const;
