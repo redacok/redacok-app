@@ -11,8 +11,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getFormatterForCurrency } from "@/lib/helpers";
+import { DateToUTCDate, getFormatterForCurrency } from "@/lib/helpers";
 import { Transaction, TransactionStatus, TransactionType } from "@prisma/client";
+import axios from "axios";
 import { addDays, format } from "date-fns";
 import { HelpCircle, RefreshCcw } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -98,41 +99,50 @@ export function TransactionsSummary() {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch(
-        `/api/transactions-history?from=${format(
-          date.from,
-          "yyyy-MM-dd"
-        )}&to=${format(date.to, "yyyy-MM-dd")}`
+      
+      const { data: transactions } = await axios.get<Transaction[]>(
+        `/api/transactions-history?from=${DateToUTCDate(
+          date.from
+        )}&to=${DateToUTCDate(
+          date.to
+        )}`
       );
-
-      if (!response.ok)
-        throw new Error("Failed to fetch transaction statistics");
-
-      const transactions = await response.json();
-
-      // Calculate statistics from transactions
+  
+      // Validate transactions data
+      if (!Array.isArray(transactions)) {
+        throw new Error("Invalid response format");
+      }
+  
+      // Calculate total transactions
       const totalTransactions = transactions.length;
-      const totalVolume = transactions.reduce(
-        (sum: number, t: Transaction) => sum + t.amount,
-        0
-      );
+  
+      // Calculate total volume with proper type checking
+      const totalVolume = transactions.reduce((sum: number, t: Transaction) => {
+        const amount = typeof t.amount === 'number' ? t.amount : 0;
+        return sum + amount;
+      }, 0);
+  
+      // Calculate completed transactions
       const completedTransactions = transactions.filter(
         (t: Transaction) => t.status === TransactionStatus.COMPLETED
       ).length;
-      const successRate =
-        totalTransactions > 0
-          ? (completedTransactions / totalTransactions) * 100
-          : 0;
-      const averageAmount =
-        totalTransactions > 0 ? totalVolume / totalTransactions : 0;
-
-      // Calculate type distribution
+  
+      // Calculate success rate
+      const successRate = totalTransactions > 0
+        ? Math.round((completedTransactions / totalTransactions) * 100 * 100) / 100
+        : 0;
+  
+      // Calculate average amount
+      const averageAmount = totalTransactions > 0
+        ? Math.round((totalVolume / totalTransactions) * 100) / 100
+        : 0;
+  
+      // Calculate type distribution with validation
       const typeDistribution = transactions.reduce(
-        (
-          acc: { [key in TransactionType]: number },
-          t: { type: TransactionType }
-        ) => {
-          acc[t.type] = (acc[t.type] || 0) + 1;
+        (acc: { [key in TransactionType]: number }, t: Transaction) => {
+          if (Object.values(TransactionType).includes(t.type)) {
+            acc[t.type] = (acc[t.type] || 0) + 1;
+          }
           return acc;
         },
         {
@@ -141,7 +151,7 @@ export function TransactionsSummary() {
           TRANSFER: 0,
         }
       );
-
+  
       setStats({
         totalTransactions,
         totalVolume,
@@ -151,7 +161,7 @@ export function TransactionsSummary() {
       });
     } catch (error) {
       console.error("Error fetching transaction statistics:", error);
-      setError("Failed to load transaction statistics");
+      setError(error instanceof Error ? error.message : "Failed to load transaction statistics");
       toast.error("Failed to load transaction statistics");
     } finally {
       setIsLoading(false);
@@ -183,7 +193,7 @@ export function TransactionsSummary() {
             }
           }}
         />
-        {error && (
+        {error ? (
           <Button
             variant="outline"
             onClick={fetchTransactionStats}
@@ -192,7 +202,15 @@ export function TransactionsSummary() {
             <RefreshCcw className="h-4 w-4" />
             Retry
           </Button>
-        )}
+        ) : <Button
+        variant="outline"
+        onClick={fetchTransactionStats}
+        className="flex items-center gap-2"
+      >
+        <RefreshCcw className="h-4 w-4" />
+          Refresh
+        </Button> 
+        }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
