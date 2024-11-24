@@ -126,20 +126,13 @@ export async function businessVerificationFileAction(fileData: FormData) {
     );
   }
 
-  const media = await db.media.create({
-    data: {
-      name: formData.fileName,
-      type: formData.fileType,
-      url: formData.fileUrl,
-    },
-  });
 
   await db.organisation.update({
     where: {
       id: formData.organisationId,
     },
     data: {
-      [formData.field]: media.id,
+      [formData.field]: formData.fileUrl,
     },
   });
 

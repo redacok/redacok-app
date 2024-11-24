@@ -119,7 +119,8 @@ export async function kycSubmited(kyc: Kyc, type: string = "PERSONAL") {
           organisation.name &&
           organisation.type &&
           organisation.organisationDocument &&
-          (organisation.investorDocument || organisation.founderDocument) &&
+          // (organisation.investorDocument || organisation.founderDocument) &&
+          (organisation.founderDocument) &&
           organisation.isProcessing
         ) {
           return true;
