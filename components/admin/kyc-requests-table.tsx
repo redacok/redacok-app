@@ -35,7 +35,6 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import Image from 'next/image';
 import Link from 'next/link';
-import { X } from "lucide-react";
 
 interface KycRequest {
   id: string;
