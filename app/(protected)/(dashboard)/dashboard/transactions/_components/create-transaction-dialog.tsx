@@ -36,6 +36,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { calculateTransactionFee } from "@/lib/calculate-transaction-fee";
 
 // const MIN_BALANCE = 1000; // 1000 XAF minimum balance
 const RIB_LENGTH = 23; // Longueur standard d'un RIB
@@ -50,6 +51,7 @@ const transactionSchema = z
   .object({
     type: z.enum(["DEPOSIT", "WITHDRAWAL", "TRANSFER"]),
     amount: z.coerce.number().min(1),
+    fee: z.number().default(0),
     fromAccount: z.string().optional(),
     toAccount: z.string().optional(),
     account: z.string(),
@@ -86,6 +88,7 @@ export function CreateTransactionDialog() {
     defaultValues: {
       type: "DEPOSIT",
       amount: undefined,
+      fee: 0,
       description: "",
       account: "",
     },
@@ -138,6 +141,18 @@ export function CreateTransactionDialog() {
       validateRib();
     }
   }, [debouncedRib, form.watch("type")]);
+
+  // Calculate fee when amount changes
+  const amount = form.watch("amount");
+  useEffect(() => {
+    if (amount) {
+      const updateFee = async () => {
+        const fee = await calculateTransactionFee(amount);
+        form.setValue("fee", fee);
+      };
+      updateFee();
+    }
+  }, [amount, form]);
 
   const onSubmit = async (data: TransactionFormValues) => {
     try {
@@ -331,6 +346,25 @@ export function CreateTransactionDialog() {
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                       placeholder="Entrer le montant"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fee"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Frais de transaction</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value}
+                      disabled
                     />
                   </FormControl>
                   <FormMessage />

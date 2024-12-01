@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  // provider = "mysql"
+  // provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
   relationMode = "prisma"
 }
@@ -166,11 +166,33 @@ model Organisation {
 
   user      User    @relation(fields: [userId], references: [id])
   kyc       Kyc     @relation(fields: [kycId], references: [id])
+  bankAccounts BankAccount[]
 
   @@index([userId])
 }
 
+model BankAccount {
+  id            String      @id @default(cuid())
+  name          String
+  type          AccountType @default(epargne)
+  currency      Currency    @default(XAF)
+  rib           String      @unique
+  amount        Float       @default(0)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  organisationId String?
+  organisation  Organisation? @relation(fields: [organisationId], references: [id])
+  
+  // Transactions liées à ce compte
+  fromTransactions Transaction[] @relation("FromAccount")
+  toTransactions   Transaction[] @relation("ToAccount")
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 
+  @@index([userId])
+  @@index([organisationId])
+}
 
 model Country {
   id          String   @id @default(cuid())
@@ -205,26 +227,6 @@ enum TransactionStatus {
   REJECTED
 }
 
-model BankAccount {
-  id            String      @id @default(cuid())
-  name          String
-  type          AccountType @default(epargne)
-  currency      Currency    @default(XAF)
-  rib           String      @unique
-  amount        Float       @default(0)
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
-  
-  // Transactions liées à ce compte
-  fromTransactions Transaction[] @relation("FromAccount")
-  toTransactions   Transaction[] @relation("ToAccount")
-  
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  @@index([userId])
-}
-
 model Category {
   id          String   @id @default(cuid())
   name        String
@@ -237,10 +239,25 @@ model Category {
   @@unique([name, type])
 }
 
+model TransactionFeeRange {
+  id            String    @id @default(cuid())
+  minAmount     Float
+  maxAmount     Float
+  feePercentage Float
+  fixedFee      Float     @default(0)
+  description   String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("transaction_fee_ranges")
+}
+
 model Transaction {
-  id            String            @id @default(cuid())
+  id            String    @id @default(cuid())
   type          TransactionType
   amount        Float
+  fee           Float     @default(0)
   description   String?
   status        TransactionStatus @default(PENDING)
   
