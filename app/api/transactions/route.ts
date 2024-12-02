@@ -149,8 +149,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // Pour les dépôts, mettre à jour immédiatement le solde
+    // Pour les dépôts, mettre à jour immédiatement le solde et gérer les récompenses d'affiliation
     if (type === "DEPOSIT") {
+      // Update account balance
       await db.bankAccount.update({
         where: { id: account },
         data: {
@@ -159,6 +160,53 @@ export async function POST(req: Request) {
           },
         },
       });
+
+      // Check if this is user's first deposit and handle affiliate reward
+      const user = await db.user.findUnique({
+        where: { id: session.user.id },
+        include: { referredBy: true }
+      });
+
+      if (!user?.hasFirstDeposit && user?.referredBy) {
+        // Calculate 10% reward
+        const rewardAmount = amount * 0.1;
+
+        // Create affiliate reward transaction
+        await db.transaction.create({
+          data: {
+            type: TransactionType.DEPOSIT,
+            amount: rewardAmount,
+            description: `Affiliate reward for ${user.name || user.email}'s first deposit`,
+            status: TransactionStatus.COMPLETED,
+            isAffiliateReward: true,
+            affiliateRewardForTransactionId: transaction.id,
+            userId: user.referredBy.id,
+            toAccountId: user.referredBy.id, // Assuming the reward goes to their primary account
+          },
+        });
+
+        // Update user's first deposit status
+        await db.user.update({
+          where: { id: session.user.id },
+          data: { hasFirstDeposit: true }
+        });
+
+        // Update referrer's account balance
+        await db.bankAccount.findFirst({
+          where: { userId: user.referredBy.id }
+        }).then(account => {
+          if (account) {
+            return db.bankAccount.update({
+              where: { id: account.id },  // Use the found account's ID
+              data: {
+                amount: {
+                  increment: rewardAmount,
+                },
+              },
+            });
+          }
+        });
+      }
     }
 
     return NextResponse.json({ success: true, transaction });

@@ -26,6 +26,19 @@ export function DateToUTCDate(date: Date) {
   );
 }
 
+export function formatDate(date: Date, locale: string = "en-us"): string {
+  return date.toLocaleDateString(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+export function formatCurrency(amount: number, currency: string = 'XAF'): string {
+  const formatter = getFormatterForCurrency(currency);
+  return formatter.format(amount);
+}
+
 export function getFormatterForCurrency(currency: string) {
   const locale = Currencies.find((c) => c.value === currency)?.locale;
 

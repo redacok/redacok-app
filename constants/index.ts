@@ -68,6 +68,11 @@ export const UserLinks = [
     icon: Wallet,
   },
   {
+    label: "Affiliation",
+    href: "/dashboard/affiliation",
+    icon: User2Icon,
+  },
+  {
     label: "Profile",
     href: "/dashboard/profile",
     icon: User2Icon,

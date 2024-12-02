@@ -79,6 +79,11 @@ model User {
   role          UserRole  @default(USER)
   currency      String?
   active        Boolean   @default(false)
+  referralCode  String?   @unique @default(cuid())
+  referredById  String?
+  referredBy    User?     @relation("UserReferrals", fields: [referredById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  referrals     User[]    @relation("UserReferrals")
+  hasFirstDeposit Boolean @default(false)
 
   countryId     String
   country       Country     @relation(fields: [countryId], references: [id])
@@ -94,6 +99,7 @@ model User {
   updatedAt     DateTime  @updatedAt
 
   @@index([countryId])
+  @@index([referredById])
 }
 
 enum KycStatus {
@@ -271,6 +277,10 @@ model Transaction {
   fee           Float     @default(0)
   description   String?
   status        TransactionStatus @default(PENDING)
+  isAffiliateReward Boolean @default(false)
+  affiliateRewardForTransactionId String?
+  affiliateRewardTransaction Transaction? @relation("AffiliateReward", fields: [affiliateRewardForTransactionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  affiliateRewards Transaction[] @relation("AffiliateReward")
   
   // Comptes source et destination
   fromAccountId String?
@@ -291,6 +301,7 @@ model Transaction {
   @@index([fromAccountId])
   @@index([toAccountId])
   @@index([userId])
+  @@index([affiliateRewardForTransactionId])
 }
 
 model MonthHistory {
