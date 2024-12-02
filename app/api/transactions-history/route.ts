@@ -2,11 +2,11 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { OverviewQuerySchema } from "@/lib/definitions";
 import { getFormatterForCurrency } from "@/lib/helpers";
+import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation"
 
 export async function GET(request: Request) {
   try {
-
     const session = await auth();
     if (!session || !session.user) {
       redirect("/sign-in");
@@ -36,7 +36,8 @@ export async function GET(request: Request) {
     const transactions = await getTransactionsHistory(
       user.id!,
       queryParams.data.from,
-      queryParams.data.to
+      queryParams.data.to,
+      user.role === "ADMIN"
     );
 
     return Response.json(transactions);
@@ -55,22 +56,30 @@ export type getTransactionsHistoryResponseType = Awaited<
 export async function getTransactionsHistory(
   userId: string,
   from: Date,
-  to: Date
+  to: Date,
+  isAdmin: boolean = false
 ) {
-  const userBankAccounts = await db.bankAccount.findMany({
-    where: {
-      userId,
+  let whereClause: Prisma.TransactionWhereInput = {
+    createdAt: {
+      gte: from,
+      lte: to,
     },
-    select: {
-      id: true,
-    },
-  });
+  };
 
-  const accountIds = userBankAccounts.map((account) => account.id);
+  if (!isAdmin) {
+    const userBankAccounts = await db.bankAccount.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+      },
+    });
 
-  // Get transactions where user's accounts are either source or destination
-  const transactions = await db.transaction.findMany({
-    where: {
+    const accountIds = userBankAccounts.map((account) => account.id);
+
+    whereClause = {
+      ...whereClause,
       OR: [
         {
           fromAccountId: {
@@ -83,11 +92,11 @@ export async function getTransactionsHistory(
           },
         },
       ],
-      createdAt: {
-        gte: from,
-        lte: to,
-      },
-    },
+    };
+  }
+
+  const transactions = await db.transaction.findMany({
+    where: whereClause,
     include: {
       fromAccount: {
         include: {
@@ -108,7 +117,7 @@ export async function getTransactionsHistory(
   });
 
   return transactions.map((transaction) => {
-    const isOutgoing = accountIds.includes(transaction.fromAccountId!);
+    const isOutgoing = !isAdmin && transaction.fromAccountId === transaction.user?.id;
     const displayAmount = isOutgoing ? -transaction.amount : transaction.amount;
     const formatter = getFormatterForCurrency(
       transaction.fromAccount?.currency || "XAF"

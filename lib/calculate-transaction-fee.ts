@@ -15,8 +15,12 @@ export async function calculateTransactionFee(amount: number): Promise<{ fee: nu
     where: {
       AND: [
         { minAmount: { lte: amount } },
-        { maxAmount: { gte: amount } },
-        { isActive: true },
+        {
+          OR: [
+            { maxAmount: 0 },
+            { maxAmount: { gte: amount } }
+          ]
+        }
       ],
     },
   });
@@ -51,7 +55,7 @@ function calculateTransactionFeeHelper(
   // Apply min/max constraints
   if (totalFee < minAmount) {
     totalFee = minAmount;
-  } else if (totalFee > maxAmount) {
+  } else if (maxAmount > 0 && totalFee > maxAmount) {
     totalFee = maxAmount;
   }
   

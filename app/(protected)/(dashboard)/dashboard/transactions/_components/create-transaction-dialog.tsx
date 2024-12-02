@@ -367,6 +367,9 @@ export function CreateTransactionDialog() {
                       disabled
                     />
                   </FormControl>
+                  <p className="p-2 bg-yellow-50 rounded-lg">
+                    Montant total : <span>{form.getValues("amount") + form.getValues("fee")}</span>
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { type, amount, fromAccount, toAccount, account, description } = body;
+    const { type, amount, fromAccount, toAccount, account, description, fee } = body;
 
     // Validation de base
     if (!type || !amount || amount <= 0) {
@@ -128,6 +128,7 @@ export async function POST(req: Request) {
         type: type as TransactionType,
         amount,
         description,
+        fee,
         status:
           type === "DEPOSIT"
             ? TransactionStatus.COMPLETED

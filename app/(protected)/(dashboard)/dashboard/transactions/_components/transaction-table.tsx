@@ -95,7 +95,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
     },
     cell: ({ row }) => (
       <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
-        {row.getValue("accountName")}
+        {row.original.accountName}
       </p>
     ),
   },
