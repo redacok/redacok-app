@@ -57,41 +57,79 @@ export async function getTransactionsHistory(
   from: Date,
   to: Date
 ) {
-  const userSettings = await db.user.findUnique({
+  const userBankAccounts = await db.bankAccount.findMany({
     where: {
-      id: userId,
+      userId,
+    },
+    select: {
+      id: true,
     },
   });
 
-  if (!userSettings?.currency) {
-    throw new Error("User settings not found");
-  }
+  const accountIds = userBankAccounts.map((account) => account.id);
 
-  const formatter = getFormatterForCurrency(userSettings.currency!);
-
+  // Get transactions where user's accounts are either source or destination
   const transactions = await db.transaction.findMany({
     where: {
-      ...(userSettings.role !== "ADMIN" ? { userId } : {}),
+      OR: [
+        {
+          fromAccountId: {
+            in: accountIds,
+          },
+        },
+        {
+          toAccountId: {
+            in: accountIds,
+          },
+        },
+      ],
       createdAt: {
         gte: from,
         lte: to,
       },
     },
     include: {
-      fromAccount: true,
-      toAccount: true,
+      fromAccount: {
+        include: {
+          user: true,
+        },
+      },
+      toAccount: {
+        include: {
+          user: true,
+        },
+      },
       categories: true,
-      user: true,
+      user: true
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
-  return transactions.map((transaction) => ({
-    ...transaction,
-    formattedAmount: formatter.format(transaction.amount),
-    bankAccount: transaction.fromAccount,
-    user: transaction.user,
-  }));
+  return transactions.map((transaction) => {
+    const isOutgoing = accountIds.includes(transaction.fromAccountId!);
+    const displayAmount = isOutgoing ? -transaction.amount : transaction.amount;
+    const formatter = getFormatterForCurrency(
+      transaction.fromAccount?.currency || "XAF"
+    );
+
+    return {
+      id: transaction.id,
+      username: isOutgoing
+        ? transaction.toAccount?.user.name || "Unknown"
+        : transaction.fromAccount?.user.name || "Unknown",
+      accountName: isOutgoing
+        ? transaction.fromAccount?.name || "Unknown"
+        : transaction.toAccount?.name || "Unknown",
+      amount: displayAmount,
+      formattedAmount: formatter.format(Math.abs(displayAmount)),
+      category: transaction.categories[0]?.name || "Non catégorisé",
+      date: transaction.createdAt,
+      type: transaction.type,
+      description: transaction.description || "",
+      status: transaction.status,
+      user: transaction.user
+    };
+  });
 }

@@ -148,7 +148,7 @@ export function CreateTransactionDialog() {
     if (amount) {
       const updateFee = async () => {
         const fee = await calculateTransactionFee(amount);
-        form.setValue("fee", fee);
+        form.setValue("fee", fee.fee);
       };
       updateFee();
     }

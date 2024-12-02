@@ -53,14 +53,37 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Utilisateur" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.original.userId);
+      return value.includes(row.getValue(id));
     },
-    cell: ({ row }) => (
-      <div className="flex gap-2 items-center capitalize  p-2 font-medium">
-        <UserAvatar image={null} name={row.original.user?.name} />
-        {row.original.user && row.original.user.name}
-      </div>
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center gap-2">
+          <UserAvatar
+            name={row.getValue("username")}
+            image={row.original.user.image}
+          />
+          <span>{row.getValue("username")}</span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "direction",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Direction" />
     ),
+    cell: ({ row }) => {
+      const amount = row.getValue("amount") as number;
+      const isReceived = amount > 0;
+      return (
+        <div className={cn(
+          "font-medium",
+          isReceived ? "text-green-600" : "text-red-600"
+        )}>
+          {isReceived ? "Reçu" : "Envoyé"}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "accountName",
@@ -68,11 +91,11 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Compte" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.original.bankAccount?.id);
+      return value.includes(row.getValue(id));
     },
     cell: ({ row }) => (
       <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
-        {row.original.bankAccount?.name}
+        {row.getValue("accountName")}
       </p>
     ),
   },
@@ -81,11 +104,17 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Montant" />
     ),
-    cell: ({ row }) => (
-      <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
-        {row.original.formattedAmount}
-      </p>
-    ),
+    cell: ({ row }) => {
+      const amount = row.getValue("amount") as number;
+      return (
+        <p className={cn(
+          "capitalize rounded-md text-center p-2 font-medium",
+          amount > 0 ? "text-green-600" : "text-red-600"
+        )}>
+          {row.getValue("formattedAmount")}
+        </p>
+      );
+    },
   },
   // {
   //   accessorKey: "category",
@@ -116,7 +145,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Date" />
     ),
     cell: ({ row }) => {
-      const date = new Date(row.original.createdAt);
+      const date = new Date(row.original.date);
       const formattedDate = date.toLocaleDateString("default", {
         timeZone: "UTC",
         year: "numeric",
@@ -132,20 +161,29 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Type" />
     ),
     filterFn: (row, id, value) => {
-      return value.includes(row.original.type);
+      return value.includes(row.getValue(id));
     },
-    cell: ({ row }) => (
-      <div
-        className={cn(
-          "capitalize rounded-md text-center p-2",
-          row.original.type !== "TRANSFER" &&
-            "bg-emerald-400/10 text-emerald-500",
-          row.original.type === "TRANSFER" && "bg-red-400/20 text-yellow-500"
-        )}
-      >
-        {row.original.type === "DEPOSIT" ? "Dépot" : row.original.type === "WITHDRAWAL" ? "Retrait" : "Transfert"}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const type = row.getValue("type") as string;
+      const typeMap = {
+        DEPOSIT: "Dépôt",
+        WITHDRAWAL: "Retrait",
+        TRANSFER: "Transfert"
+      };
+      
+      return (
+        <div
+          className={cn(
+            "capitalize rounded-md text-center p-2",
+            type === "DEPOSIT" && "bg-emerald-400/10 text-emerald-500",
+            type === "WITHDRAWAL" && "bg-red-400/10 text-red-500",
+            type === "TRANSFER" && "bg-yellow-400/10 text-yellow-500"
+          )}
+        >
+          {typeMap[type as keyof typeof typeMap]}
+        </div>
+      );
+    },
   },
   {
     id: "actions",
@@ -215,9 +253,9 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
   const bankAccountsOptions = useMemo(() => {
     const bankAccountsMap = new Map();
     history.data?.forEach((transaction) => {
-      bankAccountsMap.set(transaction.bankAccount?.id, {
-        value: transaction.bankAccount?.id,
-        label: `${transaction.bankAccount?.name}`,
+      bankAccountsMap.set(transaction.accountName, {
+        value: transaction.accountName,
+        label: `${transaction.accountName}`,
         // label: `${transaction.categoryIcon} ${transaction.category}`,
       });
     });
@@ -248,8 +286,9 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
               title="Types de transaction"
               column={table.getColumn("type")}
               options={[
-                { label: "Entrées", value: "income" },
-                { label: "Sorties", value: "Dépense" },
+                { label: "Dépôt", value: "DEPOSIT" },
+                { label: "Retrait", value: "WITHDRAWAL" },
+                { label: "Transfert", value: "TRANSFER" }
               ]}
             />
           )}
@@ -261,13 +300,13 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
             className="ml-auto h-8 lg:flex"
             onClick={() => {
               const data = table.getFilteredRowModel().rows.map((row) => ({
-                // Catégorie: row.original.category,
-                Utilisateur: row.original.user.name,
-                Description: row.original.description,
-                Type: row.original.type,
-                Montant: row.original.amount,
-                "Montant formaté": row.original.formattedAmount,
-                Date: row.original.createdAt,
+                Date: new Date(row.original.date).toLocaleDateString(),
+                Type: row.getValue("type"),
+                Utilisateur: row.original.username,
+                Direction: row.original.amount > 0 ? "Reçu" : "Envoyé",
+                Compte: row.getValue("accountName"),
+                Description: row.getValue("description"),
+                Montant: row.original.formattedAmount,
               }));
               handleExportCsv(data);
             }}
