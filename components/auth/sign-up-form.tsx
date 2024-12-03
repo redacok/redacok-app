@@ -15,8 +15,9 @@ import {
 } from "libphonenumber-js";
 import examples from "libphonenumber-js/mobile/examples";
 import { LoaderCircle } from "lucide-react";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
 import "react-international-phone/style.css";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
@@ -93,6 +94,17 @@ export const SignUpForm = () => {
   });
 
   const { setValue } = form;
+
+  const searchParams = useSearchParams();
+  const referralId = searchParams.get("ref");
+
+  useEffect(() => {
+    if (referralId) {
+      const expiration = new Date();
+      expiration.setDate(expiration.getDate() + 2);
+      document.cookie = `referralId=${referralId}; expires=${expiration.toUTCString()}; path=/`;
+    }
+  }, [referralId]);
 
   const onCountryChange = (value: CountryOption) => {
     setPhoneNumber(undefined);

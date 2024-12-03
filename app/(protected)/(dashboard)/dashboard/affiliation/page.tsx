@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { PageHeader } from "@/components/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { db } from "@/lib/db";
 import { Metadata } from "next";
@@ -6,7 +7,6 @@ import { redirect } from "next/navigation";
 import { EarningsTable } from "./_components/earnings-table";
 import { ReferralCard } from "./_components/referral-card";
 import { ReferralsTable } from "./_components/referrals-table";
-import { PageHeader } from "@/components/page-header";
 
 export const metadata: Metadata = {
   title: "Affiliation - Dashboard",
@@ -60,6 +60,8 @@ const AffiliationPage = async () => {
     },
   });
 
+  const canEditReferralCode = user?.referrals.length === 0;
+
   if (!user?.referralCode) {
     // Generate referral code if not exists
     await db.user.update({
@@ -70,20 +72,22 @@ const AffiliationPage = async () => {
 
   return (
     <div className="space-y-6 p-6">
-      <PageHeader 
+      <PageHeader
         title="Affiliation"
-        description="Invitez vos amis et gagnez de l&apos;argent !"
+        description="Invitez vos amis et gagnez de l'argent !"
       />
-
-      <ReferralCard referralCode={user?.referralCode || ""} />
 
       <Tabs defaultValue="referrals" className="space-y-4">
         <TabsList>
           <TabsTrigger value="referrals">Referrals</TabsTrigger>
           <TabsTrigger value="earnings">Earnings</TabsTrigger>
         </TabsList>
-        <TabsContent value="referrals" className="space-y-4">
-          <ReferralsTable referrals={user?.referrals || []} />
+        <TabsContent value="referrals" className="space-y-6">
+          <ReferralCard
+            referralCode={user?.referralCode ?? ""}
+            canEdit={canEditReferralCode}
+          />
+          <ReferralsTable referrals={user?.referrals ?? []} />
         </TabsContent>
         <TabsContent value="earnings" className="space-y-4">
           <EarningsTable

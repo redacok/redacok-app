@@ -79,7 +79,7 @@ model User {
   role          UserRole  @default(USER)
   currency      String?
   active        Boolean   @default(false)
-  referralCode  String?   @unique @default(cuid())
+  referralCode  String?   @unique @default(uuid())
   referredById  String?
   referredBy    User?     @relation("UserReferrals", fields: [referredById], references: [id], onDelete: NoAction, onUpdate: NoAction)
   referrals     User[]    @relation("UserReferrals")

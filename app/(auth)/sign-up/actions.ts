@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { SignUpSchema } from "@/lib/definitions";
 import { sendVerificationEmail } from "@/lib/mail";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
 import * as z from "zod";
 
 export async function signUpAction(formData: z.infer<typeof SignUpSchema>) {
@@ -53,17 +54,29 @@ export async function signUpAction(formData: z.infer<typeof SignUpSchema>) {
     });
   }
 
+  const cookieStore = cookies();
+  const referralId = cookieStore.get("referralId");
+  let referralUser = undefined;
+
+  if(referralId) {
+    referralUser = await db.user.findUnique({
+      where: {
+        referralCode: referralId.value
+      },
+      select: {
+        id: true
+      }
+    })
+  }
+
   await db.user.create({
     data: {
       name,
       email,
       phone,
       password: hashedPassword,
-      country: {
-        connect: {
-          id: existCountry.id,
-        },
-      },
+      referredById: referralUser ? referralUser.id : null,
+      countryId: existCountry.id,
     },
   });
 
