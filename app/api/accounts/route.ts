@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
     const { accountType, currency, initialDeposit } = result.data;
 
-    // Check if user already has an account with this name
+    // Vérifier si l'utilisateur a déjà un compte avec ce nom
     const existingAccount = await db.bankAccount.findFirst({
       where: {
         userId: session.user.id,
@@ -86,13 +86,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create account with initial transaction
+    // Créer un compte avec la transaction initiale
     const account = await db.$transaction(async (tx) => {
       const userId = session.user.id;
       if (!userId) {
         throw new Error("Utilisateur non trouvé");
       }
 
+      // Créer le compte
       const account = await tx.bankAccount.create({
         data: {
           userId,
@@ -104,7 +105,7 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Create initial transaction
+      // Créer la transaction initiale
       const transaction = await tx.transaction.create({
         data: {
           type: "DEPOSIT",
@@ -116,17 +117,17 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Check if this is user's first deposit and handle affiliate reward
+      // Vérifier si c'est le premier dépôt de l'utilisateur et gérer la récompense d'affiliation
       const user = await db.user.findUnique({
         where: { id: session.user.id },
         include: { referredBy: true, bankAccounts: true },
       });
 
       if (!user?.hasFirstDeposit && user?.referredBy) {
-        // Calculate 10% reward
+        // Calculer la récompense de 10%
         const rewardAmount = initialDeposit * 0.1;
 
-        // Create affiliate reward transaction
+        // Créer la transaction de récompense d'affiliation
         await tx.transaction.create({
           data: {
             type: TransactionType.DEPOSIT,
@@ -140,13 +141,13 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Update user's first deposit status
+        // Mettre à jour le statut du premier dépôt de l'utilisateur
         await db.user.update({
           where: { id: session.user.id },
           data: { hasFirstDeposit: true },
         });
 
-        // Update referrer's account balance
+        // Mettre à jour le solde du compte du parrain
         await db.bankAccount
           .findFirst({
             where: { userId: user.referredBy.id },

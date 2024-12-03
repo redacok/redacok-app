@@ -33,7 +33,13 @@ import { useMemo, useState } from "react";
 import { UserAvatar } from "@/components/user-avatar";
 import bankStore from "@/store/bank-store";
 import { download, generateCsv, mkConfig } from "export-to-csv";
-import { ArrowDownRight, ArrowUpRight, DownloadIcon } from "lucide-react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CheckCircleIcon,
+  Clock10Icon,
+  DownloadIcon,
+} from "lucide-react";
 import RowActions from "./row-actions";
 
 interface TransactionTableProps {
@@ -106,12 +112,12 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
           {direction === "income" ? (
             <>
               <ArrowDownRight className="h-4 w-4" />
-              Reçu
+              Entrant
             </>
           ) : (
             <>
               <ArrowUpRight className="h-4 w-4" />
-              Envoyé
+              Sortant
             </>
           )}
         </div>
@@ -127,7 +133,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       return value.includes(row.getValue(id));
     },
     cell: ({ row }) => (
-      <p className="capitalize rounded-md text-center p-2 font-medium bg-gray-400/5">
+      <p className="capitalize flex justify-start rounded-md text-center p-2 font-medium bg-gray-400/5">
         {row.original.accountName}
       </p>
     ),
@@ -142,10 +148,11 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       return (
         <p
           className={cn(
-            "capitalize rounded-md text-center p-2 font-medium",
+            "capitalize rounded-md text-center p-2 font-medium flex justify-end",
             amount > 0 ? "text-green-600" : "text-red-600"
           )}
         >
+          {amount < 0 && "- "}
           {row.original.formattedAmount}
         </p>
       );
@@ -171,8 +178,40 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Description" />
     ),
     cell: ({ row }) => (
-      <div className="capitalize justify-start">{row.original.description}</div>
+      <div className="capitalize flex justify-start">
+        {row.original.description}
+      </div>
     ),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Statut" />
+    ),
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+
+      return (
+        <div
+          className={cn(
+            "flex items-center gap-2 font-medium",
+            status === "COMPLETED" ? "text-green-600" : "text-yellow-600"
+          )}
+        >
+          {status === "COMPLETED" ? (
+            <>
+              <CheckCircleIcon className="h-4 w-4" />
+              Validé
+            </>
+          ) : (
+            <>
+              <Clock10Icon className="h-4 w-4" />
+              En attente
+            </>
+          )}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "date",
@@ -181,11 +220,13 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
     ),
     cell: ({ row }) => {
       const date = new Date(row.original.date);
-      const formattedDate = date.toLocaleDateString("default", {
+      const formattedDate = date.toLocaleString("default", {
         timeZone: "UTC",
         year: "numeric",
         month: "long",
         day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
       });
       return <div className="text-muted-foreground"> {formattedDate} </div>;
     },
@@ -272,12 +313,12 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const categoriesOptions = useMemo(() => {
+  const statusOptions = useMemo(() => {
     const categoriesMap = new Map();
     history.data?.forEach((transaction) => {
-      categoriesMap.set(transaction.type, {
-        value: transaction.type,
-        label: `${transaction.type}`,
+      categoriesMap.set(transaction.status, {
+        value: transaction.status,
+        label: `${transaction.status}`,
         // label: `${transaction.categoryIcon} ${transaction.category}`,
       });
     });
@@ -309,11 +350,11 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
               options={bankAccountsOptions}
             />
           )}
-          {table.getColumn("category") && (
+          {table.getColumn("status") && (
             <DataTableFacetedFilter
-              title="Catégories"
-              column={table.getColumn("category")}
-              options={categoriesOptions}
+              title="Statuts"
+              column={table.getColumn("status")}
+              options={statusOptions}
             />
           )}
           {table.getColumn("type") && (
@@ -338,7 +379,7 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
                 Date: new Date(row.original.date).toLocaleDateString(),
                 Type: row.getValue("type"),
                 Utilisateur: row.original.username,
-                Direction: row.original.amount > 0 ? "Reçu" : "Envoyé",
+                Direction: row.original.amount > 0 ? "Entrant" : "Sortant",
                 Compte: row.getValue("accountName"),
                 Description: row.getValue("description"),
                 Montant: row.original.formattedAmount,

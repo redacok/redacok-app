@@ -135,14 +135,40 @@ export async function getTransactionsHistory(
       transaction.fromAccount?.currency || "XAF"
     );
 
+    let username: string | undefined | null = "Moi";
+    let accountName: string | undefined | null =
+      transaction.toAccount?.name || null;
+
+    if (isOutgoing) {
+      if (transaction.type === "TRANSFER") {
+        accountName =
+          transaction.toAccount?.name +
+          " - " +
+          transaction.toAccount?.user?.name;
+      } else {
+        accountName = transaction.fromAccount?.name;
+      }
+    }
+
+    if (isAdmin) {
+      if (accountName === null) {
+        accountName = transaction.fromAccount?.name;
+      }
+      if (transaction.type === "TRANSFER") {
+        accountName =
+          transaction.toAccount?.name +
+          " - " +
+          transaction.toAccount?.user?.name;
+      }
+      username = isOutgoing
+        ? transaction.fromAccount?.user?.name
+        : transaction.user?.name;
+    }
+
     return {
       id: transaction.id,
-      username: isOutgoing
-        ? transaction.toAccount?.user?.name || "Unknown"
-        : transaction.fromAccount?.user?.name || "Unknown",
-      accountName: isOutgoing
-        ? transaction.fromAccount?.name || "Unknown"
-        : transaction.toAccount?.name || "Unknown",
+      username,
+      accountName,
       amount: displayAmount,
       formattedAmount: formatter.format(Math.abs(displayAmount)),
       category: transaction.categories[0]?.name || "Non catégorisé",
