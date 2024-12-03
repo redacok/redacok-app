@@ -30,11 +30,11 @@ import {
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 
-import { download, generateCsv, mkConfig } from "export-to-csv";
-import { DownloadIcon } from "lucide-react";
-import RowActions from "./row-actions";
-import bankStore from "@/store/bank-store";
 import { UserAvatar } from "@/components/user-avatar";
+import bankStore from "@/store/bank-store";
+import { download, generateCsv, mkConfig } from "export-to-csv";
+import { ArrowDownRight, ArrowUpRight, DownloadIcon } from "lucide-react";
+import RowActions from "./row-actions";
 
 interface TransactionTableProps {
   from: Date;
@@ -43,7 +43,8 @@ interface TransactionTableProps {
   all?: boolean;
 }
 
-export type TransactionHistoryRow = NonNullable<getTransactionsHistoryResponseType>[number];
+export type TransactionHistoryRow =
+  NonNullable<getTransactionsHistoryResponseType>[number];
 const emptyData: TransactionHistoryRow[] = [];
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
@@ -74,13 +75,45 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
     ),
     cell: ({ row }) => {
       const amount = row.getValue("amount") as number;
-      const isReceived = amount > 0;
+      const type = row.getValue("type") as
+        | "DEPOSIT"
+        | "WITHDRAWAL"
+        | "TRANSFER";
+      const description = row.getValue("description") as string;
+
+      let direction: "income" | "outcome" = "income";
+
+      if (type === "WITHDRAWAL") {
+        direction = "outcome";
+      } else if (type === "TRANSFER") {
+        direction = amount < 0 ? "outcome" : "income";
+      } else if (type === "DEPOSIT") {
+        // Check if it's a special case like affiliate reward
+        if (description.toLowerCase().includes("affiliate reward")) {
+          direction = "income";
+        } else {
+          direction = "income";
+        }
+      }
+
       return (
-        <div className={cn(
-          "font-medium",
-          isReceived ? "text-green-600" : "text-red-600"
-        )}>
-          {isReceived ? "Reçu" : "Envoyé"}
+        <div
+          className={cn(
+            "flex items-center gap-2 font-medium",
+            direction === "income" ? "text-green-600" : "text-red-600"
+          )}
+        >
+          {direction === "income" ? (
+            <>
+              <ArrowDownRight className="h-4 w-4" />
+              Reçu
+            </>
+          ) : (
+            <>
+              <ArrowUpRight className="h-4 w-4" />
+              Envoyé
+            </>
+          )}
         </div>
       );
     },
@@ -105,13 +138,15 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       <DataTableColumnHeader column={column} title="Montant" />
     ),
     cell: ({ row }) => {
-      const amount = row.getValue("amount") as number;
+      const amount = row.original.amount as number;
       return (
-        <p className={cn(
-          "capitalize rounded-md text-center p-2 font-medium",
-          amount > 0 ? "text-green-600" : "text-red-600"
-        )}>
-          {row.getValue("formattedAmount")}
+        <p
+          className={cn(
+            "capitalize rounded-md text-center p-2 font-medium",
+            amount > 0 ? "text-green-600" : "text-red-600"
+          )}
+        >
+          {row.original.formattedAmount}
         </p>
       );
     },
@@ -168,9 +203,9 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       const typeMap = {
         DEPOSIT: "Dépôt",
         WITHDRAWAL: "Retrait",
-        TRANSFER: "Transfert"
+        TRANSFER: "Transfert",
       };
-      
+
       return (
         <div
           className={cn(
@@ -288,7 +323,7 @@ const TransactionTable = ({ from, to, userId }: TransactionTableProps) => {
               options={[
                 { label: "Dépôt", value: "DEPOSIT" },
                 { label: "Retrait", value: "WITHDRAWAL" },
-                { label: "Transfert", value: "TRANSFER" }
+                { label: "Transfert", value: "TRANSFER" },
               ]}
             />
           )}

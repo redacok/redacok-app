@@ -21,7 +21,8 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { type, amount, fromAccount, toAccount, account, description, fee } = body;
+    const { type, amount, fromAccount, toAccount, account, description, fee } =
+      body;
 
     // Validation de base
     if (!type || !amount || amount <= 0) {
@@ -151,7 +152,7 @@ export async function POST(req: Request) {
 
     // Pour les dépôts, mettre à jour immédiatement le solde et gérer les récompenses d'affiliation
     if (type === "DEPOSIT") {
-      // Update account balance
+      // Mettre à jour le solde du compte
       await db.bankAccount.update({
         where: { id: account },
         data: {
@@ -161,57 +162,59 @@ export async function POST(req: Request) {
         },
       });
 
-      // Check if this is user's first deposit and handle affiliate reward
+      // Vérifier si c'est le premier dépôt de l'utilisateur et gérer la récompense d'affiliation
       const user = await db.user.findUnique({
         where: { id: session.user.id },
-        include: { referredBy: true }
+        include: { referredBy: true, bankAccounts: true },
       });
 
       if (!user?.hasFirstDeposit && user?.referredBy) {
-        // Calculate 10% reward
+        // Calculer la récompense de 10%
         const rewardAmount = amount * 0.1;
 
-        // Create affiliate reward transaction
+        // Créer la transaction de récompense d'affiliation
         await db.transaction.create({
           data: {
             type: TransactionType.DEPOSIT,
             amount: rewardAmount,
-            description: `Affiliate reward for ${user.name || user.email}'s first deposit`,
+            description: `Gains d'affiliation pour le premier dépot de ${user.name}`,
             status: TransactionStatus.COMPLETED,
             isAffiliateReward: true,
             affiliateRewardForTransactionId: transaction.id,
             userId: user.referredBy.id,
-            toAccountId: user.referredBy.id, // Assuming the reward goes to their primary account
+            toAccountId: user.bankAccounts[0].id, // Assuming the reward goes to their primary account
           },
         });
 
-        // Update user's first deposit status
+        // Mettre à jour le statut du premier dépôt de l'utilisateur
         await db.user.update({
           where: { id: session.user.id },
-          data: { hasFirstDeposit: true }
+          data: { hasFirstDeposit: true },
         });
 
-        // Update referrer's account balance
-        await db.bankAccount.findFirst({
-          where: { userId: user.referredBy.id }
-        }).then(account => {
-          if (account) {
-            return db.bankAccount.update({
-              where: { id: account.id },  // Use the found account's ID
-              data: {
-                amount: {
-                  increment: rewardAmount,
+        // Mettre à jour le solde du compte du parrain
+        await db.bankAccount
+          .findFirst({
+            where: { userId: user.referredBy.id },
+          })
+          .then((account) => {
+            if (account) {
+              return db.bankAccount.update({
+                where: { id: account.id }, // Use the found account's ID
+                data: {
+                  amount: {
+                    increment: rewardAmount,
+                  },
                 },
-              },
-            });
-          }
-        });
+              });
+            }
+          });
       }
     }
 
     return NextResponse.json({ success: true, transaction });
   } catch (error) {
     console.error("[TRANSACTIONS]", error);
-    return new NextResponse("Internal Error", { status: 500 });
+    return new NextResponse("Internal Error ", { status: 500 });
   }
 }

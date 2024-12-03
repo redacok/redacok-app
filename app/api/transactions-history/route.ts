@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { OverviewQuerySchema } from "@/lib/definitions";
 import { getFormatterForCurrency } from "@/lib/helpers";
 import { Prisma } from "@prisma/client";
-import { redirect } from "next/navigation"
+import { redirect } from "next/navigation";
 
 export async function GET(request: Request) {
   try {
@@ -109,15 +109,27 @@ export async function getTransactionsHistory(
         },
       },
       categories: true,
-      user: true
+      user: true,
     },
     orderBy: {
       createdAt: "desc",
     },
   });
 
+  const userBankAccounts = await db.bankAccount.findMany({
+    where: {
+      userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const accountIds = userBankAccounts.map((account) => account.id);
+
   return transactions.map((transaction) => {
-    const isOutgoing = !isAdmin && transaction.fromAccountId === transaction.user?.id;
+    const isOutgoing =
+      !isAdmin && accountIds.includes(transaction.fromAccountId!);
     const displayAmount = isOutgoing ? -transaction.amount : transaction.amount;
     const formatter = getFormatterForCurrency(
       transaction.fromAccount?.currency || "XAF"
@@ -126,8 +138,8 @@ export async function getTransactionsHistory(
     return {
       id: transaction.id,
       username: isOutgoing
-        ? transaction.toAccount?.user.name || "Unknown"
-        : transaction.fromAccount?.user.name || "Unknown",
+        ? transaction.toAccount?.user?.name || "Unknown"
+        : transaction.fromAccount?.user?.name || "Unknown",
       accountName: isOutgoing
         ? transaction.fromAccount?.name || "Unknown"
         : transaction.toAccount?.name || "Unknown",
@@ -138,7 +150,7 @@ export async function getTransactionsHistory(
       type: transaction.type,
       description: transaction.description || "",
       status: transaction.status,
-      user: transaction.user
+      user: transaction.user,
     };
   });
 }

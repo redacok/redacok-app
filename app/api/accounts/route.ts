@@ -2,14 +2,20 @@ import { auth } from "@/auth";
 import { generateRIB, getAccountTypeName } from "@/lib/bank-account";
 import { db } from "@/lib/db";
 import { checkKycStatus } from "@/middleware/check-kyc-status";
-import { AccountType, TransactionStatus, TransactionType } from "@prisma/client";
+import {
+  AccountType,
+  TransactionStatus,
+  TransactionType,
+} from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const createAccountSchema = z.object({
   accountType: z.enum(["epargne", "courant", "business"]),
   currency: z.enum(["XAF", "EUR", "USD"]).default("XAF"),
-  initialDeposit: z.number().min(3000, "Le dépôt initial doit être d'au moins 1000 XAF"),
+  initialDeposit: z
+    .number()
+    .min(3000, "Le dépôt initial doit être d'au moins 1000 XAF"),
 });
 
 export async function GET() {
@@ -50,10 +56,7 @@ export async function POST(req: NextRequest) {
 
     const kycCheck = await checkKycStatus();
     if (!kycCheck.allowed) {
-      return NextResponse.json(
-        { error: kycCheck.message }, 
-        { status: 403 }
-      );
+      return NextResponse.json({ error: kycCheck.message }, { status: 403 });
     }
 
     const body = await req.json();
@@ -116,7 +119,7 @@ export async function POST(req: NextRequest) {
       // Check if this is user's first deposit and handle affiliate reward
       const user = await db.user.findUnique({
         where: { id: session.user.id },
-        include: { referredBy: true }
+        include: { referredBy: true, bankAccounts: true },
       });
 
       if (!user?.hasFirstDeposit && user?.referredBy) {
@@ -128,36 +131,38 @@ export async function POST(req: NextRequest) {
           data: {
             type: TransactionType.DEPOSIT,
             amount: rewardAmount,
-            description: `Affiliate reward for ${user.name || user.email}'s first deposit`,
+            description: `Gains d'affiliation pour le premier dépot de ${user.name}`,
             status: TransactionStatus.COMPLETED,
             isAffiliateReward: true,
             affiliateRewardForTransactionId: transaction.id,
             userId: user.referredBy.id,
-            toAccountId: user.referredBy.id, // Assuming the reward goes to their primary account
+            toAccountId: user.bankAccounts[0].id, // Assuming the reward goes to their primary account
           },
         });
 
         // Update user's first deposit status
         await db.user.update({
           where: { id: session.user.id },
-          data: { hasFirstDeposit: true }
+          data: { hasFirstDeposit: true },
         });
 
         // Update referrer's account balance
-        await db.bankAccount.findFirst({
-          where: { userId: user.referredBy.id }
-        }).then(account => {
-          if (account) {
-            return db.bankAccount.update({
-              where: { id: account.id },  // Use the found account's ID
-              data: {
-                amount: {
-                  increment: rewardAmount,
+        await db.bankAccount
+          .findFirst({
+            where: { userId: user.referredBy.id },
+          })
+          .then((account) => {
+            if (account) {
+              return db.bankAccount.update({
+                where: { id: account.id }, // Use the found account's ID
+                data: {
+                  amount: {
+                    increment: rewardAmount,
+                  },
                 },
-              },
-            });
-          }
-        });
+              });
+            }
+          });
       }
     });
 
