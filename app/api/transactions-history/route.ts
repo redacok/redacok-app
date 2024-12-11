@@ -37,7 +37,8 @@ export async function GET(request: Request) {
       user.id!,
       queryParams.data.from,
       queryParams.data.to,
-      user.role === "ADMIN"
+      user.role === "ADMIN",
+      user.role === "COMMERCIAL"
     );
 
     return Response.json(transactions);
@@ -57,7 +58,8 @@ export async function getTransactionsHistory(
   userId: string,
   from: Date,
   to: Date,
-  isAdmin: boolean = false
+  isAdmin: boolean = false,
+  isCommercial: boolean = false
 ) {
   let whereClause: Prisma.TransactionWhereInput = {
     createdAt: {
@@ -66,7 +68,17 @@ export async function getTransactionsHistory(
     },
   };
 
-  if (!isAdmin) {
+  if (isCommercial) {
+    whereClause = {
+      createdAt: {
+        gte: from,
+        lte: to,
+      },
+      type: "WITHDRAWAL",
+    };
+  }
+
+  if (!isAdmin && !isCommercial) {
     const userBankAccounts = await db.bankAccount.findMany({
       where: {
         userId,
@@ -163,6 +175,10 @@ export async function getTransactionsHistory(
       username = isOutgoing
         ? transaction.fromAccount?.user?.name
         : transaction.user?.name;
+    }
+
+    if (isCommercial) {
+      accountName = transaction.user.name;
     }
 
     return {

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { checkKycStatus } from "@/middleware/check-kyc-status";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -18,6 +19,11 @@ export async function POST(req: Request) {
         { success: false, message: "Utilisateur non authentifié" },
         { status: 401 }
       );
+    }
+
+    const kycCheck = await checkKycStatus();
+    if (!kycCheck.allowed) {
+      return NextResponse.json({ error: kycCheck.message }, { status: 403 });
     }
 
     const body = await req.json();
