@@ -171,6 +171,7 @@ export async function getTransactionsHistory(
       accountName,
       amount: displayAmount,
       formattedAmount: formatter.format(Math.abs(displayAmount)),
+      fee: formatter.format(Math.abs(transaction.fee)),
       category: transaction.categories[0]?.name || "Non catégorisé",
       date: transaction.createdAt,
       type: transaction.type,

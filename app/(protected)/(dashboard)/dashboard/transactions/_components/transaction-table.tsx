@@ -40,6 +40,7 @@ import {
   Clock10Icon,
   DownloadIcon,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import RowActions from "./row-actions";
 
 interface TransactionTableProps {
@@ -52,6 +53,12 @@ interface TransactionTableProps {
 export type TransactionHistoryRow =
   NonNullable<getTransactionsHistoryResponseType>[number];
 const emptyData: TransactionHistoryRow[] = [];
+
+const ActionsCell = ({ row }: { row: any }) => {
+  const { data: session } = useSession();
+  if (session?.user?.role !== "ADMIN") return null;
+  return <RowActions transaction={row.original} />;
+};
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
@@ -148,12 +155,29 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       return (
         <p
           className={cn(
-            "capitalize rounded-md text-center p-2 font-medium flex justify-end",
+            "capitalize rounded-md text-center p-2 font-medium flex justify-start",
             amount > 0 ? "text-green-600" : "text-red-600"
           )}
         >
           {amount < 0 && "- "}
           {row.original.formattedAmount}
+        </p>
+      );
+    },
+  },
+  {
+    accessorKey: "fee",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Frais" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <p
+          className={cn(
+            "capitalize rounded-md text-center p-2 font-medium flex justify-end text-yellow-900"
+          )}
+        >
+          {row.original.fee}
         </p>
       );
     },
@@ -264,7 +288,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => <RowActions transaction={row.original} />,
+    cell: ({ row }) => <ActionsCell row={row} />,
   },
 ];
 

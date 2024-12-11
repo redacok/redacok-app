@@ -12,31 +12,34 @@ export interface BankAccount {
 
 export function formatRIB(rib: string): string {
   if (rib.length !== 23) return rib;
-  return `${rib.slice(0, 5)} ${rib.slice(5, 10)} ${rib.slice(10, 21)} ${rib.slice(21)}`;
+  return `${rib.slice(0, 5)} ${rib.slice(5, 10)} ${rib.slice(
+    10,
+    21
+  )} ${rib.slice(21)}`;
 }
 
 export function getAccountTypeFromRIB(rib: string): AccountType | null {
   const typeDigit = rib[10];
-  if (typeDigit === '1') return 'courant';
-  if (typeDigit === '2') return 'epargne';
-  if (typeDigit === '3') return 'business';
+  if (typeDigit === "1") return "courant";
+  if (typeDigit === "2") return "epargne";
+  if (typeDigit === "3") return "business";
   return null;
 }
 
 export function getAccountTypeName(type: AccountType): string {
   switch (type) {
-    case 'courant':
-      return 'Compte Courant';
-    case 'epargne':
-      return 'Compte Épargne';
-    case 'business':
-      return 'Compte Business';
+    case "courant":
+      return "Compte Courant";
+    case "epargne":
+      return "Compte Épargne";
+    case "business":
+      return "Compte Business";
   }
 }
 
 export function generateRIB(type: string, userId: string): string {
   // Bank code (5 digits) - using a fixed code for the bank
-  const bankCode = "12345";
+  const bankCode = "2374";
 
   // Branch code (5 digits) - using first 5 chars of userId
   const branchCode = userId.slice(0, 5).padStart(5, "0");

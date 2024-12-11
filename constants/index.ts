@@ -79,6 +79,24 @@ export const UserLinks = [
   },
 ];
 
+export const CommercialLinks = [
+  {
+    label: "Dashboard",
+    href: "/commercial/dashboard",
+    icon: TerminalIcon,
+  },
+  {
+    label: "Transations",
+    href: "/commercial/dashboard/transactions",
+    icon: Wallet,
+  },
+  {
+    label: "Profile",
+    href: "/commercial/dashboard/profile",
+    icon: User2Icon,
+  },
+];
+
 export const idTypes = [
   { type: "IDCard", label: "Carte Nationale d'identité" },
   { type: "Passport", label: "Passeport" },

@@ -1,6 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -9,16 +16,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { MoreHorizontal, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { FeeRangeDialog } from "./fee-range-dialog";
-import { MoreHorizontal, Pencil } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface FeeRange {
   id: string;
@@ -34,7 +35,9 @@ export function FeeRangesTable() {
   const [feeRanges, setFeeRanges] = useState<FeeRange[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedFeeRange, setSelectedFeeRange] = useState<FeeRange | null>(null);
+  const [selectedFeeRange, setSelectedFeeRange] = useState<FeeRange | null>(
+    null
+  );
 
   const fetchFeeRanges = async () => {
     try {
@@ -76,72 +79,76 @@ export function FeeRangesTable() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-medium">Fee Ranges</h2>
-        <Button onClick={() => setDialogOpen(true)}>Add Fee Range</Button>
-      </div>
-      
-      <div className="border rounded-md">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Amount Range</TableHead>
-              <TableHead>Fee Percentage</TableHead>
-              <TableHead>Fixed Fee</TableHead>
-              <TableHead>Min Fee</TableHead>
-              <TableHead>Max Fee</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {feeRanges.map((range) => (
-              <TableRow key={range.id}>
-                <TableCell>
-                  {formatAmount(range.minAmount)} - {formatAmount(range.maxAmount)}
-                </TableCell>
-                <TableCell>{range.feePercentage}%</TableCell>
-                <TableCell>{formatAmount(range.fixedFee)}</TableCell>
-                <TableCell>{formatAmount(range.minFee)}</TableCell>
-                <TableCell>{formatAmount(range.maxFee)}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleEdit(range)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-            {feeRanges.length === 0 && (
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-medium">Fee Ranges</h2>
+          <Button onClick={() => setDialogOpen(true)}>Add Fee Range</Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="border rounded-md">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={6} className="text-center">
-                  No fee ranges found
-                </TableCell>
+                <TableHead>Amount Range</TableHead>
+                <TableHead>Fee Percentage</TableHead>
+                <TableHead>Fixed Fee</TableHead>
+                <TableHead>Min Fee</TableHead>
+                <TableHead>Max Fee</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {feeRanges.map((range) => (
+                <TableRow key={range.id}>
+                  <TableCell>
+                    {formatAmount(range.minAmount)} -{" "}
+                    {formatAmount(range.maxAmount)}
+                  </TableCell>
+                  <TableCell>{range.feePercentage}%</TableCell>
+                  <TableCell>{formatAmount(range.fixedFee)}</TableCell>
+                  <TableCell>{formatAmount(range.minFee)}</TableCell>
+                  <TableCell>{formatAmount(range.maxFee)}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(range)}>
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {feeRanges.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    No fee ranges found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-      <FeeRangeDialog 
-        open={dialogOpen} 
-        onOpenChange={handleCloseDialog}
-        onSuccess={() => {
-          fetchFeeRanges();
-          handleCloseDialog();
-        }}
-        feeRange={selectedFeeRange}
-      />
-    </div>
+        <FeeRangeDialog
+          open={dialogOpen}
+          onOpenChange={handleCloseDialog}
+          onSuccess={() => {
+            fetchFeeRanges();
+            handleCloseDialog();
+          }}
+          feeRange={selectedFeeRange}
+        />
+      </CardContent>
+    </Card>
   );
 }

@@ -24,6 +24,8 @@ export async function POST(req: Request) {
     const { type, amount, fromAccount, toAccount, account, description, fee } =
       body;
 
+    const totalAmount = amount + fee;
+
     // Validation de base
     if (!type || !amount || amount <= 0) {
       return NextResponse.json(
@@ -63,7 +65,7 @@ export async function POST(req: Request) {
       // Vérifier le solde disponible pour les retraits
       if (type === "WITHDRAWAL") {
         const availableBalance = bankAccount.amount - MIN_BALANCE;
-        if (availableBalance < amount) {
+        if (availableBalance < totalAmount) {
           return NextResponse.json(
             {
               success: false,
@@ -89,6 +91,18 @@ export async function POST(req: Request) {
         );
       }
 
+      const availableBalance = sourceAccount.amount - MIN_BALANCE;
+      if (availableBalance < totalAmount) {
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              "Solde insuffisant. N'oubliez pas que vous devez maintenir un solde minimum de 1000 XAF",
+          },
+          { status: 400 }
+        );
+      }
+
       // Vérifier que le compte appartient à l'utilisateur
       if (sourceAccount.userId !== session.user.id) {
         return NextResponse.json(
@@ -98,9 +112,10 @@ export async function POST(req: Request) {
       }
     }
 
+    let destinationAccount = null;
     // Vérifier le compte destinataire pour les transferts
     if (type === "TRANSFER") {
-      const destinationAccount = await db.bankAccount.findUnique({
+      destinationAccount = await db.bankAccount.findUnique({
         where: { rib: toAccount },
       });
 
@@ -131,7 +146,7 @@ export async function POST(req: Request) {
         description,
         fee,
         status:
-          type === "DEPOSIT"
+          type === "DEPOSIT" || type === "TRANSFER"
             ? TransactionStatus.COMPLETED
             : TransactionStatus.PENDING,
         fromAccountId:
@@ -139,16 +154,41 @@ export async function POST(req: Request) {
             ? fromAccount
             : type === "WITHDRAWAL"
             ? account
-            : account,
+            : null,
         toAccountId:
           type === "TRANSFER"
-            ? toAccount
+            ? destinationAccount && destinationAccount.id
             : type === "DEPOSIT"
-            ? fromAccount
+            ? account
             : null,
         userId: session.user.id,
       },
     });
+
+    // pour les transferts, mettre à jour immédiatement le soldre des comptes
+    if (type === "TRANSFER") {
+      await db.$transaction(async (prisma) => {
+        // Mettre à jour le solde du compte expéditeur
+        await prisma.bankAccount.update({
+          where: { id: fromAccount },
+          data: {
+            amount: {
+              decrement: totalAmount,
+            },
+          },
+        });
+
+        // Mettre à jour le solde du compte destinataire
+        await prisma.bankAccount.update({
+          where: { id: destinationAccount?.id },
+          data: {
+            amount: {
+              increment: amount,
+            },
+          },
+        });
+      });
+    }
 
     // Pour les dépôts, mettre à jour immédiatement le solde et gérer les récompenses d'affiliation
     if (type === "DEPOSIT") {

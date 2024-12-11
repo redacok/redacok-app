@@ -44,6 +44,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "cookie": ">=0.7.0",
+    "cross-spawn": ">=7.0.5",
     "date-fns": "^3.6.0",
     "export-to-csv": "^1.4.0",
     "framer-motion": "^11.11.9",

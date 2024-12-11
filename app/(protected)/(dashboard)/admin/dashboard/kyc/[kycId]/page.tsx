@@ -1,13 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -29,12 +20,22 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
+import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
 interface KycRequest {
   id: string;
   userId: string;
-  type: 'PERSONAL' | 'BUSINESS';
+  type: "PERSONAL" | "BUSINESS";
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -42,7 +43,7 @@ interface KycRequest {
   idType: string;
   idNumber: string;
   idExpirationDate: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: "PENDING" | "APPROVED" | "REJECTED";
   rejectionReason?: string;
   createdAt: string;
   niu: string | null;
@@ -74,7 +75,8 @@ export default function KycVerificationPage() {
   const [kycRequest, setKycRequest] = useState<KycRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
-  const [isConfirmApproveModalOpen, setIsConfirmApproveModalOpen] = useState(false);
+  const [isConfirmApproveModalOpen, setIsConfirmApproveModalOpen] =
+    useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   const rejectionForm = useForm<RejectionFormValues>({
@@ -90,8 +92,8 @@ export default function KycVerificationPage() {
         const response = await axios.get(`/api/kyc/requests/${params.kycId}`);
         setKycRequest(response.data);
       } catch (error) {
-        console.error('Error fetching KYC request:', error);
-        toast.error('Failed to load KYC request details');
+        console.error("Error fetching KYC request:", error);
+        toast.error("Failed to load KYC request details");
       } finally {
         setLoading(false);
       }
@@ -117,7 +119,7 @@ export default function KycVerificationPage() {
   }
 
   const handleDocumentView = (url: string) => {
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
 
   const handleDocumentDownload = async (url: string) => {
@@ -125,16 +127,16 @@ export default function KycVerificationPage() {
       const response = await fetch(url);
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = url.split('/').pop() || 'document';
+      link.download = url.split("/").pop() || "document";
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      console.error('Error downloading document:', error);
-      toast.error('Failed to download document');
+      console.error("Error downloading document:", error);
+      toast.error("Failed to download document");
     }
   };
 
@@ -142,14 +144,14 @@ export default function KycVerificationPage() {
     try {
       setIsUpdating(true);
       await axios.patch(`/api/kyc/requests/${params.kycId}/update`, {
-        status: 'APPROVED',
+        status: "APPROVED",
       });
-      toast.success('KYC request approved successfully');
-      setKycRequest(prev => prev ? { ...prev, status: 'APPROVED' } : null);
+      toast.success("KYC request approved successfully");
+      setKycRequest((prev) => (prev ? { ...prev, status: "APPROVED" } : null));
       setIsConfirmApproveModalOpen(false);
     } catch (error) {
-      console.error('Error approving KYC request:', error);
-      toast.error('Failed to approve KYC request');
+      console.error("Error approving KYC request:", error);
+      toast.error("Failed to approve KYC request");
     } finally {
       setIsUpdating(false);
     }
@@ -159,16 +161,20 @@ export default function KycVerificationPage() {
     try {
       setIsUpdating(true);
       await axios.patch(`/api/kyc/requests/${params.kycId}/update`, {
-        status: 'REJECTED',
+        status: "REJECTED",
         rejectionReason: values.reason,
       });
-      toast.success('KYC request rejected successfully');
-      setKycRequest(prev => prev ? { ...prev, status: 'REJECTED', rejectionReason: values.reason } : null);
+      toast.success("KYC request rejected successfully");
+      setKycRequest((prev) =>
+        prev
+          ? { ...prev, status: "REJECTED", rejectionReason: values.reason }
+          : null
+      );
       setIsRejectionModalOpen(false);
       rejectionForm.reset();
     } catch (error) {
-      console.error('Error rejecting KYC request:', error);
-      toast.error('Failed to reject KYC request');
+      console.error("Error rejecting KYC request:", error);
+      toast.error("Failed to reject KYC request");
     } finally {
       setIsUpdating(false);
     }
@@ -176,36 +182,45 @@ export default function KycVerificationPage() {
 
   return (
     <div className="container mx-auto py-10 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">KYC Verification Details</h1>
-        <div className="flex items-center gap-4">
-          <Badge variant={
-            kycRequest.status === 'APPROVED' ? 'default' :
-            kycRequest.status === 'REJECTED' ? 'destructive' :
-            'default'
-          }>
-            {kycRequest.status}
-          </Badge>
-          {kycRequest.status === 'PENDING' && (
-            <>
-              <Button
-                onClick={() => setIsConfirmApproveModalOpen(true)}
-                variant="default"
-                disabled={isUpdating}
+      <PageHeader
+        title="KYC Verification Details"
+        description="All details submitted by the uer"
+        block={
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <Badge
+                variant={
+                  kycRequest.status === "APPROVED"
+                    ? "default"
+                    : kycRequest.status === "REJECTED"
+                    ? "destructive"
+                    : "default"
+                }
               >
-                Approve
-              </Button>
-              <Button
-                onClick={() => setIsRejectionModalOpen(true)}
-                variant="destructive"
-                disabled={isUpdating}
-              >
-                Reject
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+                {kycRequest.status}
+              </Badge>
+              {kycRequest.status === "PENDING" && (
+                <>
+                  <Button
+                    onClick={() => setIsConfirmApproveModalOpen(true)}
+                    variant="default"
+                    disabled={isUpdating}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    onClick={() => setIsRejectionModalOpen(true)}
+                    variant="destructive"
+                    disabled={isUpdating}
+                  >
+                    Reject
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        }
+      />
 
       <Separator />
 
@@ -217,11 +232,15 @@ export default function KycVerificationPage() {
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm text-muted-foreground">Full Name</p>
-              <p className="font-medium">{kycRequest.firstName} {kycRequest.lastName}</p>
+              <p className="font-medium">
+                {kycRequest.firstName} {kycRequest.lastName}
+              </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Date of Birth</p>
-              <p className="font-medium">{format(new Date(kycRequest.dateOfBirth), 'PPP')}</p>
+              <p className="font-medium">
+                {format(new Date(kycRequest.dateOfBirth), "PPP")}
+              </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Nationality</p>
@@ -246,7 +265,7 @@ export default function KycVerificationPage() {
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle>ID Information</CardTitle>
           </CardHeader>
@@ -260,31 +279,38 @@ export default function KycVerificationPage() {
               <p className="font-medium">{kycRequest.idNumber}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">ID Expiration Date</p>
-              <p className="font-medium">{format(new Date(kycRequest.idExpirationDate), 'PPP')}</p>
+              <p className="text-sm text-muted-foreground">
+                ID Expiration Date
+              </p>
+              <p className="font-medium">
+                {format(new Date(kycRequest.idExpirationDate), "PPP")}
+              </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle>Submitted Documents</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {kycRequest.documents.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={doc.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <span className="font-medium">{doc.type}</span>
                   <div className="space-x-2">
                     <Button
                       variant="outline"
-                      onClick={() => handleDocumentView(doc.url || '')}
+                      onClick={() => handleDocumentView(doc.url || "")}
                     >
                       View
                     </Button>
                     <Button
                       variant="secondary"
-                      onClick={() => handleDocumentDownload(doc.url || '')}
+                      onClick={() => handleDocumentDownload(doc.url || "")}
                     >
                       Download
                     </Button>
@@ -297,12 +323,16 @@ export default function KycVerificationPage() {
       </div>
 
       {/* Confirmation Modal for Approval */}
-      <Dialog open={isConfirmApproveModalOpen} onOpenChange={setIsConfirmApproveModalOpen}>
+      <Dialog
+        open={isConfirmApproveModalOpen}
+        onOpenChange={setIsConfirmApproveModalOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm KYC Approval</DialogTitle>
             <DialogDescription>
-              Are you sure you want to approve this KYC request? This action cannot be undone.
+              Are you sure you want to approve this KYC request? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -313,17 +343,14 @@ export default function KycVerificationPage() {
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleApprove}
-              disabled={isUpdating}
-            >
+            <Button onClick={handleApprove} disabled={isUpdating}>
               {isUpdating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Approving...
                 </>
               ) : (
-                'Confirm Approval'
+                "Confirm Approval"
               )}
             </Button>
           </DialogFooter>
@@ -331,7 +358,10 @@ export default function KycVerificationPage() {
       </Dialog>
 
       {/* Rejection Modal */}
-      <Dialog open={isRejectionModalOpen} onOpenChange={setIsRejectionModalOpen}>
+      <Dialog
+        open={isRejectionModalOpen}
+        onOpenChange={setIsRejectionModalOpen}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reject KYC Request</DialogTitle>
@@ -340,7 +370,10 @@ export default function KycVerificationPage() {
             </DialogDescription>
           </DialogHeader>
           <Form {...rejectionForm}>
-            <form onSubmit={rejectionForm.handleSubmit(handleReject)} className="space-y-4">
+            <form
+              onSubmit={rejectionForm.handleSubmit(handleReject)}
+              className="space-y-4"
+            >
               <FormField
                 control={rejectionForm.control}
                 name="reason"
@@ -377,7 +410,7 @@ export default function KycVerificationPage() {
                       Rejecting...
                     </>
                   ) : (
-                    'Reject Request'
+                    "Reject Request"
                   )}
                 </Button>
               </DialogFooter>

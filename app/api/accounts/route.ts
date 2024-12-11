@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
           amount: initialDeposit,
           description: "Dépôt initial",
           status: "COMPLETED",
-          fromAccountId: account.id,
+          toAccountId: account.id,
           userId,
         },
       });
