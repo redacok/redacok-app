@@ -329,3 +329,9 @@ export const UpdateUserSchema = z.object({
   role: z.enum(["ADMIN", "COMMERCIAL", "BUSINESS", "PERSONAL", "USER"]),
   active: z.boolean().optional(),
 });
+
+export const transactionTreatmentSchema = z.object({
+  decision: z.enum(["PENDING", "COMPLETED", "REJECTED", "CANCELLED"]),
+  rejectionReason: z.string().optional(),
+  id: z.string(),
+});

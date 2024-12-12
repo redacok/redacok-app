@@ -140,7 +140,7 @@ export function CreateTransactionDialog() {
     if (form.watch("type") === "TRANSFER") {
       validateRib();
     }
-  }, [debouncedRib, form.watch("type")]);
+  }, [debouncedRib, form]);
 
   // Calculate fee when amount changes
   const amount = form.watch("amount");

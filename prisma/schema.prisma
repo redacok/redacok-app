@@ -231,6 +231,7 @@ enum TransactionStatus {
   PENDING
   COMPLETED
   REJECTED
+  CANCELLED
 }
 
 model Category {
@@ -281,6 +282,10 @@ model Transaction {
   affiliateRewardForTransactionId String?
   affiliateRewardTransaction Transaction? @relation("AffiliateReward", fields: [affiliateRewardForTransactionId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   affiliateRewards Transaction[] @relation("AffiliateReward")
+
+  reviewedAt      DateTime?
+  reviewedBy      String?   // ID de l'admin qui a examiné la demande
+  rejectionReason String?
   
   // Comptes source et destination
   fromAccountId String?

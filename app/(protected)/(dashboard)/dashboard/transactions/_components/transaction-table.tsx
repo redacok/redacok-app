@@ -56,6 +56,7 @@ const emptyData: TransactionHistoryRow[] = [];
 
 const ActionsCell = ({ row }: { row: any }) => {
   const { data: session } = useSession();
+  console.log("la session : ", session);
   if (session?.user?.role !== "ADMIN" && session?.user?.role !== "COMMERCIAL")
     return null;
   return <RowActions transaction={row.original} />;
@@ -102,7 +103,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       } else if (type === "TRANSFER") {
         direction = amount < 0 ? "outcome" : "income";
       } else if (type === "DEPOSIT") {
-        // Check if it's a special case like affiliate reward
+        // Vérifier si c'est une transaction spéciale d'affiliation
         if (description.toLowerCase().includes("affiliate reward")) {
           direction = "income";
         } else {
