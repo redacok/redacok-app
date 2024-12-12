@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BankAccount } from "@/lib/bank-account";
+import { calculateTransactionFee } from "@/lib/calculate-transaction-fee";
 import { checkKycStatus } from "@/middleware/check-kyc-status";
 import bankStore from "@/store/bank-store";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,6 +45,7 @@ const accountSchema = z.object({
   initialDeposit: z.coerce
     .number()
     .min(1000, "Le dépôt initial doit être d'au moins 1000 XAF"),
+  fee: z.number().default(0),
 });
 
 type AccountFormValues = z.infer<typeof accountSchema>;
@@ -95,6 +97,18 @@ export function CreateAccountDialog({ user }: { user: User }) {
       setLoading(false);
     }
   };
+
+  // Calculate fee when amount changes
+  const amount = form.watch("initialDeposit");
+  useEffect(() => {
+    if (amount) {
+      const updateFee = async () => {
+        const fee = await calculateTransactionFee(amount);
+        form.setValue("fee", fee.fee);
+      };
+      updateFee();
+    }
+  }, [amount, form]);
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -194,7 +208,7 @@ export function CreateAccountDialog({ user }: { user: User }) {
               name="initialDeposit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dépoto initial (min. 3000 XAF)</FormLabel>
+                  <FormLabel>Dépot initial (min. 3000 XAF)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
@@ -205,6 +219,33 @@ export function CreateAccountDialog({ user }: { user: User }) {
                       placeholder="Montant du dépoto initial"
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fee"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Frais de transaction</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value}
+                      disabled
+                    />
+                  </FormControl>
+                  <p className="p-2 bg-yellow-50 rounded-lg">
+                    Montant total :{" "}
+                    <span>
+                      {amount > 1000 &&
+                        form.getValues("initialDeposit") +
+                          form.getValues("fee")}
+                    </span>
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

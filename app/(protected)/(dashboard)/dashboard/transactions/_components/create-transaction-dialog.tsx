@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
 import { BankAccount } from "@/lib/bank-account";
+import { calculateTransactionFee } from "@/lib/calculate-transaction-fee";
 import bankStore from "@/store/bank-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -36,7 +37,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import { calculateTransactionFee } from "@/lib/calculate-transaction-fee";
 
 // const MIN_BALANCE = 1000; // 1000 XAF minimum balance
 const RIB_LENGTH = 23; // Longueur standard d'un RIB
@@ -368,7 +368,11 @@ export function CreateTransactionDialog() {
                     />
                   </FormControl>
                   <p className="p-2 bg-yellow-50 rounded-lg">
-                    Montant total : <span>{form.getValues("amount") + form.getValues("fee")}</span>
+                    Montant total :{" "}
+                    <span>
+                      {amount > 1000 &&
+                        form.getValues("amount") + form.getValues("fee")}
+                    </span>
                   </p>
                   <FormMessage />
                 </FormItem>

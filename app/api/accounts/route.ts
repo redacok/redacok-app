@@ -16,6 +16,7 @@ const createAccountSchema = z.object({
   initialDeposit: z
     .number()
     .min(3000, "Le dépôt initial doit être d'au moins 1000 XAF"),
+  fee: z.number().default(0),
 });
 
 export async function GET() {
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { accountType, currency, initialDeposit } = result.data;
+    const { accountType, currency, initialDeposit, fee } = result.data;
 
     // Vérifier si l'utilisateur a déjà un compte avec ce nom
     const existingAccount = await db.bankAccount.findFirst({
@@ -110,6 +111,7 @@ export async function POST(req: NextRequest) {
         data: {
           type: "DEPOSIT",
           amount: initialDeposit,
+          fee,
           description: "Dépôt initial",
           status: "COMPLETED",
           toAccountId: account.id,

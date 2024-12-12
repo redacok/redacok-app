@@ -47,6 +47,7 @@ interface User {
   email: string | null;
   role: UserRole;
   phone: string | null;
+  active: boolean;
 }
 
 export default function UserById() {
@@ -54,6 +55,7 @@ export default function UserById() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isActive, setIsActive] = useState<boolean>();
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: startOfMonth(new Date()),
     to: new Date(),
@@ -67,6 +69,7 @@ export default function UserById() {
       email: "",
       phone: "",
       role: "USER",
+      active: true,
     },
   });
 
@@ -82,7 +85,9 @@ export default function UserById() {
             email: data.user.email || "",
             phone: data.user.phone || "",
             role: data.user.role,
+            active: data.user.active,
           });
+          setIsActive(data.user.active);
         }
       } catch (error) {
         console.error("Failed to fetch user data", error);
@@ -122,6 +127,9 @@ export default function UserById() {
       //     user.id === userId ? { ...user, active: data.active } : user
       //   )
       // );
+      setIsActive(data.active);
+      const message = data.active ? "Compte réactivé" : "Compte désactivé";
+      toast.success(message);
       console.log(data);
     } catch (error) {
       console.error("Error updating user status:", error);
@@ -269,8 +277,9 @@ export default function UserById() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="USER">User</SelectItem>
-                          <SelectItem value="ADMIN">Admin</SelectItem>
                           <SelectItem value="PERSONAL">Personal</SelectItem>
+                          <SelectItem value="COMMERCIAL">Commercial</SelectItem>
+                          <SelectItem value="ADMIN">Admin</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -296,9 +305,10 @@ export default function UserById() {
           <CardContent className="space-y-2 space-x-2">
             <Button
               variant="destructive"
-              onClick={() => handleStatusChange(user.id, false)}
+              onClick={() => handleStatusChange(user.id, !isActive)}
             >
-              Désactiver le compte
+              {isActive ? "Désactiver " : "Réactiver "}
+              le compte
             </Button>
             <Button variant="destructive">Supprimer le compte</Button>
           </CardContent>
