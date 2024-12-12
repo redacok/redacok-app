@@ -43,9 +43,9 @@ export default async function Home() {
             </span>
           </h1>
           <p className="text-neutral-200 p-4 w-full md:w-1/2 text-center z-20">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptates
-            soluta laborum eius minus dignissimos illo facere temporibus earum,
-            sit iusto!
+            Découvrez une nouvelle façon de rédiger et gérer vos contenus. Notre
+            plateforme vous offre des outils puissants pour créer, organiser et
+            optimiser vos textes en toute simplicité.
           </p>
         </div>
         <DashboardButton label="Commencer" session={session?.user} />

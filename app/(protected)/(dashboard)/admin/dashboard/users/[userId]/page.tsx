@@ -110,6 +110,24 @@ export default function UserById() {
     }
   };
 
+  const handleStatusChange = async (userId: string, newStatus: boolean) => {
+    try {
+      const { data } = await axios.patch<User>(`/api/users/${userId}/update`, {
+        active: newStatus,
+      });
+
+      // Update local state
+      // setUsers(
+      //   users.map((user) =>
+      //     user.id === userId ? { ...user, active: data.active } : user
+      //   )
+      // );
+      console.log(data);
+    } catch (error) {
+      console.error("Error updating user status:", error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center gap-10 pt-16">
@@ -276,7 +294,12 @@ export default function UserById() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 space-x-2">
-            <Button variant="destructive">Désactiver le compte</Button>
+            <Button
+              variant="destructive"
+              onClick={() => handleStatusChange(user.id, false)}
+            >
+              Désactiver le compte
+            </Button>
             <Button variant="destructive">Supprimer le compte</Button>
           </CardContent>
         </Card>

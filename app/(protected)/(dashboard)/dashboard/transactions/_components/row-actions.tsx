@@ -9,10 +9,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Trash2Icon } from "lucide-react";
+import { Check, MoreHorizontal, Trash2Icon } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import DeleteTransactionDialog from "./delete-transaction-dialog";
 import { TransactionHistoryRow } from "./transaction-table";
+import TreatTransactionDialog from "./treat-transaction-dialog";
 
 const RowActions = ({
   transaction,
@@ -20,11 +22,19 @@ const RowActions = ({
   transaction: TransactionHistoryRow;
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showTreatmentDialog, setShowTreatmentDialog] = useState(false);
+
+  const { data: session } = useSession();
 
   return (
     <>
       <DeleteTransactionDialog
         open={showDeleteDialog}
+        setOpen={setShowDeleteDialog}
+        transactionId={transaction.id}
+      />
+      <TreatTransactionDialog
+        open={showTreatmentDialog}
         setOpen={setShowDeleteDialog}
         transactionId={transaction.id}
       />
@@ -38,14 +48,25 @@ const RowActions = ({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {session?.user?.role === "ADMIN" && (
+            <DropdownMenuItem
+              className="flex items-center gap-2"
+              onSelect={() => {
+                setShowDeleteDialog((prev) => !prev);
+              }}
+            >
+              <Trash2Icon />
+              Supprimer
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem
             className="flex items-center gap-2"
             onSelect={() => {
-              setShowDeleteDialog((prev) => !prev);
+              setShowTreatmentDialog((prev) => !prev);
             }}
           >
-            <Trash2Icon />
-            Supprimer
+            <Check />
+            Traiter
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

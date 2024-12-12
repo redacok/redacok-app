@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { SessionProvider } from "next-auth/react";
 import { redirect } from "next/navigation";
 
 export default async function AdminDashboardLayout({
@@ -12,5 +13,9 @@ export default async function AdminDashboardLayout({
     redirect("/");
   }
 
-  return <div className="flex min-h-screen flex-col pb-4">{children}</div>;
+  return (
+    <SessionProvider>
+      <div className="flex min-h-screen flex-col pb-4">{children}</div>;
+    </SessionProvider>
+  );
 }

@@ -56,7 +56,8 @@ const emptyData: TransactionHistoryRow[] = [];
 
 const ActionsCell = ({ row }: { row: any }) => {
   const { data: session } = useSession();
-  if (session?.user?.role !== "ADMIN") return null;
+  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "COMMERCIAL")
+    return null;
   return <RowActions transaction={row.original} />;
 };
 

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/ace-sidebar";
 
 import { signOutUser } from "@/app/(auth)/sign-in/actions";
-import { AdminLinks, UserLinks } from "@/constants";
+import { AdminLinks, CommercialLinks, UserLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -51,6 +51,8 @@ export function SidebarApp({
   let links = [] as LinksProps[];
   if (session.role === "ADMIN") {
     links = AdminLinks;
+  } else if (session.role === "COMMERCIAL") {
+    links = CommercialLinks;
   } else {
     links = UserLinks;
   }
