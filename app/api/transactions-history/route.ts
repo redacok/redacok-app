@@ -74,7 +74,7 @@ export async function getTransactionsHistory(
         gte: from,
         lte: to,
       },
-      type: "WITHDRAWAL",
+      type: { in: ["WITHDRAWAL", "TRANSFER"] },
     };
   }
 

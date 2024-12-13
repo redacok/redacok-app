@@ -1,8 +1,8 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { FeeRangesTable } from "./_components/fee-ranges-table";
 
 export default async function TransactionFeesPage() {
-  const feeRanges = await prisma.transactionFeeRange.findMany({
+  const feeRanges = await db.transactionFeeRange.findMany({
     orderBy: { minAmount: "asc" },
   });
 

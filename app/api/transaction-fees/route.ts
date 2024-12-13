@@ -1,9 +1,9 @@
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const feeRanges = await prisma.transactionFeeRange.findMany({
+    const feeRanges = await db.transactionFeeRange.findMany({
       orderBy: { minAmount: "asc" },
     });
     return NextResponse.json(feeRanges);
@@ -19,14 +19,14 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    const feeRange = await prisma.transactionFeeRange.create({
+    const feeRange = await db.transactionFeeRange.create({
       data: {
         minAmount: data.minAmount,
         maxAmount: data.maxAmount,
         feePercentage: data.feePercentage,
         fixedFee: data.fixedFee,
-        isActive: data.isActive,
-        description: data.description,
+        minFee: data.minFee,
+        maxFee: data.maxFee,
       },
     });
     return NextResponse.json(feeRange);
@@ -42,15 +42,15 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const data = await request.json();
-    const feeRange = await prisma.transactionFeeRange.update({
+    const feeRange = await db.transactionFeeRange.update({
       where: { id: data.id },
       data: {
         minAmount: data.minAmount,
         maxAmount: data.maxAmount,
         feePercentage: data.feePercentage,
         fixedFee: data.fixedFee,
-        isActive: data.isActive,
-        description: data.description,
+        minFee: data.minFee,
+        maxFee: data.maxFee,
       },
     });
     return NextResponse.json(feeRange);
@@ -74,7 +74,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    await prisma.transactionFeeRange.delete({
+    await db.transactionFeeRange.delete({
       where: { id },
     });
     return NextResponse.json({ success: true });
