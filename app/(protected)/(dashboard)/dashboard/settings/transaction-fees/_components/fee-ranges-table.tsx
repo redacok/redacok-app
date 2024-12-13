@@ -20,7 +20,8 @@ interface FeeRangesTableProps {
 export function FeeRangesTable({ initialFeeRanges }: FeeRangesTableProps) {
   const [feeRanges, setFeeRanges] = useState(initialFeeRanges);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedRange, setSelectedRange] = useState<TransactionFeeRange | null>(null);
+  const [selectedRange, setSelectedRange] =
+    useState<TransactionFeeRange | null>(null);
 
   const handleEdit = (range: TransactionFeeRange) => {
     setSelectedRange(range);
@@ -57,10 +58,9 @@ export function FeeRangesTable({ initialFeeRanges }: FeeRangesTableProps) {
               <TableCell>{range.maxAmount}</TableCell>
               <TableCell>{range.feePercentage}%</TableCell>
               <TableCell>{range.fixedFee}</TableCell>
-              <TableCell>{range.isActive ? "Active" : "Inactive"}</TableCell>
               <TableCell>
                 <Button variant="ghost" onClick={() => handleEdit(range)}>
-                  Edit
+                  Modifier
                 </Button>
               </TableCell>
             </TableRow>
@@ -68,14 +68,16 @@ export function FeeRangesTable({ initialFeeRanges }: FeeRangesTableProps) {
         </TableBody>
       </Table>
 
-      <EditFeeRangeDialog 
+      <EditFeeRangeDialog
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         feeRange={selectedRange}
         onSave={(updatedRange) => {
-          setFeeRanges(prev => {
+          setFeeRanges((prev) => {
             if (selectedRange) {
-              return prev.map(r => r.id === updatedRange.id ? updatedRange : r);
+              return prev.map((r) =>
+                r.id === updatedRange.id ? updatedRange : r
+              );
             }
             return [...prev, updatedRange];
           });

@@ -32,7 +32,8 @@ export function EditFeeRangeDialog({
       maxAmount: 0,
       feePercentage: 0,
       fixedFee: 0,
-      isActive: true,
+      minFee: 0,
+      maxFee: 0,
     }
   );
 
@@ -135,7 +136,6 @@ export function EditFeeRangeDialog({
           <div className="flex items-center space-x-2">
             <Switch
               id="isActive"
-              checked={formData.isActive}
               onCheckedChange={(checked) =>
                 setFormData((prev) => ({ ...prev, isActive: checked }))
               }
