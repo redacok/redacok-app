@@ -3,7 +3,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -15,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,7 +25,7 @@ import {
 import { transactionTreatmentSchema } from "@/lib/definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -39,12 +39,14 @@ interface TreatCategoryDialogProps {
 
 type transactionTreatmentValues = z.infer<typeof transactionTreatmentSchema>;
 
-const TreatTransactionDialog = async ({
+const TreatTransactionDialog = ({
   transactionId,
   open,
   setOpen,
 }: TreatCategoryDialogProps) => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [showRejectionReason, setShowRejectionReason] =
+    useState<boolean>(false);
 
   const form = useForm<transactionTreatmentValues>({
     resolver: zodResolver(transactionTreatmentSchema),
@@ -55,11 +57,21 @@ const TreatTransactionDialog = async ({
     },
   });
 
+  useEffect(() => {
+    if (form.watch("decision") === "REJECTED") {
+      setShowRejectionReason(true);
+    } else {
+      setShowRejectionReason(false);
+    }
+  }, [form.watch("decision")]);
+
   const onSubmit = (formData: transactionTreatmentValues) => {
+    setLoading(true);
     startTransition(() => {
       TreatTransactionAction(formData).then((data) => {
         toast.error(data.error);
         toast.success(data.success);
+        setLoading(false);
       });
     });
   };
@@ -73,49 +85,63 @@ const TreatTransactionDialog = async ({
             Approuvez ou rejetez la transaction
           </DialogDescription>
         </DialogHeader>
-        <DialogContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="decision"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type de transaction</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner le type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="DEPOSIT">Dépôt</SelectItem>
-                        <SelectItem value="WITHDRAWAL">Retrait</SelectItem>
-                        <SelectItem value="TRANSFER">Transfert</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </DialogContent>
-        <DialogFooter>
-          <Button type="submit" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Traitement en cours...
-              </>
-            ) : (
-              "Traiter la transaction"
-            )}
-          </Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="decision"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Choisissez une action à effectuer</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Action..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="COMPLETED">Valider</SelectItem>
+                      <SelectItem value="REJECTED">Rejeter</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                  {showRejectionReason && (
+                    <FormField
+                      control={form.control}
+                      name="rejectionReason"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Raison du rejet</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              placeholder="Entrez la raison..."
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </FormItem>
+              )}
+            />
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Traitement en cours...
+                </>
+              ) : (
+                "Traiter la transaction"
+              )}
+            </Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

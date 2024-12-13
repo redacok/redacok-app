@@ -40,7 +40,6 @@ import {
   Clock10Icon,
   DownloadIcon,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
 import RowActions from "./row-actions";
 
 interface TransactionTableProps {
@@ -53,14 +52,6 @@ interface TransactionTableProps {
 export type TransactionHistoryRow =
   NonNullable<getTransactionsHistoryResponseType>[number];
 const emptyData: TransactionHistoryRow[] = [];
-
-const ActionsCell = ({ row }: { row: any }) => {
-  const { data: session } = useSession();
-  console.log("la session : ", session);
-  if (session?.user?.role !== "ADMIN" && session?.user?.role !== "COMMERCIAL")
-    return null;
-  return <RowActions transaction={row.original} />;
-};
 
 export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
@@ -103,7 +94,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
       } else if (type === "TRANSFER") {
         direction = amount < 0 ? "outcome" : "income";
       } else if (type === "DEPOSIT") {
-        // Vérifier si c'est une transaction spéciale d'affiliation
+        // Check if it's a special case like affiliate reward
         if (description.toLowerCase().includes("affiliate reward")) {
           direction = "income";
         } else {
@@ -290,7 +281,7 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => <ActionsCell row={row} />,
+    cell: ({ row }) => <RowActions transaction={row.original} />,
   },
 ];
 

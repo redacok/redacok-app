@@ -2,7 +2,9 @@
 
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { transactionTreatmentSchema } from "@/lib/definitions";
 import { redirect } from "next/navigation";
+import * as z from "zod";
 
 export async function DeleteTransaction(id: string) {
   const session = await auth();
@@ -81,11 +83,20 @@ export async function DeleteTransaction(id: string) {
   ]);
 }
 
-export async function TreatTransactionAction({
-  id,
-  decision,
-  description
-}: ) {
+export async function getAuth() {
+  const session = await auth();
+  return session;
+}
+
+export async function TreatTransactionAction(
+  formData: z.infer<typeof transactionTreatmentSchema>
+) {
+  const validationResult = transactionTreatmentSchema.safeParse(formData);
+
+  if (!validationResult.success) {
+    return { error: "Les données ne sont pas valides !" };
+  }
+
   const session = await auth();
   if (!session || !session?.user) {
     redirect("/sign-in");
@@ -94,23 +105,10 @@ export async function TreatTransactionAction({
   const user = session.user;
 
   if (user.role !== "ADMIN" && user.role !== "COMMERCIAL") {
-    throw new Error("Unauthorize !");
+    return { error: "Action non autorisée !" };
   }
 
-  if (decision === "REJECTED") {
-    await db.transaction.update({
-      where: {
-        id,
-      },
-      data: {
-        status: decision,
-        reviewedBy: user.id,
-        reviewedAt: new Date(),
-        rejectionReason: description,
-      },
-    });
-    throw new Error("Status rejected");
-  }
+  const { id, decision, rejectionReason } = formData;
 
   const transaction = await db.transaction.findUnique({
     where: {
@@ -131,7 +129,22 @@ export async function TreatTransactionAction({
   });
 
   if (!transaction) {
-    throw new Error("Bad request !");
+    return { error: "transaction non trouvée !" };
+  }
+
+  if (decision === "REJECTED") {
+    await db.transaction.update({
+      where: {
+        id,
+      },
+      data: {
+        status: decision,
+        reviewedBy: user.id,
+        reviewedAt: new Date(),
+        rejectionReason,
+      },
+    });
+    return { success: "transaction rejetée !" };
   }
 
   await db.$transaction([
@@ -239,4 +252,6 @@ export async function TreatTransactionAction({
       },
     }),
   ]);
+
+  return { success: "transaction validée"! };
 }
