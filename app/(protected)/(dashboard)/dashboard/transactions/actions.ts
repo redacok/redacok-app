@@ -133,125 +133,200 @@ export async function TreatTransactionAction(
   }
 
   if (decision === "REJECTED") {
-    await db.transaction.update({
-      where: {
-        id,
-      },
-      data: {
-        status: decision,
-        reviewedBy: user.id,
-        reviewedAt: new Date(),
-        rejectionReason,
-      },
-    });
-    return { success: "transaction rejetée !" };
+    try {
+      const treatedTransaction = await db.transaction.update({
+        where: {
+          id,
+        },
+        data: {
+          status: decision,
+          reviewedBy: user.id,
+          reviewedAt: new Date(),
+          rejectionReason,
+        },
+      });
+      if (!treatedTransaction) {
+        return { error: "Une erreur inattendue est survenue" };
+      }
+      return { success: "transaction rejetée !" };
+    } catch (error) {
+      return {
+        error: "Erreur lors de la mise à jour de la transaction : " + error,
+      };
+    }
   }
 
-  await db.$transaction([
-    // Approve transaction
-    db.transaction.update({
-      where: {
-        id,
-      },
-      data: {
-        status: decision,
-      },
-    }),
+  if (transaction.type === "WITHDRAWAL") {
+    await db.$transaction([
+      db.transaction.update({
+        where: {
+          id,
+        },
+        data: {
+          status: decision,
+          reviewedBy: user.id,
+          reviewedAt: new Date(),
+        },
+      }),
 
-    // Update the senderBalance
-    db.bankAccount.update({
-      where: {
-        id: transaction.fromAccountId!,
-      },
-      data: {
-        amount: {
-          decrement: transaction.amount,
+      // Update the user balance
+      db.bankAccount.update({
+        where: {
+          id: transaction.fromAccountId!,
         },
-      },
-    }),
+        data: {
+          amount: {
+            decrement: transaction.amount + transaction.fee,
+          },
+        },
+      }),
 
-    //Update recieverAccount
-    db.bankAccount.update({
-      where: {
-        id: transaction.fromAccountId!,
-      },
-      data: {
-        amount: {
-          increment: transaction.amount,
-        },
-      },
-    }),
+      // Update user Month History
+      // db.monthHistory.update({
+      //   where: {
+      //     day_month_year_userId_bankAccountId: {
+      //       userId: transaction.userId,
+      //       day: transaction.createdAt.getUTCDate(),
+      //       month: transaction.createdAt.getUTCMonth(),
+      //       year: transaction.createdAt.getUTCFullYear(),
+      //       bankAccountId: transaction.fromAccountId ?? "",
+      //     },
+      //   },
+      //   data: {
+      //     expense: {
+      //       increment: transaction.amount,
+      //     },
+      //   },
+      // }),
 
-    // Update sender Mount History
-    db.monthHistory.update({
-      where: {
-        day_month_year_userId_bankAccountId: {
-          userId: transaction.fromAccount!.userId,
-          day: transaction.createdAt.getUTCDate(),
-          month: transaction.createdAt.getUTCMonth(),
-          year: transaction.createdAt.getUTCFullYear(),
-          bankAccountId: transaction.fromAccountId!,
-        },
-      },
-      data: {
-        expense: {
-          increment: transaction.amount,
-        },
-      },
-    }),
+      // // Update user year History
+      // db.yearHistory.update({
+      //   where: {
+      //     month_year_userId_bankAccountId: {
+      //       userId: transaction.fromAccount!.userId!,
+      //       month: transaction.createdAt.getUTCMonth(),
+      //       year: transaction.createdAt.getUTCFullYear(),
+      //       bankAccountId: transaction.fromAccountId!,
+      //     },
+      //   },
+      //   data: {
+      //     expense: {
+      //       increment: transaction.amount,
+      //     },
+      //   },
+      // }),
+    ]);
+  }
 
-    // Update reciever mounth history
-    db.monthHistory.update({
-      where: {
-        day_month_year_userId_bankAccountId: {
-          userId: transaction.toAccount!.userId,
-          day: transaction.createdAt.getUTCDate(),
-          month: transaction.createdAt.getUTCMonth(),
-          year: transaction.createdAt.getUTCFullYear(),
-          bankAccountId: transaction.toAccountId!,
+  if (transaction.type === "TRANSFER") {
+    await db.$transaction([
+      // Approve transaction
+      db.transaction.update({
+        where: {
+          id,
         },
-      },
-      data: {
-        income: {
-          increment: transaction.amount,
+        data: {
+          status: decision,
+          reviewedBy: user.id,
+          reviewedAt: new Date(),
         },
-      },
-    }),
+      }),
 
-    // Update sender year History
-    db.yearHistory.update({
-      where: {
-        month_year_userId_bankAccountId: {
-          userId: transaction.fromAccount!.userId!,
-          month: transaction.createdAt.getUTCMonth(),
-          year: transaction.createdAt.getUTCFullYear(),
-          bankAccountId: transaction.fromAccountId!,
+      // Update the senderBalance
+      db.bankAccount.update({
+        where: {
+          id: transaction.fromAccountId!,
         },
-      },
-      data: {
-        expense: {
-          increment: transaction.amount,
+        data: {
+          amount: {
+            decrement: transaction.amount,
+          },
         },
-      },
-    }),
+      }),
 
-    // Update reciever year History
-    db.yearHistory.update({
-      where: {
-        month_year_userId_bankAccountId: {
-          userId: transaction.toAccount!.userId!,
-          month: transaction.createdAt.getUTCMonth(),
-          year: transaction.createdAt.getUTCFullYear(),
-          bankAccountId: transaction.toAccountId!,
+      //Update recieverAccount
+      db.bankAccount.update({
+        where: {
+          id: transaction.fromAccountId!,
         },
-      },
-      data: {
-        income: {
-          increment: transaction.amount,
+        data: {
+          amount: {
+            increment: transaction.amount,
+          },
         },
-      },
-    }),
-  ]);
+      }),
+
+      // Update sender Month History
+      db.monthHistory.update({
+        where: {
+          day_month_year_userId_bankAccountId: {
+            userId: transaction.fromAccount!.userId,
+            day: transaction.createdAt.getUTCDate(),
+            month: transaction.createdAt.getUTCMonth(),
+            year: transaction.createdAt.getUTCFullYear(),
+            bankAccountId: transaction.fromAccountId!,
+          },
+        },
+        data: {
+          expense: {
+            increment: transaction.amount,
+          },
+        },
+      }),
+
+      // Update reciever mounth history
+      db.monthHistory.update({
+        where: {
+          day_month_year_userId_bankAccountId: {
+            userId: transaction.toAccount!.userId,
+            day: transaction.createdAt.getUTCDate(),
+            month: transaction.createdAt.getUTCMonth(),
+            year: transaction.createdAt.getUTCFullYear(),
+            bankAccountId: transaction.toAccountId!,
+          },
+        },
+        data: {
+          income: {
+            increment: transaction.amount,
+          },
+        },
+      }),
+
+      // Update sender year History
+      db.yearHistory.update({
+        where: {
+          month_year_userId_bankAccountId: {
+            userId: transaction.fromAccount!.userId!,
+            month: transaction.createdAt.getUTCMonth(),
+            year: transaction.createdAt.getUTCFullYear(),
+            bankAccountId: transaction.fromAccountId!,
+          },
+        },
+        data: {
+          expense: {
+            increment: transaction.amount,
+          },
+        },
+      }),
+
+      // Update reciever year History
+      db.yearHistory.update({
+        where: {
+          month_year_userId_bankAccountId: {
+            userId: transaction.toAccount!.userId!,
+            month: transaction.createdAt.getUTCMonth(),
+            year: transaction.createdAt.getUTCFullYear(),
+            bankAccountId: transaction.toAccountId!,
+          },
+        },
+        data: {
+          income: {
+            increment: transaction.amount,
+          },
+        },
+      }),
+    ]);
+  }
 
   return { success: "transaction validée"! };
 }

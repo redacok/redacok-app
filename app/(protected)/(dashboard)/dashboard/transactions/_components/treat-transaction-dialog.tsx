@@ -69,9 +69,10 @@ const TreatTransactionDialog = ({
     setLoading(true);
     startTransition(() => {
       TreatTransactionAction(formData).then((data) => {
-        toast.error(data.error);
-        toast.success(data.success);
+        if (data.error) toast.error(data.error);
+        if (data.success) toast.success(data.success);
         setLoading(false);
+        setOpen(false);
       });
     });
   };

@@ -39,6 +39,7 @@ import {
   CheckCircleIcon,
   Clock10Icon,
   DownloadIcon,
+  X,
 } from "lucide-react";
 import RowActions from "./row-actions";
 
@@ -212,13 +213,22 @@ export const columns: ColumnDef<TransactionHistoryRow>[] = [
         <div
           className={cn(
             "flex items-center gap-2 font-medium",
-            status === "COMPLETED" ? "text-green-600" : "text-yellow-600"
+            status === "COMPLETED"
+              ? "text-green-600"
+              : status === "REJECTED"
+              ? "text-red-500"
+              : "text-yellow-600"
           )}
         >
           {status === "COMPLETED" ? (
             <>
               <CheckCircleIcon className="h-4 w-4" />
               Validé
+            </>
+          ) : status === "REJECTED" ? (
+            <>
+              <X className="h-4 w-4" />
+              Rejeté
             </>
           ) : (
             <>

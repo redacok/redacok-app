@@ -45,7 +45,8 @@ const RowActions = ({
   if (
     (session?.user.id === transaction.user.id &&
       transaction.type !== "TRANSFER") ||
-    transaction.status === "COMPLETED"
+    transaction.status === "COMPLETED" ||
+    transaction.status === "REJECTED"
   )
     return null;
 
