@@ -5,6 +5,8 @@ import { getFormatterForCurrency } from "@/lib/helpers";
 import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   try {
     const session = await auth();
