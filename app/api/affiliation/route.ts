@@ -1,3 +1,5 @@
+"use server";
+
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
@@ -21,9 +23,9 @@ export async function GET() {
             email: true,
             hasFirstDeposit: true,
             createdAt: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
 
     // Get affiliate earnings from transactions
@@ -42,11 +44,11 @@ export async function GET() {
               select: {
                 name: true,
                 email: true,
-              }
-            }
-          }
-        }
-      }
+              },
+            },
+          },
+        },
+      },
     });
 
     return NextResponse.json({
@@ -54,8 +56,8 @@ export async function GET() {
       data: {
         referralCode: user?.referralCode,
         referrals: user?.referrals,
-        affiliateEarnings
-      }
+        affiliateEarnings,
+      },
     });
   } catch (error) {
     console.error("[AFFILIATION]", error);
