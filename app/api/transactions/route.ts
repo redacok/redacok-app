@@ -152,8 +152,9 @@ export async function POST(req: Request) {
         description,
         fee,
         status:
-          type === "DEPOSIT" || type === "TRANSFER"
-            ? TransactionStatus.COMPLETED
+          type === "DEPOSIT"
+            ? // || type === "TRANSFER"
+              TransactionStatus.COMPLETED
             : TransactionStatus.PENDING,
         fromAccountId:
           type === "TRANSFER"
@@ -172,29 +173,29 @@ export async function POST(req: Request) {
     });
 
     // pour les transferts, mettre à jour immédiatement le soldre des comptes
-    if (type === "TRANSFER") {
-      await db.$transaction(async (prisma) => {
-        // Mettre à jour le solde du compte expéditeur
-        await prisma.bankAccount.update({
-          where: { id: fromAccount },
-          data: {
-            amount: {
-              decrement: totalAmount,
-            },
-          },
-        });
+    // if (type === "TRANSFER") {
+    //   await db.$transaction(async (prisma) => {
+    //     // Mettre à jour le solde du compte expéditeur
+    //     await prisma.bankAccount.update({
+    //       where: { id: fromAccount },
+    //       data: {
+    //         amount: {
+    //           decrement: totalAmount,
+    //         },
+    //       },
+    //     });
 
-        // Mettre à jour le solde du compte destinataire
-        await prisma.bankAccount.update({
-          where: { id: destinationAccount?.id },
-          data: {
-            amount: {
-              increment: amount,
-            },
-          },
-        });
-      });
-    }
+    //     // Mettre à jour le solde du compte destinataire
+    //     await prisma.bankAccount.update({
+    //       where: { id: destinationAccount?.id },
+    //       data: {
+    //         amount: {
+    //           increment: amount,
+    //         },
+    //       },
+    //     });
+    //   });
+    // }
 
     // Pour les dépôts, mettre à jour immédiatement le solde et gérer les récompenses d'affiliation
     if (type === "DEPOSIT") {
