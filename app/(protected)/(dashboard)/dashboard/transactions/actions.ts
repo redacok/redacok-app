@@ -187,7 +187,7 @@ export async function TreatTransactionAction(
         transaction.userId,
         transaction.fromAccountId!,
         transaction,
-        transaction.amount,
+        transaction.amount + transaction.fee,
         "expense",
         tx
       );
@@ -237,7 +237,7 @@ export async function TreatTransactionAction(
         transaction.fromAccount!.userId,
         transaction.fromAccountId!,
         transaction,
-        transaction.amount,
+        transaction.amount + transaction.fee,
         "expense",
         tx
       );

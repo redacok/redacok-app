@@ -202,7 +202,7 @@ export async function POST(req: Request) {
       //       session.user.id!,
       //       fromAccount,
       //       transaction,
-      //       transaction.amount,
+      //       transaction.amount + transaction.fee,
       //       "expense",
       //       tx
       //     );
