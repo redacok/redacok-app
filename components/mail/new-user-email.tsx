@@ -46,11 +46,11 @@ export const NewUserEmail = ({ email, pin }: NewUserEmailProps) => (
             Me Connecter
           </Button>
         </Section>
-        <Hr style={hr} />
         <Text style={paragraph}>
           Nous vous recommandons de changer votre mot de passe lors de votre
           première connexion.
         </Text>
+        <Hr style={hr} />
         <Link href={baseUrl} style={reportLink}>
           Redacok.
         </Link>

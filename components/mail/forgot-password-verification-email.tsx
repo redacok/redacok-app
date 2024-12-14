@@ -47,12 +47,12 @@ export const ForgotPasswordVerificationEmail = ({
           votre natigateur :
         </Text>
         <code style={code}>{verificationLink}</code>
+        <Text style={paragraph}>
+          Si vous nêtes pas à l&apos;origine de cette action veillez ignorer ce
+          mail
+        </Text>
         <Hr style={hr} />
         <Link href={baseUrl} style={reportLink}>
-          <Text style={paragraph}>
-            Si vous nêtes pas à l&apos;origine de cette action veillez ignorer
-            ce mail
-          </Text>
           Redacok.
         </Link>
       </Container>

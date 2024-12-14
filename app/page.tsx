@@ -43,9 +43,8 @@ export default async function Home() {
             </span>
           </h1>
           <p className="text-neutral-200 p-4 w-full md:w-1/2 text-center z-20">
-            Découvrez une nouvelle façon de rédiger et gérer vos contenus. Notre
-            plateforme vous offre des outils puissants pour créer, organiser et
-            optimiser vos textes en toute simplicité.
+            votre solution d&apos;épargne innovante avec un rendement garanti de
+            10%
           </p>
         </div>
         <DashboardButton label="Commencer" session={session?.user} />
