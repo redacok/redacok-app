@@ -1,4 +1,5 @@
 import ForgotPasswordVerificationEmail from "@/components/mail/forgot-password-verification-email";
+import NewUserEmail from "@/components/mail/new-user-email";
 import VerificationEmail from "@/components/mail/verification-email";
 import { Resend } from "resend";
 
@@ -9,7 +10,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${baseUrl}/auth/new-verification?token=${token}`;
 
   await resend.emails.send({
-    from: "welcome-to-redacok@redacok.laclass.dev",
+    from: "Bienvenu sur Redacok <welcome@redacok.laclass.dev>",
     to: email,
     subject: "Confirmez votre adresse email",
     react: VerificationEmail({ verificationLink: confirmLink }),
@@ -23,9 +24,22 @@ export const sendForgotPasswordVerificationEmail = async (
   const confirmLink = `${baseUrl}/forgot-password/verification?token=${token}`;
 
   await resend.emails.send({
-    from: "forgot-password@redacok.laclass.dev",
+    from: "Mot de passe oublié <forgot-password@redacok.laclass.dev>",
     to: email,
     subject: "Réinitialisez votre mot de passe",
     react: ForgotPasswordVerificationEmail({ verificationLink: confirmLink }),
+  });
+};
+
+export const sendNewUserEmail = async (
+  name: string,
+  email: string,
+  pin: string
+) => {
+  await resend.emails.send({
+    from: "Vos accès Redacok <welcome@redacok.laclass.dev>",
+    to: email,
+    subject: `Bienvenu ${name} sur Redacok`,
+    react: NewUserEmail({ email, pin }),
   });
 };
