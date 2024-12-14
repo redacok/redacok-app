@@ -15,6 +15,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { UserRole } from "@prisma/client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CreateUserDialog } from "./_components/create-user-dialog";
 import { getUsers } from "./actions";
 
 interface User {
@@ -53,7 +54,11 @@ export default function UserManagement() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <Button>Nouvel utilisateur</Button>
+        <CreateUserDialog
+          onSuccess={() => {
+            getUsers(searchQuery).then((data) => setUsers(data.users));
+          }}
+        />
       </div>
 
       <div className="border rounded-xl">
