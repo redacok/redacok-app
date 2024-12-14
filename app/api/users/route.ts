@@ -1,20 +1,11 @@
 import { db } from "@/lib/db";
+import { generatePassword } from "@/lib/helpers";
 import { sendNewUserEmail } from "@/lib/mail";
 import { UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-
-export function generatePassword(length = 8) {
-  const charset = "0123456789";
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * charset.length);
-    password += charset[randomIndex];
-  }
-  return password;
-}
 
 export async function GET(request: Request) {
   try {
