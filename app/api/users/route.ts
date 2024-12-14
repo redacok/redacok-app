@@ -4,7 +4,9 @@ import { UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
-function generatePassword(length = 8) {
+export const dynamic = "force-dynamic";
+
+export function generatePassword(length = 8) {
   const charset = "0123456789";
   let password = "";
   for (let i = 0; i < length; i++) {
@@ -13,8 +15,6 @@ function generatePassword(length = 8) {
   }
   return password;
 }
-
-export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {

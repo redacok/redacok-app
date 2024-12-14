@@ -44,6 +44,25 @@ export const ResetPasswordSchema = z.object({
   }),
 });
 
+export const createUserSchema = z.object({
+  name: z.string().min(1, {
+    message: "Le nom est requis",
+  }),
+  email: z.string().email({
+    message: "Entrez une adrese mail valide",
+  }),
+  phone: z.string().min(6, {
+    message: "Le numéro de téléphone est requis",
+  }),
+  country: z.string().min(1, {
+    message: "Vous devez sélectionner un pays",
+  }),
+  countryCode: z.string().min(1, {
+    message: "Vous devez sélectionner un pays",
+  }),
+  role: z.enum(["ADMIN", "COMMERCIAL", "USER"]),
+});
+
 export const SignUpSchema = z.object({
   email: z.string().email({
     message: "Entrez une adrese mail valide",
