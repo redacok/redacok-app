@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { editHistory } from "@/lib/helpers";
 import { checkKycStatus } from "@/middleware/check-kyc-status";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -145,119 +146,82 @@ export async function POST(req: Request) {
     }
 
     // Créer la transaction
-    const transaction = await db.transaction.create({
-      data: {
-        type: type as TransactionType,
-        amount,
-        description,
-        fee,
-        status:
-          type === "DEPOSIT"
-            ? // || type === "TRANSFER"
-              TransactionStatus.COMPLETED
-            : TransactionStatus.PENDING,
-        fromAccountId:
-          type === "TRANSFER"
-            ? fromAccount
-            : type === "WITHDRAWAL"
-            ? account
-            : null,
-        toAccountId:
-          type === "TRANSFER"
-            ? destinationAccount && destinationAccount.id
-            : type === "DEPOSIT"
-            ? account
-            : null,
-        userId: session.user.id,
-      },
-    });
-
-    // pour les transferts, mettre à jour immédiatement le soldre des comptes
-    // if (type === "TRANSFER") {
-    //   await db.$transaction(async (prisma) => {
-    //     // Mettre à jour le solde du compte expéditeur
-    //     await prisma.bankAccount.update({
-    //       where: { id: fromAccount },
-    //       data: {
-    //         amount: {
-    //           decrement: totalAmount,
-    //         },
-    //       },
-    //     });
-
-    //     // Mettre à jour le solde du compte destinataire
-    //     await prisma.bankAccount.update({
-    //       where: { id: destinationAccount?.id },
-    //       data: {
-    //         amount: {
-    //           increment: amount,
-    //         },
-    //       },
-    //     });
-    //   });
-    // }
-
-    // Pour les dépôts, mettre à jour immédiatement le solde et gérer les récompenses d'affiliation
-    if (type === "DEPOSIT") {
-      // Mettre à jour le solde du compte
-      await db.bankAccount.update({
-        where: { id: account },
+    const transaction = await db.$transaction(async (tx) => {
+      const transaction = await tx.transaction.create({
         data: {
-          amount: {
-            increment: amount,
-          },
+          type: type as TransactionType,
+          amount,
+          description,
+          fee,
+          status:
+            type === "DEPOSIT"
+              ? // || type === "TRANSFER"
+                TransactionStatus.COMPLETED
+              : TransactionStatus.PENDING,
+          fromAccountId:
+            type === "TRANSFER"
+              ? fromAccount
+              : type === "WITHDRAWAL"
+              ? account
+              : null,
+          toAccountId:
+            type === "TRANSFER"
+              ? destinationAccount && destinationAccount.id
+              : type === "DEPOSIT"
+              ? account
+              : null,
+          userId: session.user.id!,
         },
       });
 
-      // Vérifier si c'est le premier dépôt de l'utilisateur et gérer la récompense d'affiliation
-      const user = await db.user.findUnique({
-        where: { id: session.user.id },
-        include: { referredBy: true, bankAccounts: true },
-      });
+      // pour les transferts, mettre à jour immédiatement le soldre des comptes
+      // if (type === "TRANSFER") {
+      //   await db.$transaction(async (prisma) => {
+      //     // Mettre à jour le solde du compte expéditeur
+      //     await prisma.bankAccount.update({
+      //       where: { id: fromAccount },
+      //       data: {
+      //         amount: {
+      //           decrement: totalAmount,
+      //         },
+      //       },
+      //     });
 
-      if (!user?.hasFirstDeposit && user?.referredBy) {
-        // Calculer la récompense de 10%
-        const rewardAmount = amount * 0.1;
+      //     // Mettre à jour le solde du compte destinataire
+      //     await prisma.bankAccount.update({
+      //       where: { id: destinationAccount?.id },
+      //       data: {
+      //         amount: {
+      //           increment: amount,
+      //         },
+      //       },
+      //     });
+      //   });
+      // }
 
-        // Créer la transaction de récompense d'affiliation
-        await db.transaction.create({
+      // Pour les dépôts, mettre à jour immédiatement le solde et gérer les récompenses d'affiliation
+      if (type === "DEPOSIT") {
+        // Mettre à jour le solde du compte
+        await tx.bankAccount.update({
+          where: { id: account },
           data: {
-            type: TransactionType.DEPOSIT,
-            amount: rewardAmount,
-            description: `Gains d'affiliation pour le premier dépot de ${user.name}`,
-            status: TransactionStatus.COMPLETED,
-            isAffiliateReward: true,
-            affiliateRewardForTransactionId: transaction.id,
-            userId: user.referredBy.id,
-            toAccountId: user.bankAccounts[0].id, // Assuming the reward goes to their primary account
+            amount: {
+              increment: amount,
+            },
           },
         });
 
-        // Mettre à jour le statut du premier dépôt de l'utilisateur
-        await db.user.update({
-          where: { id: session.user.id },
-          data: { hasFirstDeposit: true },
-        });
-
-        // Mettre à jour le solde du compte du parrain
-        await db.bankAccount
-          .findFirst({
-            where: { userId: user.referredBy.id },
-          })
-          .then((account) => {
-            if (account) {
-              return db.bankAccount.update({
-                where: { id: account.id }, // Use the found account's ID
-                data: {
-                  amount: {
-                    increment: rewardAmount,
-                  },
-                },
-              });
-            }
-          });
+        // Mettre à jour ou créer l'historique mensuel
+        await editHistory(
+          transaction.userId,
+          account,
+          transaction,
+          amount,
+          "income",
+          tx
+        );
       }
-    }
+    });
 
     return NextResponse.json({ success: true, transaction });
   } catch (error) {

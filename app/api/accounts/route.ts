@@ -119,6 +119,31 @@ export async function POST(req: NextRequest) {
         },
       });
 
+      // mettre a jour l'historique mensuel
+      await tx.monthHistory.create({
+        data: {
+          userId,
+          day: transaction.createdAt.getUTCDate(),
+          month: transaction.createdAt.getUTCMonth(),
+          year: transaction.createdAt.getUTCFullYear(),
+          bankAccountId: account.id,
+          income: initialDeposit,
+          expense: 0,
+        },
+      });
+
+      // mettre a jour l'historique annuel
+      await tx.yearHistory.create({
+        data: {
+          userId,
+          month: transaction.createdAt.getUTCMonth(),
+          year: transaction.createdAt.getUTCFullYear(),
+          bankAccountId: account.id,
+          income: initialDeposit,
+          expense: 0,
+        },
+      });
+
       // Vérifier si c'est le premier dépôt de l'utilisateur et gérer la récompense d'affiliation
       const user = await db.user.findUnique({
         where: { id: session.user.id },

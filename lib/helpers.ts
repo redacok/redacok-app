@@ -1,3 +1,5 @@
+import { Prisma, PrismaClient, Transaction } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 import i18nIsoCountries from "i18n-iso-countries";
 import {
   type CountryCallingCode,
@@ -124,4 +126,67 @@ export function generatePassword(length = 8) {
     password += charset[randomIndex];
   }
   return password;
+}
+
+export async function editHistory(
+  userId: string,
+  bankAccountId: string,
+  transaction: Transaction,
+  amount: number,
+  type: "income" | "expense",
+  op: Omit<
+    PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>,
+    "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+  >
+) {
+  await op.monthHistory.upsert({
+    where: {
+      day_month_year_userId_bankAccountId: {
+        day: transaction.createdAt.getUTCDate(),
+        month: transaction.createdAt.getUTCMonth(),
+        year: transaction.createdAt.getUTCFullYear(),
+        userId,
+        bankAccountId,
+      },
+    },
+    update: {
+      ...(type === "income"
+        ? { income: { increment: amount } }
+        : { expense: { increment: amount } }),
+    },
+    create: {
+      userId,
+      day: transaction.createdAt.getUTCDate(),
+      month: transaction.createdAt.getUTCMonth(),
+      year: transaction.createdAt.getUTCFullYear(),
+      bankAccountId,
+      income: type === "income" ? amount : 0,
+      expense: type === "expense" ? amount : 0,
+    },
+  });
+
+  // Mettre à jour ou créer l'historique annuel
+  await op.yearHistory.upsert({
+    where: {
+      month_year_userId_bankAccountId: {
+        month: transaction.createdAt.getUTCMonth(),
+        year: transaction.createdAt.getUTCFullYear(),
+        userId,
+        bankAccountId,
+      },
+    },
+    update: {
+      ...(type === "income"
+        ? { income: { increment: amount } }
+        : { expense: { increment: amount } }),
+    },
+    create: {
+      userId,
+      month: transaction.createdAt.getUTCMonth(),
+      year: transaction.createdAt.getUTCFullYear(),
+      bankAccountId,
+      income: amount,
+      expense: 0,
+    },
+  });
 }

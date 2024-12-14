@@ -23,7 +23,7 @@ export default async function Layout({
     redirect("/");
   }
 
-  if (!user.currency) {
+  if (!user.currency && user.role !== "COMMERCIAL" && user.role !== "ADMIN") {
     redirect("/wizard");
   }
 
