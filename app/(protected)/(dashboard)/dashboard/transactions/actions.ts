@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { transactionTreatmentSchema } from "@/lib/definitions";
+import { editHistory } from "@/lib/helpers";
 import { redirect } from "next/navigation";
 import * as z from "zod";
 
@@ -157,8 +158,8 @@ export async function TreatTransactionAction(
   }
 
   if (transaction.type === "WITHDRAWAL") {
-    await db.$transaction([
-      db.transaction.update({
+    await db.$transaction(async (tx) => {
+      await tx.transaction.update({
         where: {
           id,
         },
@@ -167,10 +168,10 @@ export async function TreatTransactionAction(
           reviewedBy: user.id,
           reviewedAt: new Date(),
         },
-      }),
+      });
 
-      // Update the user balance
-      db.bankAccount.update({
+      // Mettre à jour le solde
+      await tx.bankAccount.update({
         where: {
           id: transaction.fromAccountId!,
         },
@@ -179,49 +180,24 @@ export async function TreatTransactionAction(
             decrement: transaction.amount + transaction.fee,
           },
         },
-      }),
+      });
 
-      // Update user Month History
-      // db.monthHistory.update({
-      //   where: {
-      //     day_month_year_userId_bankAccountId: {
-      //       userId: transaction.userId,
-      //       day: transaction.createdAt.getUTCDate(),
-      //       month: transaction.createdAt.getUTCMonth(),
-      //       year: transaction.createdAt.getUTCFullYear(),
-      //       bankAccountId: transaction.fromAccountId ?? "",
-      //     },
-      //   },
-      //   data: {
-      //     expense: {
-      //       increment: transaction.amount,
-      //     },
-      //   },
-      // }),
-
-      // // Update user year History
-      // db.yearHistory.update({
-      //   where: {
-      //     month_year_userId_bankAccountId: {
-      //       userId: transaction.fromAccount!.userId!,
-      //       month: transaction.createdAt.getUTCMonth(),
-      //       year: transaction.createdAt.getUTCFullYear(),
-      //       bankAccountId: transaction.fromAccountId!,
-      //     },
-      //   },
-      //   data: {
-      //     expense: {
-      //       increment: transaction.amount,
-      //     },
-      //   },
-      // }),
-    ]);
+      // Mettre à jour ou créer l'historique
+      await editHistory(
+        transaction.userId,
+        transaction.fromAccountId!,
+        transaction,
+        transaction.amount,
+        "expense",
+        tx
+      );
+    });
   }
 
   if (transaction.type === "TRANSFER") {
-    await db.$transaction([
-      // Approve transaction
-      db.transaction.update({
+    await db.$transaction(async (tx) => {
+      // Approver la transaction
+      await tx.transaction.update({
         where: {
           id,
         },
@@ -230,10 +206,10 @@ export async function TreatTransactionAction(
           reviewedBy: user.id,
           reviewedAt: new Date(),
         },
-      }),
+      });
 
-      // Update the senderBalance
-      db.bankAccount.update({
+      // Mettre à jour le solde
+      await tx.bankAccount.update({
         where: {
           id: transaction.fromAccountId!,
         },
@@ -242,10 +218,10 @@ export async function TreatTransactionAction(
             decrement: transaction.amount,
           },
         },
-      }),
+      });
 
-      //Update recieverAccount
-      db.bankAccount.update({
+      //Mettre a jour le solde du destinataire
+      await tx.bankAccount.update({
         where: {
           id: transaction.fromAccountId!,
         },
@@ -254,78 +230,28 @@ export async function TreatTransactionAction(
             increment: transaction.amount,
           },
         },
-      }),
+      });
 
-      // Update sender Month History
-      db.monthHistory.update({
-        where: {
-          day_month_year_userId_bankAccountId: {
-            userId: transaction.fromAccount!.userId,
-            day: transaction.createdAt.getUTCDate(),
-            month: transaction.createdAt.getUTCMonth(),
-            year: transaction.createdAt.getUTCFullYear(),
-            bankAccountId: transaction.fromAccountId!,
-          },
-        },
-        data: {
-          expense: {
-            increment: transaction.amount,
-          },
-        },
-      }),
+      // Mettre à jour l'historique de l'expéditeur
+      await editHistory(
+        transaction.fromAccount!.userId,
+        transaction.fromAccountId!,
+        transaction,
+        transaction.amount,
+        "expense",
+        tx
+      );
 
-      // Update reciever mounth history
-      db.monthHistory.update({
-        where: {
-          day_month_year_userId_bankAccountId: {
-            userId: transaction.toAccount!.userId,
-            day: transaction.createdAt.getUTCDate(),
-            month: transaction.createdAt.getUTCMonth(),
-            year: transaction.createdAt.getUTCFullYear(),
-            bankAccountId: transaction.toAccountId!,
-          },
-        },
-        data: {
-          income: {
-            increment: transaction.amount,
-          },
-        },
-      }),
-
-      // Update sender year History
-      db.yearHistory.update({
-        where: {
-          month_year_userId_bankAccountId: {
-            userId: transaction.fromAccount!.userId!,
-            month: transaction.createdAt.getUTCMonth(),
-            year: transaction.createdAt.getUTCFullYear(),
-            bankAccountId: transaction.fromAccountId!,
-          },
-        },
-        data: {
-          expense: {
-            increment: transaction.amount,
-          },
-        },
-      }),
-
-      // Update reciever year History
-      db.yearHistory.update({
-        where: {
-          month_year_userId_bankAccountId: {
-            userId: transaction.toAccount!.userId!,
-            month: transaction.createdAt.getUTCMonth(),
-            year: transaction.createdAt.getUTCFullYear(),
-            bankAccountId: transaction.toAccountId!,
-          },
-        },
-        data: {
-          income: {
-            increment: transaction.amount,
-          },
-        },
-      }),
-    ]);
+      // Mettre à jour l'historique du destinataire
+      await editHistory(
+        transaction.toAccount!.userId,
+        transaction.toAccountId!,
+        transaction,
+        transaction.amount,
+        "income",
+        tx
+      );
+    });
   }
 
   return { success: "transaction validée"! };

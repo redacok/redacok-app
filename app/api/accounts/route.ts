@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
       });
 
       // Vérifier si c'est le premier dépôt de l'utilisateur et gérer la récompense d'affiliation
-      const user = await db.user.findUnique({
+      const user = await tx.user.findUnique({
         where: { id: session.user.id },
         include: { referredBy: true, bankAccounts: true },
       });
@@ -169,13 +169,13 @@ export async function POST(req: NextRequest) {
         });
 
         // Mettre à jour le statut du premier dépôt de l'utilisateur
-        await db.user.update({
+        await tx.user.update({
           where: { id: session.user.id },
           data: { hasFirstDeposit: true },
         });
 
         // Mettre à jour le solde du compte du parrain
-        await db.bankAccount
+        await tx.bankAccount
           .findFirst({
             where: { userId: user.referredBy.id },
           })

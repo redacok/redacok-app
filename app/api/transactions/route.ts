@@ -176,9 +176,9 @@ export async function POST(req: Request) {
 
       // pour les transferts, mettre à jour immédiatement le soldre des comptes
       // if (type === "TRANSFER") {
-      //   await db.$transaction(async (prisma) => {
+      //   await db.$transaction(async (tx) => {
       //     // Mettre à jour le solde du compte expéditeur
-      //     await prisma.bankAccount.update({
+      //     await tx.bankAccount.update({
       //       where: { id: fromAccount },
       //       data: {
       //         amount: {
@@ -188,7 +188,7 @@ export async function POST(req: Request) {
       //     });
 
       //     // Mettre à jour le solde du compte destinataire
-      //     await prisma.bankAccount.update({
+      //     await tx.bankAccount.update({
       //       where: { id: destinationAccount?.id },
       //       data: {
       //         amount: {
@@ -196,6 +196,26 @@ export async function POST(req: Request) {
       //         },
       //       },
       //     });
+
+      //     // Mettre à jour l'historique de l'expéditeur
+      //     await editHistory(
+      //       session.user.id!,
+      //       fromAccount,
+      //       transaction,
+      //       transaction.amount,
+      //       "expense",
+      //       tx
+      //     );
+
+      //     // Mettre à jour l'historique du destinataire
+      //     await editHistory(
+      //       destinationAccount ? destinationAccount.userId : "",
+      //       transaction.toAccountId!,
+      //       transaction,
+      //       transaction.amount,
+      //       "income",
+      //       tx
+      //     );
       //   });
       // }
 
