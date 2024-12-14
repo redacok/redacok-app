@@ -19,7 +19,7 @@ interface ReferralCardProps {
   canEdit?: boolean;
 }
 
-const baseUrl = process.env.NEXT_APP_URL || "http://localhost:3000";
+const baseUrl = process.env.NEXT_APP_URL || "https://redacok.laclass.dev";
 
 export const ReferralCard = ({
   referralCode,

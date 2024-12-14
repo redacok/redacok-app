@@ -57,11 +57,11 @@ export const UserLinks = [
     href: "/dashboard",
     icon: TerminalIcon,
   },
-  {
-    label: "Mes comptes",
-    href: "/dashboard/accounts",
-    icon: Wallet,
-  },
+  // {
+  //   label: "Mes comptes",
+  //   href: "/dashboard/accounts",
+  //   icon: Wallet,
+  // },
   {
     label: "Transations",
     href: "/dashboard/transactions",
