@@ -1,8 +1,8 @@
 "use server";
 
-import { generatePassword } from "@/app/api/users/route";
 import { db } from "@/lib/db";
 import { createUserSchema, UpdateUserSchema } from "@/lib/definitions";
+import { generatePassword } from "@/lib/helpers";
 import { sendNewUserEmail } from "@/lib/mail";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";

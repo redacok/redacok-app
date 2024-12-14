@@ -34,7 +34,10 @@ export function formatDate(date: Date, locale: string = "en-us"): string {
   });
 }
 
-export function formatCurrency(amount: number, currency: string = 'XAF'): string {
+export function formatCurrency(
+  amount: number,
+  currency: string = "XAF"
+): string {
   const formatter = getFormatterForCurrency(currency);
   return formatter.format(amount);
 }
@@ -111,4 +114,14 @@ export function replaceNumbersWithZeros(phoneNumber: string): string {
     (countryCode as string) + " " + replacedRestOfNumber;
 
   return replacedPhoneNumber;
+}
+
+export function generatePassword(length = 8) {
+  const charset = "0123456789";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+  return password;
 }
