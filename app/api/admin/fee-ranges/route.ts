@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { z } from "zod";
 import { auth } from "@/auth";
+import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 const feeRangeSchema = z.object({
   minAmount: z.number().min(0),
@@ -10,6 +10,7 @@ const feeRangeSchema = z.object({
   fixedFee: z.number().min(0),
   minFee: z.number().min(0),
   maxFee: z.number().min(0),
+  transactionType: z.enum(["DEPOSIT", "TRANSFER", "WITHDRAWAL"]),
 });
 
 export async function POST(req: Request) {
