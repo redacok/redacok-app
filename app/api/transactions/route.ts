@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { editHistory } from "@/lib/helpers";
+import { sendTransactionMail } from "@/lib/mail";
 import { checkKycStatus } from "@/middleware/check-kyc-status";
 import { TransactionStatus, TransactionType } from "@prisma/client";
 import { NextResponse } from "next/server";
@@ -154,9 +155,8 @@ export async function POST(req: Request) {
           description,
           fee,
           status:
-            type === "DEPOSIT"
-              ? // || type === "TRANSFER"
-                TransactionStatus.COMPLETED
+            type === "DEPOSIT" || type === "TRANSFER"
+              ? TransactionStatus.COMPLETED
               : TransactionStatus.PENDING,
           fromAccountId:
             type === "TRANSFER"
@@ -172,52 +172,72 @@ export async function POST(req: Request) {
               : null,
           userId: session.user.id!,
         },
+        include: {
+          toAccount: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          fromAccount: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
       });
 
-      // pour les transferts, mettre à jour immédiatement le soldre des comptes
-      // if (type === "TRANSFER") {
-      //   await db.$transaction(async (tx) => {
-      //     // Mettre à jour le solde du compte expéditeur
-      //     await tx.bankAccount.update({
-      //       where: { id: fromAccount },
-      //       data: {
-      //         amount: {
-      //           decrement: totalAmount,
-      //         },
-      //       },
-      //     });
+      // Mettre à jour immédiatement le soldre des comptes
+      if (type === "TRANSFER") {
+        // Mettre à jour le solde du compte expéditeur
+        await tx.bankAccount.update({
+          where: { id: fromAccount },
+          data: {
+            amount: {
+              decrement: totalAmount,
+            },
+          },
+        });
 
-      //     // Mettre à jour le solde du compte destinataire
-      //     await tx.bankAccount.update({
-      //       where: { id: destinationAccount?.id },
-      //       data: {
-      //         amount: {
-      //           increment: amount,
-      //         },
-      //       },
-      //     });
+        // Mettre à jour le solde du compte destinataire
+        await tx.bankAccount.update({
+          where: { id: destinationAccount?.id },
+          data: {
+            amount: {
+              increment: amount,
+            },
+          },
+        });
 
-      //     // Mettre à jour l'historique de l'expéditeur
-      //     await editHistory(
-      //       session.user.id!,
-      //       fromAccount,
-      //       transaction,
-      //       transaction.amount + transaction.fee,
-      //       "expense",
-      //       tx
-      //     );
+        // Mettre à jour l'historique de l'expéditeur
+        await editHistory(
+          session.user.id!,
+          fromAccount,
+          transaction,
+          transaction.amount + transaction.fee,
+          "expense",
+          tx
+        );
 
-      //     // Mettre à jour l'historique du destinataire
-      //     await editHistory(
-      //       destinationAccount ? destinationAccount.userId : "",
-      //       transaction.toAccountId!,
-      //       transaction,
-      //       transaction.amount,
-      //       "income",
-      //       tx
-      //     );
-      //   });
-      // }
+        // Mettre à jour l'historique du destinataire
+        await editHistory(
+          destinationAccount ? destinationAccount.userId : "",
+          transaction.toAccountId!,
+          transaction,
+          transaction.amount,
+          "income",
+          tx
+        );
+      }
 
       // Pour les dépôts, mettre à jour immédiatement le solde et gérer les récompenses d'affiliation
       if (type === "DEPOSIT") {
@@ -241,6 +261,11 @@ export async function POST(req: Request) {
           tx
         );
       }
+
+      await sendTransactionMail(
+        transaction,
+        transaction.toAccount!.user.email!
+      );
     });
 
     return NextResponse.json({ success: true, transaction });

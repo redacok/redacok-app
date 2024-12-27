@@ -61,7 +61,7 @@ export const sendKycTreatmentMail = async (kyc: Kyc, email: string) => {
 };
 
 //Mail de notification de transaction
-export const sentTransactionMail = async (
+export const sendTransactionMail = async (
   transaction: Transaction,
   email: string
 ) => {
