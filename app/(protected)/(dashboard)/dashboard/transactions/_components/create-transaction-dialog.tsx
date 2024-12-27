@@ -81,6 +81,7 @@ export function CreateTransactionDialog() {
     null
   );
   const [loadingRecipient, setLoadingRecipient] = useState(false);
+  const [loadingFee, setLoadingFee] = useState(false);
   const invalidateData = bankStore((state) => state.invalidateData);
 
   const form = useForm<TransactionFormValues>({
@@ -142,15 +143,20 @@ export function CreateTransactionDialog() {
     }
   }, [debouncedRib, form]);
 
-  // Calculate fee when amount changes
+  // Calculer les frais en fonction du montant
   const amount = form.watch("amount");
   useEffect(() => {
     if (amount) {
+      setLoadingFee(true);
       const updateFee = async () => {
-        const fee = await calculateTransactionFee(amount);
+        const fee = await calculateTransactionFee(
+          amount,
+          form.getValues("type")
+        );
         form.setValue("fee", fee.fee);
       };
       updateFee();
+      setLoadingFee(false);
     }
   }, [amount, form]);
 
@@ -368,11 +374,17 @@ export function CreateTransactionDialog() {
                     />
                   </FormControl>
                   <p className="p-2 bg-yellow-50 rounded-lg">
-                    Montant total :{" "}
-                    <span>
-                      {amount > 1000 &&
-                        form.getValues("amount") + form.getValues("fee")}
-                    </span>
+                    {loadingFee ? (
+                      "Calcul du montant total"
+                    ) : (
+                      <>
+                        Montant total :{" "}
+                        <span>
+                          {amount > 1000 &&
+                            form.getValues("amount") + form.getValues("fee")}
+                        </span>
+                      </>
+                    )}
                   </p>
                   <FormMessage />
                 </FormItem>
@@ -397,7 +409,10 @@ export function CreateTransactionDialog() {
             />
 
             <DialogFooter>
-              <Button type="submit" disabled={loading}>
+              <Button
+                type="submit"
+                disabled={loading || loadingRecipient || loadingFee}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

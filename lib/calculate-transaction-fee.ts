@@ -1,5 +1,6 @@
-"use server"
+"use server";
 
+import { TransactionType } from "@prisma/client";
 import { db } from "./db";
 
 export type FeeStructure = {
@@ -9,18 +10,19 @@ export type FeeStructure = {
   maxAmount: number;
 };
 
-export async function calculateTransactionFee(amount: number): Promise<{ fee: number; totalAmount: number }> {
-  // Find the appropriate fee range for the amount
+export async function calculateTransactionFee(
+  amount: number,
+  transactionType: TransactionType
+): Promise<{ fee: number; totalAmount: number }> {
+  // Rechercher les frais appropriés pour la transaction
   const feeRange = await db.transactionFeeRange.findFirst({
     where: {
       AND: [
         { minAmount: { lte: amount } },
+        { transactionType },
         {
-          OR: [
-            { maxAmount: 0 },
-            { maxAmount: { gte: amount } }
-          ]
-        }
+          OR: [{ maxAmount: 0 }, { maxAmount: { gte: amount } }],
+        },
       ],
     },
   });
@@ -45,22 +47,22 @@ function calculateTransactionFeeHelper(
   feeStructure: FeeStructure
 ): { fee: number; totalAmount: number } {
   const { percentage, fixedAmount, minAmount, maxAmount } = feeStructure;
-  
+
   // Calculate percentage-based fee
   const percentageFee = (amount * percentage) / 100;
-  
+
   // Add fixed amount
   let totalFee = percentageFee + fixedAmount;
-  
+
   // Apply min/max constraints
   if (totalFee < minAmount) {
     totalFee = minAmount;
   } else if (maxAmount > 0 && totalFee > maxAmount) {
     totalFee = maxAmount;
   }
-  
+
   return {
     fee: totalFee,
-    totalAmount: amount + totalFee
+    totalAmount: amount + totalFee,
   };
 }
