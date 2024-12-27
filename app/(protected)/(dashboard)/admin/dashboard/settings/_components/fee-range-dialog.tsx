@@ -8,13 +8,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TransactionType } from "@prisma/client";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   minAmount: z.coerce.number().min(0),
@@ -23,6 +32,7 @@ const formSchema = z.object({
   fixedFee: z.coerce.number().min(0),
   minFee: z.coerce.number().min(0),
   maxFee: z.coerce.number().min(0),
+  transactionType: z.enum(["DEPOSIT", "TRANSFER", "WITHDRAWAL"]),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -35,6 +45,7 @@ interface FeeRange {
   fixedFee: number;
   minFee: number;
   maxFee: number;
+  transactionType: string;
 }
 
 interface Props {
@@ -44,9 +55,14 @@ interface Props {
   feeRange?: FeeRange | null;
 }
 
-export function FeeRangeDialog({ open, onOpenChange, onSuccess, feeRange }: Props) {
+export function FeeRangeDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+  feeRange,
+}: Props) {
   const isEditing = !!feeRange;
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -57,6 +73,7 @@ export function FeeRangeDialog({ open, onOpenChange, onSuccess, feeRange }: Prop
       fixedFee: 0,
       minFee: 0,
       maxFee: 0,
+      transactionType: "DEPOSIT",
     },
   });
 
@@ -69,6 +86,7 @@ export function FeeRangeDialog({ open, onOpenChange, onSuccess, feeRange }: Prop
         fixedFee: feeRange.fixedFee,
         minFee: feeRange.minFee,
         maxFee: feeRange.maxFee,
+        transactionType: feeRange.transactionType as TransactionType,
       });
     } else {
       form.reset({
@@ -78,13 +96,14 @@ export function FeeRangeDialog({ open, onOpenChange, onSuccess, feeRange }: Prop
         fixedFee: 0,
         minFee: 0,
         maxFee: 0,
+        transactionType: "DEPOSIT",
       });
     }
   }, [feeRange, form]);
 
   const onSubmit = async (data: FormData) => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const url = "/api/admin/fee-ranges";
       const method = isEditing ? "PUT" : "POST";
       const body = isEditing ? { ...data, id: feeRange.id } : data;
@@ -105,7 +124,7 @@ export function FeeRangeDialog({ open, onOpenChange, onSuccess, feeRange }: Prop
       console.error(error);
       toast.error("Something went wrong");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 
@@ -157,19 +176,28 @@ export function FeeRangeDialog({ open, onOpenChange, onSuccess, feeRange }: Prop
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="minFee">Min Fee</Label>
-                <Input
-                  id="minFee"
-                  type="number"
-                  {...form.register("minFee")}
-                />
+                <Input id="minFee" type="number" {...form.register("minFee")} />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="maxFee">Max Fee</Label>
-                <Input
-                  id="maxFee"
-                  type="number"
-                  {...form.register("maxFee")}
-                />
+                <Input id="maxFee" type="number" {...form.register("maxFee")} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="transactionType">Type de transaction</Label>
+                <Select {...form.register("minFee")}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez le type de transaction" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="DEPOSIT">Dépots</SelectItem>
+                    <SelectItem value="TRANSFER">Transferts</SelectItem>
+                    <SelectItem value="WITHDRAWAL">Retraits</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

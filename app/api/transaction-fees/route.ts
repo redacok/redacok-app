@@ -27,6 +27,7 @@ export async function POST(request: Request) {
         fixedFee: data.fixedFee,
         minFee: data.minFee,
         maxFee: data.maxFee,
+        transactionType: data.transactionType,
       },
     });
     return NextResponse.json(feeRange);
@@ -51,6 +52,7 @@ export async function PUT(request: Request) {
         fixedFee: data.fixedFee,
         minFee: data.minFee,
         maxFee: data.maxFee,
+        transactionType: data.transactionType,
       },
     });
     return NextResponse.json(feeRange);

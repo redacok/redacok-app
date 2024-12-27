@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import axios from "axios";
 import { MoreHorizontal, Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ interface FeeRange {
   fixedFee: number;
   minFee: number;
   maxFee: number;
+  transactionType: string;
 }
 
 export function FeeRangesTable() {
@@ -41,13 +43,11 @@ export function FeeRangesTable() {
 
   const fetchFeeRanges = async () => {
     try {
-      const response = await fetch("/api/admin/fee-ranges");
-      if (!response.ok) throw new Error("Failed to fetch fee ranges");
-      const data = await response.json();
-      setFeeRanges(data);
+      const response = await axios.get("/api/admin/fee-ranges");
+      setFeeRanges(response.data);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to load fee ranges");
+      toast.error("Échec du chargement des intervalles de frais");
     } finally {
       setLoading(false);
     }
@@ -82,8 +82,10 @@ export function FeeRangesTable() {
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-medium">Fee Ranges</h2>
-          <Button onClick={() => setDialogOpen(true)}>Add Fee Range</Button>
+          <h2 className="text-lg font-medium">Intervalles de frais</h2>
+          <Button onClick={() => setDialogOpen(true)}>
+            Ajouter un intervalle
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -91,11 +93,12 @@ export function FeeRangesTable() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Amount Range</TableHead>
-                <TableHead>Fee Percentage</TableHead>
-                <TableHead>Fixed Fee</TableHead>
-                <TableHead>Min Fee</TableHead>
-                <TableHead>Max Fee</TableHead>
+                <TableHead>Intervalle</TableHead>
+                <TableHead>Pourcentage</TableHead>
+                <TableHead>Frais fixe</TableHead>
+                <TableHead>Frais minimum</TableHead>
+                <TableHead>Frais maximum</TableHead>
+                <TableHead>Type de transaction</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -110,18 +113,19 @@ export function FeeRangesTable() {
                   <TableCell>{formatAmount(range.fixedFee)}</TableCell>
                   <TableCell>{formatAmount(range.minFee)}</TableCell>
                   <TableCell>{formatAmount(range.maxFee)}</TableCell>
+                  <TableCell>{range.transactionType}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">Ouvrir le menu</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleEdit(range)}>
                           <Pencil className="mr-2 h-4 w-4" />
-                          Edit
+                          Editer
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -131,7 +135,7 @@ export function FeeRangesTable() {
               {feeRanges.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center">
-                    No fee ranges found
+                    Aucun intevalle de frais trouvé
                   </TableCell>
                 </TableRow>
               )}

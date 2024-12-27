@@ -45,6 +45,11 @@ export const TransactionMail = ({ transaction }: TransactionMailProps) => (
             )}
           </>
         )}
+        {transaction.status === "PENDING" && (
+          <Text style={paragraph}>
+            Votre demande de retrait est en cours de traitement...
+          </Text>
+        )}
         <Section style={buttonContainer}>
           <Button style={button} href={`${baseUrl}/dashboard/transactions`}>
             Voir mes transactions

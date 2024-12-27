@@ -247,15 +247,16 @@ model Category {
 }
 
 model TransactionFeeRange {
-  id            String   @id @default(cuid())
-  minAmount     Float
-  maxAmount     Float
-  feePercentage Float
-  fixedFee      Float
-  minFee        Float
-  maxFee        Float
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(cuid())
+  minAmount       Float
+  maxAmount       Float
+  feePercentage   Float
+  fixedFee        Float
+  minFee          Float
+  maxFee          Float
+  transactionType TransactionType
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@map("transaction_fee_ranges")
 }
