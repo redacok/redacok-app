@@ -145,20 +145,18 @@ export function CreateTransactionDialog() {
 
   // Calculer les frais en fonction du montant
   const amount = form.watch("amount");
+  const transactionType = form.watch("type");
   useEffect(() => {
     if (amount) {
       setLoadingFee(true);
       const updateFee = async () => {
-        const fee = await calculateTransactionFee(
-          amount,
-          form.getValues("type")
-        );
+        const fee = await calculateTransactionFee(amount, transactionType);
         form.setValue("fee", fee.fee);
       };
       updateFee();
       setLoadingFee(false);
     }
-  }, [amount, form]);
+  }, [amount, transactionType, form]);
 
   const onSubmit = async (data: TransactionFormValues) => {
     try {
@@ -193,8 +191,6 @@ export function CreateTransactionDialog() {
       setLoading(false);
     }
   };
-
-  const transactionType = form.watch("type");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

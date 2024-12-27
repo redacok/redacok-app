@@ -103,7 +103,7 @@ export function CreateAccountDialog({ user }: { user: User }) {
   useEffect(() => {
     if (amount) {
       const updateFee = async () => {
-        const fee = await calculateTransactionFee(amount);
+        const fee = await calculateTransactionFee(amount, "DEPOSIT");
         form.setValue("fee", fee.fee);
       };
       updateFee();
