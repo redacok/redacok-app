@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { sendKycTreatmentMail } from "@/lib/mail";
 import { KycStatus, UserRole } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -51,6 +52,9 @@ export async function POST(req: Request) {
         },
       });
     }
+
+    //Envoi du mail de notification a l'utilisateur
+    await sendKycTreatmentMail(kyc, kyc.user.email!);
 
     return NextResponse.json(kyc);
   } catch (error) {
