@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -186,12 +185,15 @@ export function FeeRangeDialog({
             <div className="grid grid-cols-1 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="transactionType">Type de transaction</Label>
-                <Select {...form.register("minFee")}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez le type de transaction" />
-                    </SelectTrigger>
-                  </FormControl>
+                <Select
+                  value={form.watch("transactionType")}
+                  onValueChange={(value) =>
+                    form.setValue("transactionType", value as TransactionType)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionnez le type de transaction" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="DEPOSIT">Dépots</SelectItem>
                     <SelectItem value="TRANSFER">Transferts</SelectItem>

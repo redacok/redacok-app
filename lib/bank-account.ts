@@ -6,6 +6,7 @@ export interface BankAccount {
   rib: string;
   type: AccountType;
   amount: number;
+  merchantCode?: number;
   createdAt: string;
   updatedAt: string;
 }

@@ -183,6 +183,7 @@ model BankAccount {
   type          AccountType @default(epargne)
   currency      Currency    @default(XAF)
   rib           String      @unique
+  merchantCode  String?     @unique
   amount        Float       @default(0)
   userId        String
   user          User        @relation(fields: [userId], references: [id])
