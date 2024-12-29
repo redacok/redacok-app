@@ -3,25 +3,35 @@
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { displayKycForm } from "@/middleware/check-kyc-status";
 import { useKYCStore } from "@/store/kyc-steps-store";
 import { Kyc } from "@prisma/client";
-import { ArrowRight, LoaderCircle } from "lucide-react";
+import { ArrowRight, CheckCircle, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getKycAction } from "../switch-personal-account/actions";
 import DocumentsForm from "./_components/documents-form";
 import { PersonalInfoForm } from "./_components/personal-info-form";
 // import { toast } from "sonner";
 
+interface kycStatus {
+  message: string;
+  status: string;
+  display: boolean;
+}
+
 export default function KYCPage() {
   const { currentStep, setStep } = useKYCStore();
   const [kycId, setKycId] = useState<string>("");
   const [Kyc, setKyc] = useState<Kyc | null>(null);
+  const [kycStatus, setKycStatus] = useState<kycStatus>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchKycAction = async () => {
       const action = await getKycAction();
+      const result = await displayKycForm();
 
+      setKycStatus(result);
       setKyc(action);
       setKycId(action?.id ?? "");
       setIsLoading(false);
@@ -44,6 +54,23 @@ export default function KYCPage() {
       <div>
         <div className="flex items-center justify-center min-h-[400px]">
           <LoaderCircle className="h-8 w-8 animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
+  if (kycStatus?.display === false || kycStatus?.status === "REVIEWING") {
+    return (
+      <div>
+        <div className={`flex items-center p-6 min-h-[400px] justify-center`}>
+          <span
+            className={`flex items-center p-6 ${
+              kycStatus?.status === "REVIEWING" &&
+              "bg-emerald-100 border-emerald-700 text-emerald-600 text-lg font-semibold rounded-md"
+            }`}
+          >
+            <CheckCircle className="h-8 w-8" /> {kycStatus?.message}
+          </span>
         </div>
       </div>
     );

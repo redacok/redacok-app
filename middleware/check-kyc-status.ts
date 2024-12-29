@@ -59,3 +59,69 @@ export async function checkKycStatus() {
     message: "Statut utilisateur non valide pour les transactions",
   };
 }
+
+export async function displayKycForm() {
+  const session = await auth();
+  if (!session?.user) {
+    return {
+      display: false,
+      message: "Unauthorized",
+      status: "REJECTED",
+    };
+  }
+
+  const user = await db.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!user) {
+    return {
+      display: false,
+      message: "User not found",
+      status: "REJECTED",
+    };
+  }
+
+  const kyc = await db.kyc.findFirst({
+    where: {
+      userId: user.id,
+    },
+  });
+
+  if (kyc) {
+    if (kyc.status === "PENDING") {
+      if (
+        kyc.niu === null ||
+        kyc.idPicture === null ||
+        kyc.idOnHand === null ||
+        kyc.entirePhoto === null ||
+        kyc.locationPlan === null
+      ) {
+        return {
+          display: false,
+          status: kyc.status,
+          message:
+            "",
+        };
+      } else {
+        return {
+          display: true,
+          status: "REVIEWING",
+          message: "Votre vérification a été soumise et est en cours de traitement",
+        };
+      }
+    } else if (kyc.status === "REJECTED") {
+      return {
+        display: true,
+        status: kyc.status,
+        message: "Votre demande de vérification a été rejetée",
+      };
+    } else {
+      return {
+        display: true,
+        status: kyc.status,
+        message: "Votre vérification a été approuvée !",
+      };
+    }
+  }
+}
