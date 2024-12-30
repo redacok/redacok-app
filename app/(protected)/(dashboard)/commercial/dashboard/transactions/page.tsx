@@ -42,8 +42,8 @@ export default function CommercialTransactionsPage() {
   return (
     <div className="container mx-auto p-6 space-y-4">
       <PageHeader
-        title="Transactions"
-        description="Retrouvez toutes les transactions que vous avez effectuer"
+        title="Opérations client"
+        description="Effectuer des dépots et retraits à des comptes client"
         block={
           <div className="flex flex-col gap-3">
             <CreateClientTransactionDialog />

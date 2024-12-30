@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 
 export const MAX_DATE_RANGE_DAYS = 90;
+export const MIN_BALANCE = 10000;
+export const INITIAL_DEPOSIT = 10000;
 
 export const Currencies = [
   { value: "XAF", label: "Franc CFA", locale: "fr-FR" },

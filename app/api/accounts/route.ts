@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { INITIAL_DEPOSIT } from "@/constants";
 import { generateRIB, getAccountTypeName } from "@/lib/bank-account";
 import { db } from "@/lib/db";
 import { checkKycStatus } from "@/middleware/check-kyc-status";
@@ -15,7 +16,7 @@ const createAccountSchema = z.object({
   currency: z.enum(["XAF", "EUR", "USD"]).default("XAF"),
   initialDeposit: z
     .number()
-    .min(3000, "Le dépôt initial doit être d'au moins 1000 XAF"),
+    .min(INITIAL_DEPOSIT, "Le dépôt initial doit être d'au moins 1000 XAF"),
   fee: z.number().default(0),
 });
 

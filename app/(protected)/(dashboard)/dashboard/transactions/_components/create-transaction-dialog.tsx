@@ -50,7 +50,7 @@ interface RecipientInfo {
 const transactionSchema = z
   .object({
     type: z.enum(["DEPOSIT", "WITHDRAWAL", "TRANSFER"]),
-    amount: z.coerce.number().min(1),
+    amount: z.coerce.number().min(1000),
     fee: z.number().default(0),
     fromAccount: z.string().optional(),
     toAccount: z.string().optional(),

@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { INITIAL_DEPOSIT } from "@/constants";
 import { BankAccount } from "@/lib/bank-account";
 import { calculateTransactionFee } from "@/lib/calculate-transaction-fee";
 import { checkKycStatus } from "@/middleware/check-kyc-status";
@@ -62,7 +63,7 @@ export function CreateAccountDialog({ user }: { user: User }) {
     defaultValues: {
       accountType: "epargne",
       currency: user.currency as "XAF" | "EUR" | "USD" | undefined,
-      initialDeposit: 3000,
+      initialDeposit: INITIAL_DEPOSIT,
     },
   });
 
@@ -208,11 +209,13 @@ export function CreateAccountDialog({ user }: { user: User }) {
               name="initialDeposit"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dépot initial (min. 3000 XAF)</FormLabel>
+                  <FormLabel>
+                    Dépot initial (min. {INITIAL_DEPOSIT} XAF)
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      min={3000}
+                      min={INITIAL_DEPOSIT}
                       step={100}
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}

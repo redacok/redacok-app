@@ -47,7 +47,11 @@ export async function checkKycStatus() {
   }
 
   // Si l'utilisateur a déjà un rôle PERSONAL ou BUSINESS, il est autorisé
-  if (user.role === "PERSONAL" || user.role === "BUSINESS") {
+  if (
+    user.role === "PERSONAL" ||
+    user.role === "BUSINESS" ||
+    user.role === "COMMERCIAL"
+  ) {
     return {
       allowed: true,
       message: null,
@@ -98,16 +102,16 @@ export async function displayKycForm() {
         kyc.locationPlan === null
       ) {
         return {
-          display: false,
+          display: true,
           status: kyc.status,
-          message:
-            "",
+          message: "",
         };
       } else {
         return {
-          display: true,
+          display: false,
           status: "REVIEWING",
-          message: "Votre vérification a été soumise et est en cours de traitement",
+          message:
+            "Votre vérification a été soumise et est en cours de traitement",
         };
       }
     } else if (kyc.status === "REJECTED") {

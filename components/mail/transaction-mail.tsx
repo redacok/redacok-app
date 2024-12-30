@@ -27,16 +27,16 @@ export const TransactionMail = ({ transaction }: TransactionMailProps) => (
     <Body style={main}>
       <Container style={container}>
         <h1 style={{ fontSize: "32px", color: "#0b1330" }}>Redacok.</h1>
-        <Heading style={heading}>Statut de votre vérification</Heading>
+        <Heading style={heading}>Nouvelle transaction</Heading>
         {transaction.status === "COMPLETED" && (
           <>
-            {transaction.type === "DEPOSIT" ||
-              (transaction.type === "TRANSFER" && (
-                <Text style={paragraph}>
-                  Votre compte a été approvisionné d&apos;un montant de{" "}
-                  <code style={code}>{transaction.amount} XAF</code>
-                </Text>
-              ))}
+            {(transaction.type === "DEPOSIT" ||
+              transaction.type === "TRANSFER") && (
+              <Text style={paragraph}>
+                Votre compte a été approvisionné d&apos;un montant de{" "}
+                <code style={code}>{transaction.amount} XAF</code>
+              </Text>
+            )}
             {transaction.type === "WITHDRAWAL" && (
               <Text style={paragraph}>
                 Votre compte a été débité d&apos;un montant de{" "}
@@ -45,11 +45,11 @@ export const TransactionMail = ({ transaction }: TransactionMailProps) => (
             )}
           </>
         )}
-        {transaction.status === "PENDING" && (
-          <Text style={paragraph}>
-            Votre demande de retrait est en cours de traitement...
-          </Text>
-        )}
+        <Hr style={hr} />
+        <Text style={paragraph}>
+          Si vous n&apos;êtes pas à l&apos;origine de cette opération, veuillez
+          ignorer ce mail
+        </Text>
         <Section style={buttonContainer}>
           <Button style={button} href={`${baseUrl}/dashboard/transactions`}>
             Voir mes transactions
@@ -121,13 +121,13 @@ const button = {
 };
 
 const reportLink = {
-  fontSize: "14px",
+  fontSize: "18px",
   color: "#b4becc",
 };
 
 const hr = {
   borderColor: "#dfe1e4",
-  margin: "42px 0 26px",
+  margin: "26px 0 26px",
 };
 
 const code = {

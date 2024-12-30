@@ -36,7 +36,10 @@ export async function POST(req: Request) {
     const existingKyc = await db.kyc.findFirst({
       where: {
         userId: session.user.id,
-        status: "PENDING",
+        type: type as KycType,
+        status: {
+          not: "APPROVED",
+        },
       },
     });
 

@@ -51,8 +51,10 @@ const transactionSchema = z.object({
   type: z.enum(["DEPOSIT", "WITHDRAWAL"]),
   amount: z.coerce.number().min(1),
   fee: z.number().default(0),
-  clientAccount: z.string().optional(),
-  account: z.string(),
+  clientAccount: z.string().min(8, {
+    message: "Veuillez renseigner le RIB du client",
+  }),
+  account: z.string({ message: "Veuillez entrer un montant" }),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -145,7 +147,12 @@ export function CreateClientTransactionDialog() {
   const onSubmit = async (data: TransactionFormValues) => {
     try {
       setLoading(true);
-      const response = await axios.post("/api/transactions", data);
+      if (userAccounts[0]?.status !== "ACTIVE")
+        return toast.error(
+          "Votre compte est suspendu ou bloqué, veuillez contacter un administrateur"
+        );
+
+      const response = await axios.post("/api/transactions/commercial", data);
 
       if (!response.data.success) {
         throw new Error(
@@ -154,11 +161,6 @@ export function CreateClientTransactionDialog() {
       }
 
       toast.success("Transaction créée avec succès");
-      // if (data.type !== "DEPOSIT" && data.type !== "TRANSFER") {
-      //   toast.info(
-      //     "La transaction sera traitée après approbation d'un administrateur"
-      //   );
-      // }
       invalidateData();
       setOpen(false);
       form.reset();
@@ -222,7 +224,11 @@ export function CreateClientTransactionDialog() {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input {...field} value={userAccounts[0]?.id} />
+                    <Input
+                      {...field}
+                      type="hidden"
+                      value={userAccounts[0]?.id}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -259,34 +265,6 @@ export function CreateClientTransactionDialog() {
                       )}
                     </div>
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="account"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Compte du client</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner le compte" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {userAccounts.map((account) => (
-                        <SelectItem key={account.id} value={account.id}>
-                          {account.name} - Solde: {account.amount}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

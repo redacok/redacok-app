@@ -66,9 +66,9 @@ export const sendTransactionMail = async (
   email: string
 ) => {
   await resend.emails.send({
-    from: "Redacok <new-transaction@redacok.laclass.dev>",
+    from: "Transactions Redacok <new-transaction@redacok.laclass.dev>",
     to: email,
-    subject: `Votre vérification intermédiaire`,
+    subject: `Nouvelle transaction`,
     react: TransactionMail({ transaction }),
   });
 };

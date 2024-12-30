@@ -42,12 +42,27 @@ export async function submitPersonalInfo(formData: PersonalInfoFormData) {
     const existingKyc = await db.kyc.findFirst({
       where: {
         userId: session.user.id,
-        status: "PENDING",
+        type: formData.type,
+        status: {
+          not: "APPROVED",
+        },
       },
     });
 
-    if (existingKyc) {
+    if (existingKyc && existingKyc.status !== "REJECTED") {
       return { error: "Une demande de vérification KYC est déjà en cours" };
+    }
+
+    if (existingKyc?.status === "REJECTED") {
+      const kyc = await db.kyc.update({
+        where: {
+          id: existingKyc.id,
+        },
+        data: {
+          status: "PENDING",
+        },
+      });
+      return { success: true, kycId: kyc.id };
     }
 
     // Créer la nouvelle demande KYC
