@@ -1,5 +1,6 @@
 "use client";
 
+import { CreateTransactionDialog } from "@/app/(protected)/(dashboard)/dashboard/transactions/_components/create-transaction-dialog";
 import { PageHeader } from "@/components/page-header";
 import { BankAccount } from "@/lib/bank-account";
 import bankStore from "@/store/bank-store";
@@ -8,8 +9,8 @@ import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import TransactionsPage from "../../transactions/page";
 import { AccountCard } from "./account-card";
+import { CreateClientTransactionDialog } from "./create-client-transactions";
 
 interface DisplayAccountsProps {
   user: User;
@@ -47,13 +48,22 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
   return (
     <div className="container mx-auto p-6 space-y-4">
       <PageHeader
+        title="Opérations client"
+        description="Effectuer des dépots et retraits à des comptes client"
+        block={
+          <div className="flex flex-col gap-3">
+            <CreateClientTransactionDialog />
+          </div>
+        }
+      />
+      <PageHeader
         title="Mes Comptes"
-        description="Retrouvez vos comptes et historiques de transactions"
-        // block={
-        //   <div className="flex flex-col gap-3">
-        //     <CreateAccountDialog user={user} />
-        //   </div>
-        // }
+        description="Effectuez des opérations sur vos comptes personnels"
+        block={
+          <div className="flex flex-col gap-3">
+            <CreateTransactionDialog />
+          </div>
+        }
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {accounts.map((account) => (
@@ -69,7 +79,6 @@ export function DisplayAccounts({ user }: DisplayAccountsProps) {
           Vous n&apos;avez pas encore de compte. Créez-en un pour commencer.
         </div>
       )}
-      {accounts.length > 0 && <TransactionsPage />}
     </div>
   );
 }

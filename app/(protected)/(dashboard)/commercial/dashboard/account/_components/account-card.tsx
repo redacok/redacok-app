@@ -17,10 +17,10 @@ export function AccountCard({ account, currency }: AccountCardProps) {
   const formatter = getFormatterForCurrency(currency);
 
   const copyMerchantCode = useCallback(() => {
-    const ribWithoutSpaces = account.rib.replace(/\s+/g, "");
+    const ribWithoutSpaces = String(account.merchantCode);
     navigator.clipboard.writeText(ribWithoutSpaces);
-    toast.success("MerchantCode copié");
-  }, [account.rib]);
+    toast.info("Code marchand copié");
+  }, [account.merchantCode]);
 
   return (
     <Card className="relative">
@@ -29,7 +29,7 @@ export function AccountCard({ account, currency }: AccountCardProps) {
         {(account.status === "LOCKED" || account.status === "SUSPENDED") && (
           <CardTooltip
             title={account.status === "SUSPENDED" ? "Suspendu" : "Bloqué"}
-            color={account.status === "LOCKED" ? "red" : "yellow"}
+            type={account.status === "LOCKED" ? "danger" : "warning"}
             text={`Compte ${
               account.status === "LOCKED" ? "bloqué" : "suspendu"
             }, veuillez contacter votre gestionnaire`}

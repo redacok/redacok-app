@@ -85,11 +85,11 @@ export const CommercialLinks = [
     href: "/commercial/dashboard",
     icon: TerminalIcon,
   },
-  // {
-  //   label: "Transations",
-  //   href: "/commercial/dashboard/transactions",
-  //   icon: Wallet,
-  // },
+  {
+    label: "Transations",
+    href: "/commercial/dashboard/transactions",
+    icon: Wallet,
+  },
   {
     label: "Profile",
     href: "/commercial/dashboard/profile",
