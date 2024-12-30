@@ -9,7 +9,8 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    if (!session?.user || session?.user.role !== "COMMERCIAL") {
+    console.log(session);
+    if (!session || !session?.user || session?.user.role !== "COMMERCIAL") {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    console.log(body);
     const { type, amount, account, clientAccount, fee } = body;
 
     const totalAmount = amount + fee;
@@ -39,34 +41,57 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifier le solde du compte compte pour les dépôts
+    if (!account) {
+      return NextResponse.json(
+        { success: false, message: "Compte non spécifié" },
+        { status: 400 }
+      );
+    }
+
+    // Sélectionner le compte du commercial
+    const bankAccount = await db.bankAccount.findUnique({
+      where: { id: account },
+    });
+
+    if (!bankAccount) {
+      return NextResponse.json(
+        { success: false, message: "Compte non trouvé" },
+        { status: 404 }
+      );
+    }
+
+    if (bankAccount.status !== "ACTIVE") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Votre compte a été ${
+            bankAccount.status === "LOCKED" ? "bloqué" : "suspendu"
+          }. Veuillez contacter un administrateur`,
+        },
+        { status: 404 }
+      );
+    }
+
+    // Vérifier que le compte appartient à l'utilisateur
+    if (bankAccount.userId !== session.user.id) {
+      return NextResponse.json(
+        { success: false, message: "Ce compte ne vous appartient pas" },
+        { status: 403 }
+      );
+    }
+
+    const toAccount = await db.bankAccount.findUnique({
+      where: { rib: clientAccount },
+    });
+
+    if (!toAccount) {
+      return NextResponse.json(
+        { success: false, message: "Compte du client non trouvé" },
+        { status: 404 }
+      );
+    }
+
     if (type === "DEPOSIT") {
-      if (!account) {
-        return NextResponse.json(
-          { success: false, message: "Compte non spécifié" },
-          { status: 400 }
-        );
-      }
-
-      const bankAccount = await db.bankAccount.findUnique({
-        where: { id: account },
-      });
-
-      if (!bankAccount) {
-        return NextResponse.json(
-          { success: false, message: "Compte non trouvé" },
-          { status: 404 }
-        );
-      }
-
-      // Vérifier que le compte appartient à l'utilisateur
-      if (bankAccount.userId !== session.user.id) {
-        return NextResponse.json(
-          { success: false, message: "Ce compte ne vous appartient pas" },
-          { status: 403 }
-        );
-      }
-
       // Vérifier le solde disponible pour les dépots
       const availableBalance = bankAccount.amount - MIN_BALANCE;
       if (availableBalance < totalAmount) {
@@ -82,17 +107,6 @@ export async function POST(req: Request) {
 
     // Vérifier le compte du client pour les retraits
     if (type === "WITHDRAWAL") {
-      const toAccount = await db.bankAccount.findUnique({
-        where: { id: clientAccount },
-      });
-
-      if (!toAccount) {
-        return NextResponse.json(
-          { success: false, message: "Compte du client non trouvé" },
-          { status: 404 }
-        );
-      }
-
       const availableBalance = toAccount.amount - MIN_BALANCE;
       if (availableBalance < totalAmount) {
         return NextResponse.json(
@@ -113,8 +127,8 @@ export async function POST(req: Request) {
           amount,
           fee,
           status: TransactionStatus.PENDING,
-          fromAccountId: type === "DEPOSIT" ? account : clientAccount,
-          toAccountId: type === "DEPOSIT" ? clientAccount : account,
+          fromAccountId: type === "DEPOSIT" ? bankAccount.id : toAccount.id,
+          toAccountId: type === "DEPOSIT" ? toAccount.id : bankAccount.id,
           userId: session.user.id!,
         },
         include: {

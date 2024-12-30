@@ -53,7 +53,7 @@ export const sendNewUserEmail = async (
 //Mail de notification du traitement des vérifications KYC
 export const sendKycTreatmentMail = async (kyc: Kyc, email: string) => {
   await resend.emails.send({
-    from: "Redacok <kyc-no-reply@redacok.laclass.dev>",
+    from: "Vérification Redacok <kyc-no-reply@redacok.laclass.dev>",
     to: email,
     subject: `Votre vérification intermédiaire`,
     react: KycTreatment({ kyc }),

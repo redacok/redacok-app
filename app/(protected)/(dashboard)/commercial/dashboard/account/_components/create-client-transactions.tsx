@@ -33,6 +33,7 @@ import bankStore from "@/store/bank-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
+import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -49,12 +50,12 @@ interface RecipientInfo {
 
 const transactionSchema = z.object({
   type: z.enum(["DEPOSIT", "WITHDRAWAL"]),
-  amount: z.coerce.number().min(1),
+  amount: z.coerce.number().min(1000),
   fee: z.number().default(0),
   clientAccount: z.string().min(8, {
     message: "Veuillez renseigner le RIB du client",
   }),
-  account: z.string({ message: "Veuillez entrer un montant" }),
+  account: z.string().min(6, { message: "Veuillez entrer un montant" }),
 });
 
 type TransactionFormValues = z.infer<typeof transactionSchema>;
@@ -86,13 +87,14 @@ export function CreateClientTransactionDialog() {
       try {
         const response = await axios.get("/api/accounts");
         setUserAccounts(response.data);
+        form.setValue("account", userAccounts[0]?.id);
       } catch (error) {
         console.error(error);
         toast.error("Erreur lors de la récupération de vos comptes");
       }
     };
     fetchUserAccounts();
-  }, []);
+  }, [userAccounts, form]);
 
   // Rechercher le destinataire lorsque le RIB est saisi
   const debouncedRib = useDebounce(form.watch("clientAccount"), 500);
@@ -147,10 +149,6 @@ export function CreateClientTransactionDialog() {
   const onSubmit = async (data: TransactionFormValues) => {
     try {
       setLoading(true);
-      if (userAccounts[0]?.status !== "ACTIVE")
-        return toast.error(
-          "Votre compte est suspendu ou bloqué, veuillez contacter un administrateur"
-        );
 
       const response = await axios.post("/api/transactions/commercial", data);
 
@@ -164,6 +162,9 @@ export function CreateClientTransactionDialog() {
       invalidateData();
       setOpen(false);
       form.reset();
+      redirect(
+        `/commercial/dashboard/transactions/${response.data.transaction.id}`
+      );
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(
@@ -214,22 +215,6 @@ export function CreateClientTransactionDialog() {
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="account"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="hidden"
-                      value={userAccounts[0]?.id}
-                    />
-                  </FormControl>
                 </FormItem>
               )}
             />

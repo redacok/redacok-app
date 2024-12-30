@@ -69,7 +69,7 @@ export default async function Transaction({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="font-semibold">Montant</p>
-              <p>{transaction.amount} €</p>
+              <p>{transaction.amount} XAF</p>
             </div>
             <div>
               <p className="font-semibold">Date</p>

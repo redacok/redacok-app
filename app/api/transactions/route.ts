@@ -62,6 +62,18 @@ export async function POST(req: Request) {
         );
       }
 
+      if (bankAccount.status !== "ACTIVE") {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Votre compte a été ${
+              bankAccount.status === "LOCKED" ? "bloqué" : "suspendu"
+            }. Veuillez contacter un administrateur`,
+          },
+          { status: 404 }
+        );
+      }
+
       // Vérifier que le compte appartient à l'utilisateur
       if (bankAccount.userId !== session.user.id) {
         return NextResponse.json(
@@ -95,6 +107,18 @@ export async function POST(req: Request) {
       if (!sourceAccount) {
         return NextResponse.json(
           { success: false, message: "Compte source non trouvé" },
+          { status: 404 }
+        );
+      }
+
+      if (sourceAccount.status !== "ACTIVE") {
+        return NextResponse.json(
+          {
+            success: false,
+            message: `Votre compte a été ${
+              sourceAccount.status === "LOCKED" ? "bloqué" : "suspendu"
+            }. Veuillez contacter un administrateur`,
+          },
           { status: 404 }
         );
       }
