@@ -6,6 +6,7 @@ import { getFormatterForCurrency } from "@/lib/helpers";
 import { Copy } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
+import { CardTooltip } from "./card-tooltip";
 
 interface AccountCardProps {
   account: BankAccount;
@@ -22,9 +23,18 @@ export function AccountCard({ account, currency }: AccountCardProps) {
   }, [account.rib]);
 
   return (
-    <Card>
+    <Card className="relative">
       <CardHeader>
         <CardTitle>{account.name}</CardTitle>
+        {(account.status === "LOCKED" || account.status === "SUSPENDED") && (
+          <CardTooltip
+            title={account.status === "SUSPENDED" ? "Suspendu" : "Bloqué"}
+            color={account.status === "LOCKED" ? "red" : "yellow"}
+            text={`Compte ${
+              account.status === "LOCKED" ? "bloqué" : "suspendu"
+            }, veuillez contacter votre gestionnaire`}
+          />
+        )}
       </CardHeader>
       <CardContent className="space-y-2">
         <div>

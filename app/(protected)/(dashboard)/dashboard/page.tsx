@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { getRoleBasedRedirectPath } from "@/lib/role-redirect";
 import { redirect } from "next/navigation";
 import AccountsPage from "./accounts/page";
 
@@ -17,6 +18,10 @@ const UserDashboard = async () => {
 
   if (!user) {
     redirect("/");
+  }
+
+  if (user.role !== "USER" && user.role !== "PERSONAL") {
+    redirect(getRoleBasedRedirectPath(user.role));
   }
 
   return <AccountsPage />;

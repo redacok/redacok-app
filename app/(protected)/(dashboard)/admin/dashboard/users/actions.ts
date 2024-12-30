@@ -1,9 +1,11 @@
 "use server";
 
+import { generateRIB } from "@/lib/bank-account";
 import { db } from "@/lib/db";
 import { createUserSchema, UpdateUserSchema } from "@/lib/definitions";
 import { generatePassword } from "@/lib/helpers";
 import { sendNewUserEmail } from "@/lib/mail";
+import { Currency } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -39,6 +41,30 @@ export async function getUsers(search?: string) {
   }
 }
 
+// Génère un nmbre alléatoire possédant 10 chiffres
+function generateRandomNumber(): string {
+  return Math.floor(10000000 + Math.random() * 99999999).toString();
+}
+
+async function returnUniqueRandomNumber() {
+  let isUnique = false;
+  let merchantCode = "";
+
+  while (!isUnique) {
+    merchantCode = generateRandomNumber();
+
+    // Vérifie si le numéro existe déjà dans la base de données
+    const existingNumber = await db.bankAccount.findUnique({
+      where: { merchantCode },
+    });
+
+    if (!existingNumber) {
+      isUnique = true;
+    }
+  }
+  return merchantCode;
+}
+
 export async function updateUser(data: z.infer<typeof UpdateUserSchema>) {
   try {
     const validatedData = UpdateUserSchema.safeParse(data);
@@ -47,8 +73,87 @@ export async function updateUser(data: z.infer<typeof UpdateUserSchema>) {
       return { error: "Les données ne sont pas valides !" };
     }
 
+    const user = await db.user.findUnique({
+      where: {
+        id: data.id,
+      },
+    });
+
+    if (!user) {
+      return { error: "User not found" };
+    }
+
+    //trouver les comptes de commerce s'il en a
+    const commerceAccounts = await db.bankAccount.findMany({
+      where: {
+        userId: user.id,
+        type: "business",
+        merchantCode: {
+          not: null,
+        },
+      },
+    });
+
+    if (data.role === "COMMERCIAL") {
+      if (commerceAccounts.length > 0) {
+        // Mettre a jour le statut de ses comptes
+        await db.bankAccount.updateMany({
+          where: {
+            userId: user.id,
+            type: "business",
+            merchantCode: {
+              not: null,
+            },
+          },
+          data: {
+            status: "ACTIVE",
+          },
+        });
+      } else {
+        // Créer son compte de dépot/retrait et de commission
+        await db.bankAccount.createMany({
+          data: [
+            {
+              name: "compte dépot/retrait",
+              type: "business",
+              currency: user.currency as Currency,
+              merchantCode: await returnUniqueRandomNumber(),
+              userId: user.id,
+              rib: generateRIB("business", user.id),
+              amount: 0,
+            },
+            {
+              name: "compte de commissions",
+              type: "business",
+              currency: user.currency as Currency,
+              merchantCode: await returnUniqueRandomNumber(),
+              userId: user.id,
+              rib: generateRIB("business", user.id),
+              amount: 0,
+            },
+          ],
+        });
+      }
+    } else {
+      if (commerceAccounts.length > 0) {
+        // Bloquer ses comptes commerciaux s'il en a
+        await db.bankAccount.updateMany({
+          where: {
+            userId: user.id,
+            type: "business",
+            merchantCode: {
+              not: null,
+            },
+          },
+          data: {
+            status: "LOCKED",
+          },
+        });
+      }
+    }
+
     await db.user.update({
-      where: { id: data.id },
+      where: { id: user.id },
       data: {
         name: data.name,
         email: data.email,

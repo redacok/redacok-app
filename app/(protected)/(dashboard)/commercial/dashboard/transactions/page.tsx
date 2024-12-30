@@ -1,7 +1,7 @@
 const TransactionPage = () => {
   return (
     <div>
-      <h1 className="text-yellow-600 text-4xl">Bonjour le monde !</h1>
+      <h1 className="text-yellow-600 text-4xl">Les transactions ici !</h1>
     </div>
   );
 };

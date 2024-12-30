@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { getRoleBasedRedirectPath } from "@/lib/role-redirect";
 import { redirect } from "next/navigation";
 import { DisplayAccounts } from "./account/_components/display-accounts";
 
@@ -17,6 +18,10 @@ const AccountsPage = async () => {
 
   if (!user) {
     redirect("/");
+  }
+
+  if (user.role !== "COMMERCIAL") {
+    redirect(getRoleBasedRedirectPath(user.role));
   }
 
   return (

@@ -1,10 +1,11 @@
-import { AccountType } from "@prisma/client";
+import { AccountStatus, AccountType } from "@prisma/client";
 
 export interface BankAccount {
   id: string;
   name: string;
   rib: string;
   type: AccountType;
+  status: AccountStatus;
   amount: number;
   merchantCode?: number;
   createdAt: string;

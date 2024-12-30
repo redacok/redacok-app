@@ -29,6 +29,9 @@ export async function GET() {
     const accounts = await db.bankAccount.findMany({
       where: {
         userId: session.user.id,
+        ...(session.user.role !== "COMMERCIAL"
+          ? { status: "ACTIVE" }
+          : { merchantCode: { not: null } }),
       },
       orderBy: {
         createdAt: "desc",

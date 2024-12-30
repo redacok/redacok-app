@@ -178,15 +178,16 @@ model Organisation {
 }
 
 model BankAccount {
-  id            String      @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String
-  type          AccountType @default(epargne)
-  currency      Currency    @default(XAF)
-  rib           String      @unique
-  merchantCode  String?     @unique
-  amount        Float       @default(0)
+  type          AccountType   @default(epargne)
+  status        AccountStatus? @default(ACTIVE)
+  currency      Currency      @default(XAF)
+  rib           String        @unique
+  merchantCode  String?       @unique
+  amount        Float         @default(0)
   userId        String
-  user          User        @relation(fields: [userId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
   organisationId String?
   organisation  Organisation? @relation(fields: [organisationId], references: [id])
   
@@ -214,6 +215,12 @@ enum AccountType {
   epargne
   courant
   business
+}
+
+enum AccountStatus {
+  ACTIVE
+  LOCKED
+  SUSPENDED
 }
 
 enum Currency {

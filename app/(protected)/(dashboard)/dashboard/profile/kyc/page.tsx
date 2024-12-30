@@ -61,7 +61,11 @@ export default function KYCPage() {
 
   if (kycStatus?.display === false || kycStatus?.status === "REVIEWING") {
     return (
-      <div>
+      <div className="container mx-auto spage-y-4 pb-10">
+        <PageHeader
+          title="Vérification Intermédiaire"
+          description="Vérifiez votre identité"
+        />
         <div className={`flex items-center p-6 min-h-[400px] justify-center`}>
           <span
             className={`flex items-center p-6 ${
@@ -77,7 +81,7 @@ export default function KYCPage() {
   }
 
   return (
-    <div className="container mx-auto pb-10 space-y-4">
+    <div className="h-full container mx-auto pb-10 space-y-4">
       <PageHeader
         title="Vérification Intermédiaire"
         description="Vérifiez votre identité"

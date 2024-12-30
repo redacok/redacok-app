@@ -55,6 +55,7 @@ export default function UserById() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
   const [isActive, setIsActive] = useState<boolean>();
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: startOfMonth(new Date()),
@@ -98,10 +99,11 @@ export default function UserById() {
     };
 
     fetchUser();
-  }, [params.userId]);
+  }, [params.userId, form]);
 
   const onSubmit = async (values: z.infer<typeof UpdateUserSchema>) => {
     try {
+      setUpdating(true);
       const result = await updateUser(values);
       if (result.error) {
         toast.error(result.error);
@@ -112,6 +114,8 @@ export default function UserById() {
     } catch (error) {
       console.error("something whent wrong", error);
       toast.error("Une erreur est survenue, veuillez réessayer plus tard");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -148,6 +152,9 @@ export default function UserById() {
   if (!user) {
     return <div>User not found</div>;
   }
+
+  const userRole = form.watch("role");
+  console.log("userrole : ", userRole);
 
   return (
     <div className="container mx-auto space-y-4 pb-10 md:pb-0">
@@ -282,13 +289,38 @@ export default function UserById() {
                           <SelectItem value="ADMIN">Admin</SelectItem>
                         </SelectContent>
                       </Select>
+                      {user.role !== "COMMERCIAL" &&
+                        (userRole === "COMMERCIAL" || userRole === "ADMIN") && (
+                          <p className="w-full p-4 rounded-md border border-yellow-800 text-yellow-800 bg-yellow-100">
+                            Vous êtes sur le point d&apos;attribuer à{" "}
+                            {user.name} le role{" "}
+                            <span className="font-semibold">{userRole}</span>
+                          </p>
+                        )}
+                      {user.role === "COMMERCIAL" &&
+                        userRole !== "COMMERCIAL" && (
+                          <p className="w-full p-4 rounded-md border border-red-800 text-red-800 bg-red-100">
+                            Si vous changez le type de compte de {user.name},
+                            ses comptes de{" "}
+                            <span className="font-semibold">retrait/dépot</span>{" "}
+                            et de{" "}
+                            <span className="font-semibold">commission</span>{" "}
+                            seront bloqués
+                          </p>
+                        )}
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
                 <div className="flex justify-end">
-                  <Button type="submit">Update User</Button>
+                  <Button
+                    type="submit"
+                    disabled={updating}
+                    className="flex gap-4 items-center"
+                  >
+                    {updating && <Loader className="animate-spin" />}Update User
+                  </Button>
                 </div>
               </form>
             </Form>
